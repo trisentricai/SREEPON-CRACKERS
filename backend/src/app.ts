@@ -39,7 +39,17 @@ export function createApp(): Express {
     }),
   );
 
-  app.use(express.json({ limit: '2mb' }));
+  app.use(
+  express.json({
+    limit: '2mb',
+    // Preserve the raw bytes so provider webhooks can verify the signature over
+    // the exact body the gateway signed (req.body is already parsed JSON).
+    verify: (req, _res, buf) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (req as any).rawBody = buf;
+    },
+  }),
+);
   app.use(express.urlencoded({ extended: true, limit: '2mb' }));
 
   // --- Structured request logging -------------------------------------

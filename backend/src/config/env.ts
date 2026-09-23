@@ -39,6 +39,13 @@ const envSchema = z.object({
   PAYMENT_CLIENT_SECRET: z.string().optional(),
   PAYMENT_SALT_KEY: z.string().optional(),
   PAYMENT_WEBHOOK_URL: z.string().optional(),
+
+  // Provider-specific payment credentials (providers fail closed when missing).
+  PAYMENT_MOCK_WEBHOOK_SECRET: z.string().optional(),
+  RAZORPAY_KEY_ID: z.string().optional(),
+  RAZORPAY_KEY_SECRET: z.string().optional(),
+  STRIPE_SECRET_KEY: z.string().optional(),
+  STRIPE_WEBHOOK_SECRET: z.string().optional(),
 });
 
 const parsed = envSchema.safeParse(process.env);

@@ -114,6 +114,13 @@ export const AuditAction = {
 } as const;
 export type AuditAction = (typeof AuditAction)[keyof typeof AuditAction];
 
+export const AuditActorType = {
+  ADMIN: 'ADMIN',
+  USER: 'USER',
+  SYSTEM: 'SYSTEM',
+} as const;
+export type AuditActorType = (typeof AuditActorType)[keyof typeof AuditActorType];
+
 export const MediaResourceType = {
   IMAGE: 'image',
   VIDEO: 'video',

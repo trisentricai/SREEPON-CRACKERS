@@ -1,22 +1,40 @@
 import { Router } from 'express';
-import { requireSupabase, requireAdminRoles, requireFirebase, AdminRole } from '../../middleware/auth.middleware';
+import {
+  AdminRole,
+  requireAdminRoles,
+  requireFirebase,
+  requireSupabase,
+} from '../../middleware/auth.middleware';
+import { validate } from '../../middleware/validation.middleware';
 import { checkoutLimiter } from '../../utils/rate-limit';
-import { pending } from '../helpers';
+import * as controller from './controller';
+import {
+  adminListCouponsQuerySchema,
+  createCouponSchema,
+  updateCouponSchema,
+  validateCouponSchema,
+} from './schema';
 
 /**
- * Coupons. All validity checks (expiry, min order, usage caps) run server-side.
- * PHASE 6/7 implement the real controllers.
+ * Coupons. All validity checks (expiry, minimum order value, usage and per-user
+ * caps) run server-side against the redemption ledger.
  */
 export const couponsRouter = Router();
 
 // Customer: validate a coupon during checkout.
-couponsRouter.post('/coupons/validate', requireFirebase(), checkoutLimiter(), pending('validate coupon'));
+couponsRouter.post(
+  '/coupons/validate',
+  requireFirebase(),
+  checkoutLimiter(),
+  validate({ body: validateCouponSchema }),
+  controller.validateCoupon,
+);
 
 // Admin: manage coupons.
 couponsRouter.use('/admin/coupons', requireSupabase(), requireAdminRoles(AdminRole.SUPER_ADMIN, AdminRole.ADMIN));
 
-couponsRouter.get('/admin/coupons', pending('list coupons'));
-couponsRouter.post('/admin/coupons', pending('create coupon'));
-couponsRouter.get('/admin/coupons/:id', pending('get coupon'));
-couponsRouter.patch('/admin/coupons/:id', pending('update coupon'));
-couponsRouter.delete('/admin/coupons/:id', pending('delete coupon'));
+couponsRouter.get('/admin/coupons', validate({ query: adminListCouponsQuerySchema }), controller.listCoupons);
+couponsRouter.post('/admin/coupons', validate({ body: createCouponSchema }), controller.createCoupon);
+couponsRouter.get('/admin/coupons/:id', controller.getCoupon);
+couponsRouter.patch('/admin/coupons/:id', validate({ body: updateCouponSchema }), controller.updateCoupon);
+couponsRouter.delete('/admin/coupons/:id', controller.deleteCoupon);

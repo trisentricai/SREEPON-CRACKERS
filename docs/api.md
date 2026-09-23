@@ -47,11 +47,11 @@ Every response is a JSON envelope:
 
 ## Module routes
 
-Phase progress: **Customer identity (Phase 3)** and **Shopper flows (Phase 4:
-cart + wishlist)** ship live Firebase-backed endpoints; **Catalog (Phase 2)**
-ships live endpoints (guarded, validated, pagination included). All other
-modules below are registered and guarded, but return `501` until their phase
-ships.
+Phase progress: **Customer identity (Phase 3)**, **Shopper flows (Phase 4:
+cart + wishlist)** and **Commerce (Phase 5: orders, payments, coupons)** ship
+live Firebase/Supabase-backed endpoints; **Catalog (Phase 2)** ships live
+endpoints (guarded, validated, pagination included). All other modules below
+are registered and guarded, but return `501` until their phase ships.
 
 ### Identity — Phase 3 (implemented)
 - `POST /auth/login` — verify Firebase ID token, find-or-create the local
@@ -92,18 +92,37 @@ ships.
   `DELETE /wishlist/items/:productId`,
   `POST /wishlist/items/:productId/move-to-cart`
 
-### Commerce
+### Commerce — Phase 5 (implemented)
 - Orders (customer, Firebase): `POST /orders`, `GET /orders`,
   `GET /orders/:id`, `POST /orders/:id/cancel`,
   `POST /orders/:id/return-request`, `GET /orders/:id/invoice`
+  - Creation is transactional and backend-authoritative: prices are re-derived
+    from the DB, stock is reserved atomically, and the address/ship-to is
+    snapshotted immutably for invoicing; the cart is cleared on success and a
+    coupon (optional) is written to the redemption ledger.
+  - Cancel is allowed for unpaid (PENDING/CONFIRMED/PROCESSING) orders and
+    releases reserved stock; returns are only requestable once DELIVERED.
+  - Invoices are immutable snapshots (`invoiceNumber` mirrors `orderNumber`).
 - Orders (admin, Supabase): `GET /admin/orders`,
   `GET /admin/orders/:id`, `PATCH /admin/orders/:id/status`,
   `PATCH /admin/orders/:id/payment-status`,
   `POST /admin/orders/:id/notes`, `GET /admin/orders/:id/invoice`
+  - Status advances along a validation map (e.g. CONFIRMED sells stock,
+    CANCELLED releases/restocks, RETURNED restocks) and every change writes an
+    `AuditLog` row; admin notes are appended timestamped to `order.notes`.
 - Payments: `POST /payments`, `GET /payments/:id` (Firebase),
   `POST /payments/webhooks/:provider` (webhook, provider-signed)
+  - Providers: `razorpay`, `stripe`, `mock`, `cash`. Amounts come only from the
+    stored order `grandTotal`; an in-flight PENDING payment is re-used instead
+    of creating a duplicate intent.
+  - A provider webhook — verified by HMAC signature over the raw request body —
+    is the only thing that marks a payment (and its order) PAID or FAILED.
+    Unconfigured gateways fail closed (`503`).
 - Coupons: `POST /coupons/validate` (Firebase);
   Coupon admin: `GET/POST /admin/coupons`, `GET/PATCH/DELETE /admin/coupons/:id`
+  - Eligibility (window, minimum order value, usage limit, per-user limit) is
+    enforced server-side for checkout and validation; `PERCENTAGE` discounts
+    respect `maxDiscount`; codes are normalized uppercase.
 
 ### Content (admin, Supabase — read routes public)
 - Banners: `GET /banners`, `GET /banners/:placement` (public);

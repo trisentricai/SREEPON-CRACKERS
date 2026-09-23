@@ -1,30 +1,51 @@
 import { Router } from 'express';
-import { requireAdminRoles, requireFirebase, requireSupabase, AdminRole } from '../../middleware/auth.middleware';
+import {
+  AdminRole,
+  requireAdminRoles,
+  requireFirebase,
+  requireSupabase,
+} from '../../middleware/auth.middleware';
+import { validate } from '../../middleware/validation.middleware';
 import { checkoutLimiter } from '../../utils/rate-limit';
-import { pending } from '../helpers';
+import * as controller from './controller';
+import {
+  addAdminNoteSchema,
+  adminListOrdersQuerySchema,
+  cancelOrderSchema,
+  createOrderSchema,
+  paginationQuerySchema,
+  returnRequestSchema,
+  updateOrderStatusSchema,
+  updatePaymentStatusSchema,
+} from './schema';
 
 /**
- * Orders. Order creation is transactional and re-derives every price from the
- * database (PHASE 6). Admin operations with full status timeline (PHASE 6).
+ * Orders. Creation is transactional and backend-authoritative: prices are
+ * re-derived from the database, stock is reserved atomically, and the address
+ * and line items are snapshotted immutably for future invoices.
  */
 export const customerOrdersRouter = Router();
 
 customerOrdersRouter.use('/orders', requireFirebase());
 
-customerOrdersRouter.post('/orders', checkoutLimiter(), pending('create order'));
-customerOrdersRouter.get('/orders', pending('list my orders'));
-customerOrdersRouter.get('/orders/:id', pending('get my order'));
-customerOrdersRouter.post('/orders/:id/cancel', pending('cancel order'));
-customerOrdersRouter.post('/orders/:id/return-request', pending('request return'));
-customerOrdersRouter.get('/orders/:id/invoice', pending('get order invoice'));
+customerOrdersRouter.post('/orders', checkoutLimiter(), validate({ body: createOrderSchema }), controller.createOrder);
+customerOrdersRouter.get('/orders', validate({ query: paginationQuerySchema }), controller.listMyOrders);
+customerOrdersRouter.get('/orders/:id', controller.getMyOrder);
+customerOrdersRouter.post('/orders/:id/cancel', validate({ body: cancelOrderSchema }), controller.cancelMyOrder);
+customerOrdersRouter.post('/orders/:id/return-request', validate({ body: returnRequestSchema }), controller.requestReturn);
+customerOrdersRouter.get('/orders/:id/invoice', controller.getMyInvoice);
 
 export const adminOrdersRouter = Router();
 
-adminOrdersRouter.use('/admin/orders', requireSupabase(), requireAdminRoles(AdminRole.SUPER_ADMIN, AdminRole.ADMIN, AdminRole.ORDER_MANAGER));
+adminOrdersRouter.use(
+  '/admin/orders',
+  requireSupabase(),
+  requireAdminRoles(AdminRole.SUPER_ADMIN, AdminRole.ADMIN, AdminRole.ORDER_MANAGER),
+);
 
-adminOrdersRouter.get('/admin/orders', pending('list all orders'));
-adminOrdersRouter.get('/admin/orders/:id', pending('get order details'));
-adminOrdersRouter.patch('/admin/orders/:id/status', pending('update order status'));
-adminOrdersRouter.patch('/admin/orders/:id/payment-status', pending('update payment status'));
-adminOrdersRouter.post('/admin/orders/:id/notes', pending('add order note'));
-adminOrdersRouter.get('/admin/orders/:id/invoice', pending('get invoice for printing'));
+adminOrdersRouter.get('/admin/orders', validate({ query: adminListOrdersQuerySchema }), controller.adminListOrders);
+adminOrdersRouter.get('/admin/orders/:id', controller.adminGetOrder);
+adminOrdersRouter.patch('/admin/orders/:id/status', validate({ body: updateOrderStatusSchema }), controller.adminUpdateStatus);
+adminOrdersRouter.patch('/admin/orders/:id/payment-status', validate({ body: updatePaymentStatusSchema }), controller.adminUpdatePaymentStatus);
+adminOrdersRouter.post('/admin/orders/:id/notes', validate({ body: addAdminNoteSchema }), controller.adminAddNote);
+adminOrdersRouter.get('/admin/orders/:id/invoice', controller.adminGetInvoice);
