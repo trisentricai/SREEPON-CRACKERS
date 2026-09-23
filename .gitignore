@@ -1,0 +1,65 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Environment files — NEVER commit secrets
+.env
+.env.local
+.env.*.local
+.env.production
+.env.staging
+backend/.env
+backend/.env.production
+backend/.env.staging
+web/.env
+web/.env.local
+admin/.env
+admin/.env.local
+
+# Firebase / service account credentials
+serviceAccountKey.json
+*.service-account.json
+firebase-adminsdk*.json
+*-firebase-adminsdk-*.json
+*.pem
+*.key
+
+# Flutter / Dart
+mobile/.dart_tool/
+mobile/.flutter-plugins
+mobile/.flutter-plugins-dependencies
+mobile/.packages
+mobile/build/
+mobile/android/key.properties
+mobile/android/gradle/wrapper/gradle-wrapper.jar
+mobile/ios/Pods/
+mobile/.idea/
+mobile/*.iml
+mobile/*.jks
+mobile/ios/Flutter/flutter_export_environment.sh
+
+# Logs
+*.log
+logs/
+*.pid
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Coverage
+coverage/
+
+# Vercel / Render
+.vercel/

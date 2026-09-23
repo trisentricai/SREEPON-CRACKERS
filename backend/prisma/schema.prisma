@@ -1,0 +1,27 @@
+// =============================================================================
+// SriPon — Prisma schema (PHASE 1 PLACEHOLDER)
+// -----------------------------------------------------------------------------
+// The full production schema (User, Category, Product, Inventory, Cart, Order,
+// Payment, Coupon, Banner, HomepageSection, Notification, SiteSetting,
+// AuditLog, ...) is introduced in PHASE 2 together with the initial migration.
+// This placeholder keeps `prisma generate` working during PHASE 1 scaffolding.
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_DATABASE_URL")
+}
+
+model Phase1Placeholder {
+  id        String   @id @default(uuid())
+  label     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("_phase1_placeholder")
+}

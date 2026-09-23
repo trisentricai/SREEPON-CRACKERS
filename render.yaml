@@ -1,0 +1,57 @@
+# Render blueprint for the SriPon backend.
+# https://render.com/docs/blueprint-spec
+#
+# This renders the Node.js API only. PostgreSQL → Supabase (external),
+# Redis → managed Redis (external), media → Cloudinary (external).
+services:
+  - type: web
+    name: sripon-api
+    runtime: node
+    plan: starter
+    rootDir: backend
+    buildCommand: npm install && npm run build && npx prisma generate
+    startCommand: npx prisma migrate deploy && node dist/server.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_DATABASE_URL
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: FIREBASE_PROJECT_ID
+        sync: false
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: PAYMENT_PROVIDER
+        sync: false
+      - key: PAYMENT_MERCHANT_ID
+        sync: false
+      - key: PAYMENT_CLIENT_ID
+        sync: false
+      - key: PAYMENT_CLIENT_SECRET
+        sync: false
+      - key: PAYMENT_SALT_KEY
+        sync: false
+      - key: CORS_ORIGINS
+        sync: false
