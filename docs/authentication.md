@@ -24,7 +24,8 @@ Two independent identity brokers, one authoritative backend.
      (with `checkRevoked: true`) and populates `req.user`.
    - **Admins** → `requireSupabase()`: re-verifies the Supabase JWT signature
      and populates `req.admin`; `requireAdminRoles(...)` then enforces
-     `OWNER | ADMIN | MANAGER | ANALYST` from `app_metadata.roles`.
+     `SUPER_ADMIN | ADMIN | PRODUCT_MANAGER | ORDER_MANAGER | CONTENT_MANAGER | ANALYST`
+     from `app_metadata.roles` (see `backend/src/types/enums.ts`).
 4. Fails closed: missing/expired/invalid token → `401`; no configured broker
    → `503`; wrong role → `403`.
 

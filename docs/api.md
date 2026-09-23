@@ -45,10 +45,11 @@ Every response is a JSON envelope:
 | GET | `/api/docs` | Swagger UI |
 | GET | `/api/v1/ping` | route-table smoke check |
 
-## Module routes (Phase 1 = 501 Not Implemented)
+## Module routes
 
-All endpoints below are **registered** and guarded correctly, but return
-`501` with `"code": "NOT_IMPLEMENTED"` until their phase ships.
+Phase progress: **Catalog (Phase 2) ships live endpoints** (guarded, validated,
+pagination included). All other modules below are registered and guarded, but
+return `501` until their phase ships.
 
 ### Identity
 - `POST /auth/login`, `POST /auth/register`, `POST /auth/password/reset`,
@@ -59,18 +60,22 @@ All endpoints below are **registered** and guarded correctly, but return
   `PATCH /addresses/:id/default` (Firebase)
 - Admin: `GET/POST /admins`, `GET/PATCH/DELETE /admins/:id` (Supabase)
 
-### Catalog
-- `GET /products`, `GET /products/search`, `GET /products/slug/:slug`,
-  `GET /products/:id`
+### Catalog — Phase 2 (implemented)
+- `GET /products` — public list (page/limit, `category` slug or id including
+  descendants, `q`, `minPrice`/`maxPrice`, `featured`, `sort`)
+- `GET /products/search` — same filtering with a required `q`
+- `GET /products/slug/:slug`, `GET /products/:id` — published product detail
+  (404 for inactive or unapproved products)
 - `GET /categories`, `GET /categories/tree`, `GET /categories/:slug`
-- Admin: `POST /admin/products`, `PATCH /admin/products/:id`,
+- Admin products (`SUPER_ADMIN | ADMIN | PRODUCT_MANAGER`):
+  `POST /admin/products`, `PATCH /admin/products/:id`,
   `DELETE /admin/products/:id`, `PATCH /admin/products/:id/visibility`,
   `POST /admin/products/:id/images`,
   `PATCH|DELETE /admin/products/:id/images/:imageId`,
   `PATCH /admin/products/:id/images/reorder`
-- Admin categories: `POST /admin/categories`,
-  `PATCH /admin/categories/:id`, `DELETE /admin/categories/:id`,
-  `PATCH /admin/categories/reorder`
+- Admin categories:
+  `POST /admin/categories`, `PATCH /admin/categories/:id`,
+  `DELETE /admin/categories/:id`, `PATCH /admin/categories/reorder`
 
 ### Shopper flows (Firebase)
 - Cart: `GET /cart`, `POST /cart/items`, `PATCH /cart/items/:itemId`,

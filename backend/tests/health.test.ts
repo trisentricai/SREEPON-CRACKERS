@@ -40,7 +40,7 @@ describe('SriPon API smoke tests', () => {
   });
 
   it('unimplemented module endpoints respond 501 with a clear message', async () => {
-    const res = await request(app).get('/api/v1/products');
+    const res = await request(app).get('/api/v1/auth/me');
 
     expect(res.status).toBe(501);
     expect(res.body.success).toBe(false);

@@ -53,8 +53,8 @@ routes. Enable it:
 ### Admin roles
 
 Roles are read from the verified token's `app_metadata.roles`. `requireAdminRoles`
-enforces `OWNER | ADMIN | MANAGER | ANALYST` (see `backend/src/types/enums.ts`).
-Set an admin's role:
+enforces `SUPER_ADMIN | ADMIN | PRODUCT_MANAGER | ORDER_MANAGER | CONTENT_MANAGER | ANALYST`
+(see `backend/src/types/enums.ts`). Set an admin's role:
 
 1. In Supabase Dashboard → Authentication → Users, open the user.
 2. Under custom claims / `app_metadata`, set `roles: ["ADMIN"]` (or the

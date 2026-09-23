@@ -83,6 +83,157 @@ export const openApiSpec = swaggerJsdoc({
             },
           },
         },
+        Pagination: {
+          type: 'object',
+          required: ['page', 'limit', 'total', 'pages'],
+          properties: {
+            page: { type: 'integer', example: 1 },
+            limit: { type: 'integer', example: 20 },
+            total: { type: 'integer', example: 42 },
+            pages: { type: 'integer', example: 3 },
+          },
+        },
+        Category: {
+          type: 'object',
+          required: ['id', 'name', 'slug', 'displayOrder', 'isActive', 'isFeatured'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            name: { type: 'string' },
+            slug: { type: 'string' },
+            description: { type: 'string', nullable: true },
+            parentId: { type: 'string', format: 'uuid', nullable: true },
+            bannerImageUrl: { type: 'string', format: 'url', nullable: true },
+            displayOrder: { type: 'integer' },
+            isActive: { type: 'boolean' },
+            isFeatured: { type: 'boolean' },
+            productCount: { type: 'integer' },
+          },
+        },
+        CategoryTreeNode: {
+          allOf: [{ $ref: '#/components/schemas/Category' }],
+          properties: { children: { type: 'array', items: { $ref: '#/components/schemas/CategoryTreeNode' } } },
+        },
+        ProductImage: {
+          type: 'object',
+          required: ['id', 'url', 'displayOrder'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            url: { type: 'string', format: 'url' },
+            altText: { type: 'string', nullable: true },
+            displayOrder: { type: 'integer' },
+          },
+        },
+        Product: {
+          type: 'object',
+          required: ['id', 'name', 'slug', 'sku', 'basePrice', 'unit', 'isActive', 'isFeatured'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            name: { type: 'string' },
+            slug: { type: 'string' },
+            shortDescription: { type: 'string', nullable: true },
+            description: { type: 'string', nullable: true },
+            basePrice: { type: 'string', example: '1250.00' },
+            mrpPrice: { type: 'string', nullable: true },
+            sku: { type: 'string' },
+            unit: { type: 'string', enum: ['BOX', 'PACKET', 'SINGLE', 'OTHER'] },
+            piecesPerBox: { type: 'integer', nullable: true },
+            weightPerBox: { type: 'string', nullable: true },
+            minimumAge: { type: 'integer', nullable: true },
+            isActive: { type: 'boolean' },
+            isFeatured: { type: 'boolean' },
+            isApproved: { type: 'boolean' },
+            category: { $ref: '#/components/schemas/Category' },
+            images: { type: 'array', items: { $ref: '#/components/schemas/ProductImage' } },
+          },
+        },
+        PaginatedProducts: {
+          type: 'object',
+          required: ['items', 'pagination'],
+          properties: {
+            items: { type: 'array', items: { $ref: '#/components/schemas/Product' } },
+            pagination: { $ref: '#/components/schemas/Pagination' },
+          },
+        },
+      },
+    },
+    paths: {
+      '/categories': {
+        get: {
+          tags: ['Categories'],
+          summary: 'List public categories',
+          parameters: [
+            { name: 'parentId', in: 'query', schema: { type: 'string', format: 'uuid' } },
+            { name: 'includeInactive', in: 'query', schema: { type: 'boolean' } },
+          ],
+          responses: { '200': { description: 'Categories', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } } },
+        },
+      },
+      '/categories/tree': {
+        get: {
+          tags: ['Categories'],
+          summary: 'Category tree',
+          responses: { '200': { description: 'Tree of categories', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } } },
+        },
+      },
+      '/categories/{slug}': {
+        get: {
+          tags: ['Categories'],
+          summary: 'Category by slug',
+          parameters: [{ name: 'slug', in: 'path', required: true, schema: { type: 'string' } }],
+          responses: {
+            '200': { description: 'Category detail', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '404': { $ref: '#/components/responses/NotFound' },
+          },
+        },
+      },
+      '/products': {
+        get: {
+          tags: ['Products'],
+          summary: 'List published products (filterable, searchable, paginated)',
+          parameters: [
+            { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
+            { name: 'limit', in: 'query', schema: { type: 'integer', default: 20, maximum: 100 } },
+            { name: 'category', in: 'query', schema: { type: 'string', description: 'Category slug or id (includes descendants)' } },
+            { name: 'q', in: 'query', schema: { type: 'string' } },
+            { name: 'featured', in: 'query', schema: { type: 'boolean' } },
+            { name: 'sort', in: 'query', schema: { type: 'string', enum: ['newest', 'price_asc', 'price_desc', 'featured', 'name_asc'] } },
+          ],
+          responses: { '200': { description: 'Paginated products', content: { 'application/json': { schema: { $ref: '#/components/schemas/PaginatedProducts' } } } } },
+        },
+      },
+      '/products/search': {
+        get: {
+          tags: ['Products'],
+          summary: 'Search products',
+          parameters: [
+            { name: 'q', in: 'query', required: true, schema: { type: 'string' } },
+            { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
+            { name: 'limit', in: 'query', schema: { type: 'integer', default: 20, maximum: 100 } },
+          ],
+          responses: { '200': { description: 'Paginated results', content: { 'application/json': { schema: { $ref: '#/components/schemas/PaginatedProducts' } } } } },
+        },
+      },
+      '/products/slug/{slug}': {
+        get: {
+          tags: ['Products'],
+          summary: 'Product by slug',
+          parameters: [{ name: 'slug', in: 'path', required: true, schema: { type: 'string' } }],
+          responses: {
+            '200': { description: 'Product detail', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '404': { $ref: '#/components/responses/NotFound' },
+          },
+        },
+      },
+      '/products/{id}': {
+        get: {
+          tags: ['Products'],
+          summary: 'Product by id',
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          responses: {
+            '200': { description: 'Product detail', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '404': { $ref: '#/components/responses/NotFound' },
+          },
+        },
       },
     },
     tags: [

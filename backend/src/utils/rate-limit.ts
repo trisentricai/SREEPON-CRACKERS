@@ -13,15 +13,17 @@ export type RateLimitConfig = Partial<Options> & { minutes?: number; limit?: num
  */
 export function createRateLimiter(name: string, { minutes = 10, limit = 100, ...rest }: RateLimitConfig = {}) {
   const client = getRedis();
-  const redisCall = (client?.call ?? (async () => {
-    throw new Error('Redis unavailable');
-  })) as (...args: string[]) => Promise<RedisReply>;
-  const store = client
-    ? new RedisStore({
-        sendCommand: async (...args: string[]) => redisCall(...args),
-        prefix: `rl:${name}:`,
-      })
-    : undefined;
+  let store: RedisStore | undefined;
+  if (client && client.status === 'ready') {
+    try {
+      const rawCall = client.call.bind(client) as (...all: string[]) => Promise<unknown>;
+      const sendCommand = async (...args: string[]): Promise<RedisReply> => (await rawCall(...args)) as RedisReply;
+      store = new RedisStore({ sendCommand, prefix: `rl:${name}:` });
+    } catch (err) {
+      logger.warn({ name, err }, `Redis-backed limiter '${name}' unavailable; falling back to in-memory`);
+      store = undefined;
+    }
+  }
 
   if (!store) {
     logger.warn({ name }, `Rate limiter '${name}' using in-memory store (Redis unavailable)`);

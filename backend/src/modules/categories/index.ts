@@ -1,22 +1,40 @@
 import { Router } from 'express';
-import { requireSupabase, requireAdminRoles, AdminRole } from '../../middleware/auth.middleware';
-import { pending } from '../helpers';
+import {
+  requireAdminRoles,
+  requireSupabase,
+  AdminRole,
+} from '../../middleware/auth.middleware';
+import { validate } from '../../middleware/validation.middleware';
+import * as controller from './controller';
+import { createCategorySchema, listCategoriesQuerySchema, reorderCategoriesSchema, updateCategorySchema } from './schema';
 
 /**
- * Category management with nested (parent/child) categories.
- * PHASE 4 implements the real controllers.
+ * Nested (parent/child) category management.
+ * Public routes expose the live navigation tree; admin routes manage it.
  */
 export const categoriesRouter = Router();
 
 // Public
-categoriesRouter.get('/categories', pending('list categories'));
-categoriesRouter.get('/categories/tree', pending('category tree'));
-categoriesRouter.get('/categories/:slug', pending('get category by slug'));
+categoriesRouter.get('/categories', validate({ query: listCategoriesQuerySchema }), controller.listCategories);
+categoriesRouter.get('/categories/tree', controller.getCategoryTree);
+categoriesRouter.get('/categories/:slug', controller.getCategoryBySlug);
 
 // Admin
-categoriesRouter.use('/admin/categories', requireSupabase(), requireAdminRoles(AdminRole.SUPER_ADMIN, AdminRole.ADMIN, AdminRole.PRODUCT_MANAGER));
+categoriesRouter.use(
+  '/admin/categories',
+  requireSupabase(),
+  requireAdminRoles(AdminRole.SUPER_ADMIN, AdminRole.ADMIN, AdminRole.PRODUCT_MANAGER),
+);
 
-categoriesRouter.post('/admin/categories', pending('create category'));
-categoriesRouter.patch('/admin/categories/:id', pending('update category'));
-categoriesRouter.delete('/admin/categories/:id', pending('delete category'));
-categoriesRouter.patch('/admin/categories/reorder', pending('reorder categories'));
+categoriesRouter.post('/admin/categories', validate({ body: createCategorySchema }), controller.createCategory);
+categoriesRouter.patch(
+  '/admin/categories/:id',
+  validate({ body: updateCategorySchema }),
+  controller.updateCategory,
+);
+categoriesRouter.delete('/admin/categories/:id', controller.deleteCategory);
+categoriesRouter.patch(
+  '/admin/categories/reorder',
+  validate({ body: reorderCategoriesSchema }),
+  controller.reorderCategories,
+);

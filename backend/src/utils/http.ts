@@ -81,6 +81,13 @@ export function asyncHandler(fn: (req: Request, res: Response, next: NextFunctio
   };
 }
 
+/** Read a required path parameter that TypeScript sees as possibly-undefined. */
+export function routeParam(req: Request, key: string): string {
+  const value = req.params[key];
+  if (!value) throw ApiError.badRequest(`Missing required path parameter "${key}"`);
+  return value;
+}
+
 /** Convert a ZodError into a field->messages map. */
 export function zodFieldErrors(error: ZodError): FieldErrors {
   const fields: FieldErrors = {};

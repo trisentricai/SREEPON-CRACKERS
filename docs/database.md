@@ -2,11 +2,13 @@
 
 Primary datastore: **PostgreSQL via Supabase**, accessed through **Prisma**.
 
-> **Phase 1 note:** `backend/prisma/schema.prisma` currently contains a minimal
-> `Phase1Placeholder` model so `prisma generate` works during scaffolding. The
-> full production schema and the initial migration are introduced in Phase 2.
+> **Status (Phase 2):** The full production schema below is implemented in
+> `backend/prisma/schema.prisma`. The initial migration for a fresh database is
+> `backend/prisma/migrations/20260923190000_phase2_initial/migration.sql`;
+> apply it against the target database with `npx prisma migrate deploy` after
+> setting `DATABASE_URL`/`DIRECT_DATABASE_URL`.
 
-## Planned models
+## Models
 
 Each model maps to a Prisma model in a future migration. All primary keys are
 `String @id @default(uuid())`; every row carries `createdAt`/`updatedAt`.
@@ -15,7 +17,8 @@ Each model maps to a Prisma model in a future migration. All primary keys are
 - **User** — customers. `firebaseUid` (unique), `email`, `name`, `phone`,
   `isActive`, soft delete.
 - **Admin** — dashboard operators. `supabaseUid` (unique), `email`, `name`,
-  `role` (`OWNER | ADMIN | MANAGER | ANALYST` — see `backend/src/types/enums.ts`).
+  `role` (`SUPER_ADMIN | ADMIN | PRODUCT_MANAGER | ORDER_MANAGER | CONTENT_MANAGER | ANALYST` —
+  see `backend/src/types/enums.ts`).
 
 ### Catalog
 - **Category** — hierarchical tree. `name`, `slug` (unique), `parentId`,
