@@ -47,10 +47,11 @@ Every response is a JSON envelope:
 
 ## Module routes
 
-Phase progress: **Customer identity (Phase 3)** ships live Firebase-backed
-login/register/reset/logout/me; **Catalog (Phase 2)** ships live endpoints
-(guarded, validated, pagination included). All other modules below are
-registered and guarded, but return `501` until their phase ships.
+Phase progress: **Customer identity (Phase 3)** and **Shopper flows (Phase 4:
+cart + wishlist)** ship live Firebase-backed endpoints; **Catalog (Phase 2)**
+ships live endpoints (guarded, validated, pagination included). All other
+modules below are registered and guarded, but return `501` until their phase
+ships.
 
 ### Identity — Phase 3 (implemented)
 - `POST /auth/login` — verify Firebase ID token, find-or-create the local
@@ -83,7 +84,7 @@ registered and guarded, but return `501` until their phase ships.
   `POST /admin/categories`, `PATCH /admin/categories/:id`,
   `DELETE /admin/categories/:id`, `PATCH /admin/categories/reorder`
 
-### Shopper flows (Firebase)
+### Shopper flows — Phase 4 (implemented)
 - Cart: `GET /cart`, `POST /cart/items`, `PATCH /cart/items/:itemId`,
   `DELETE /cart/items/:itemId`, `DELETE /cart`, `POST /cart/merge`,
   `GET /cart/summary`

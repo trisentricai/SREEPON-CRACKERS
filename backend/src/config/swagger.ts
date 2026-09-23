@@ -181,6 +181,113 @@ export const openApiSpec = swaggerJsdoc({
           required: ['email'],
           properties: { email: { type: 'string', format: 'email' } },
         },
+        CartProductSummary: {
+          type: 'object',
+          required: ['id', 'name', 'slug', 'basePrice'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            name: { type: 'string' },
+            slug: { type: 'string' },
+            unit: { type: 'string' },
+            piecesPerBox: { type: 'integer', nullable: true },
+            basePrice: { type: 'string', example: '1250.00' },
+            mrpPrice: { type: 'string', nullable: true },
+            imageUrl: { type: 'string', format: 'url', nullable: true },
+          },
+        },
+        CartItem: {
+          type: 'object',
+          required: ['id', 'quantity', 'unit', 'lineTotal', 'product'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            quantity: { type: 'integer' },
+            unit: { type: 'string', enum: ['BOX', 'PACKET', 'SINGLE'] },
+            availableStock: { type: 'integer' },
+            isOutOfStock: { type: 'boolean' },
+            lineTotal: { type: 'string', example: '2500.00' },
+            product: { $ref: '#/components/schemas/CartProductSummary' },
+          },
+        },
+        Cart: {
+          type: 'object',
+          required: ['id', 'currency', 'items', 'subtotal', 'totalQuantity', 'itemCount'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            currency: { type: 'string', example: 'INR' },
+            items: { type: 'array', items: { $ref: '#/components/schemas/CartItem' } },
+            subtotal: { type: 'string', example: '12500.00' },
+            totalQuantity: { type: 'integer' },
+            itemCount: { type: 'integer' },
+            outOfStockCount: { type: 'integer' },
+          },
+        },
+        CartSummary: {
+          type: 'object',
+          required: ['currency', 'subtotal', 'totalQuantity', 'itemCount'],
+          properties: {
+            currency: { type: 'string', example: 'INR' },
+            subtotal: { type: 'string' },
+            totalQuantity: { type: 'integer' },
+            itemCount: { type: 'integer' },
+            outOfStockCount: { type: 'integer' },
+            outOfStockItems: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  productId: { type: 'string', format: 'uuid' },
+                  productName: { type: 'string' },
+                  requested: { type: 'integer' },
+                  available: { type: 'integer' },
+                },
+              },
+            },
+          },
+        },
+        AddCartItemRequest: {
+          type: 'object',
+          required: ['productId', 'quantity'],
+          properties: {
+            productId: { type: 'string', format: 'uuid' },
+            quantity: { type: 'integer', minimum: 1, maximum: 999 },
+            unit: { type: 'string', enum: ['BOX', 'PACKET', 'SINGLE'], default: 'BOX' },
+          },
+        },
+        UpdateCartItemRequest: {
+          type: 'object',
+          required: ['quantity'],
+          properties: { quantity: { type: 'integer', minimum: 1, maximum: 999 } },
+        },
+        CartLineInput: {
+          type: 'object',
+          required: ['productId', 'quantity'],
+          properties: {
+            productId: { type: 'string', format: 'uuid' },
+            quantity: { type: 'integer', minimum: 1, maximum: 999 },
+            unit: { type: 'string', enum: ['BOX', 'PACKET', 'SINGLE'], default: 'BOX' },
+          },
+        },
+        MergeCartRequest: {
+          type: 'object',
+          required: ['items'],
+          properties: { items: { type: 'array', items: { $ref: '#/components/schemas/CartLineInput' } } },
+        },
+        WishlistItem: {
+          type: 'object',
+          required: ['id', 'addedAt', 'isAvailable', 'product'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            addedAt: { type: 'string', format: 'date-time' },
+            isAvailable: { type: 'boolean' },
+            availableStock: { type: 'integer' },
+            product: { $ref: '#/components/schemas/CartProductSummary' },
+          },
+        },
+        AddWishlistItemRequest: {
+          type: 'object',
+          required: ['productId'],
+          properties: { productId: { type: 'string', format: 'uuid' } },
+        },
       },
     },
     paths: {
@@ -247,6 +354,128 @@ export const openApiSpec = swaggerJsdoc({
           responses: {
             '200': { description: 'Profile', content: { 'application/json': { schema: { $ref: '#/components/schemas/UserProfile' } } } },
             '401': { $ref: '#/components/responses/Unauthorized' },
+          },
+        },
+      },
+      '/cart': {
+        get: {
+          tags: ['Cart'],
+          summary: 'Current cart with items, pricing and stock availability',
+          security: [{ firebaseAuth: [] }],
+          responses: {
+            '200': { description: 'Cart', content: { 'application/json': { schema: { $ref: '#/components/schemas/Cart' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+          },
+        },
+        delete: {
+          tags: ['Cart'],
+          summary: 'Clear the cart',
+          security: [{ firebaseAuth: [] }],
+          responses: { '204': { description: 'Cart cleared' }, '401': { $ref: '#/components/responses/Unauthorized' } },
+        },
+      },
+      '/cart/items': {
+        post: {
+          tags: ['Cart'],
+          summary: 'Add an item (merged by product + unit)',
+          security: [{ firebaseAuth: [] }],
+          requestBody: {
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/AddCartItemRequest' } } },
+          },
+          responses: {
+            '201': { description: 'Cart after add', content: { 'application/json': { schema: { $ref: '#/components/schemas/Cart' } } } },
+            '409': { description: 'Out of stock / requested quantity unavailable' },
+          },
+        },
+      },
+      '/cart/items/{itemId}': {
+        patch: {
+          tags: ['Cart'],
+          summary: 'Change a line quantity',
+          security: [{ firebaseAuth: [] }],
+          parameters: [{ name: 'itemId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          requestBody: {
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/UpdateCartItemRequest' } } },
+          },
+          responses: { '200': { description: 'Cart after update', content: { 'application/json': { schema: { $ref: '#/components/schemas/Cart' } } } }, '404': { $ref: '#/components/responses/NotFound' } },
+        },
+        delete: {
+          tags: ['Cart'],
+          summary: 'Remove a line',
+          security: [{ firebaseAuth: [] }],
+          parameters: [{ name: 'itemId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          responses: { '204': { description: 'Line removed' }, '404': { $ref: '#/components/responses/NotFound' } },
+        },
+      },
+      '/cart/merge': {
+        post: {
+          tags: ['Cart'],
+          summary: 'Merge a guest cart into the authenticated cart',
+          security: [{ firebaseAuth: [] }],
+          requestBody: {
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/MergeCartRequest' } } },
+          },
+          responses: {
+            '200': { description: 'Cart after merge', content: { 'application/json': { schema: { $ref: '#/components/schemas/Cart' } } } },
+            '404': { $ref: '#/components/responses/NotFound' },
+          },
+        },
+      },
+      '/cart/summary': {
+        get: {
+          tags: ['Cart'],
+          summary: 'Checkout-ready totals (prices backend-authoritative)',
+          security: [{ firebaseAuth: [] }],
+          responses: {
+            '200': { description: 'Cart summary', content: { 'application/json': { schema: { $ref: '#/components/schemas/CartSummary' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+          },
+        },
+      },
+      '/wishlist': {
+        get: {
+          tags: ['Wishlist'],
+          summary: 'Wishlist with product snapshots',
+          security: [{ firebaseAuth: [] }],
+          responses: {
+            '200': { description: 'Wishlist items', content: { 'application/json': { schema: { type: 'array', items: { $ref: '#/components/schemas/WishlistItem' } } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+          },
+        },
+      },
+      '/wishlist/items': {
+        post: {
+          tags: ['Wishlist'],
+          summary: 'Add a product to the wishlist (unique per product; 200 if already present)',
+          security: [{ firebaseAuth: [] }],
+          requestBody: {
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/AddWishlistItemRequest' } } },
+          },
+          responses: {
+            '201': { description: 'Added', content: { 'application/json': { schema: { $ref: '#/components/schemas/WishlistItem' } } } },
+            '404': { $ref: '#/components/responses/NotFound' },
+          },
+        },
+      },
+      '/wishlist/items/{productId}': {
+        delete: {
+          tags: ['Wishlist'],
+          summary: 'Remove a product from the wishlist',
+          security: [{ firebaseAuth: [] }],
+          parameters: [{ name: 'productId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          responses: { '204': { description: 'Removed' }, '404': { $ref: '#/components/responses/NotFound' } },
+        },
+      },
+      '/wishlist/items/{productId}/move-to-cart': {
+        post: {
+          tags: ['Wishlist'],
+          summary: 'Move a wishlist product into the cart',
+          security: [{ firebaseAuth: [] }],
+          parameters: [{ name: 'productId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          responses: {
+            '200': { description: 'Cart after move', content: { 'application/json': { schema: { $ref: '#/components/schemas/Cart' } } } },
+            '409': { description: 'Out of stock' },
+            '404': { $ref: '#/components/responses/NotFound' },
           },
         },
       },
