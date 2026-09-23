@@ -154,9 +154,102 @@ export const openApiSpec = swaggerJsdoc({
             pagination: { $ref: '#/components/schemas/Pagination' },
           },
         },
+        UserProfile: {
+          type: 'object',
+          required: ['id', 'email', 'isActive', 'createdAt'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            email: { type: 'string', format: 'email' },
+            name: { type: 'string', nullable: true },
+            phone: { type: 'string', nullable: true },
+            isActive: { type: 'boolean' },
+            createdAt: { type: 'string', format: 'date-time' },
+          },
+        },
+        LoginRequest: {
+          type: 'object',
+          required: ['idToken'],
+          properties: { idToken: { type: 'string', description: 'Firebase ID token' } },
+        },
+        RegisterRequest: {
+          type: 'object',
+          required: ['idToken'],
+          properties: { idToken: { type: 'string', description: 'Firebase ID token' } },
+        },
+        PasswordResetRequest: {
+          type: 'object',
+          required: ['email'],
+          properties: { email: { type: 'string', format: 'email' } },
+        },
       },
     },
     paths: {
+      '/auth/login': {
+        post: {
+          tags: ['Auth'],
+          summary: 'Sign in and bridge the Firebase identity to a local profile',
+          requestBody: {
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/LoginRequest' } } },
+          },
+          responses: {
+            '200': { description: 'Signed in (201 when the profile was just created)', content: { 'application/json': { schema: { $ref: '#/components/schemas/UserProfile' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '422': { description: 'Validation failed' },
+            '503': { description: 'Firebase is not configured' },
+          },
+        },
+      },
+      '/auth/register': {
+        post: {
+          tags: ['Auth'],
+          summary: 'Register (Firebase account already created client-side)',
+          requestBody: {
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/RegisterRequest' } } },
+          },
+          responses: {
+            '201': { description: 'Profile created or already registered', content: { 'application/json': { schema: { $ref: '#/components/schemas/UserProfile' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '422': { description: 'Validation failed' },
+            '503': { description: 'Firebase is not configured' },
+          },
+        },
+      },
+      '/auth/password/reset': {
+        post: {
+          tags: ['Auth'],
+          summary: 'Request a password reset (generic response, no account enumeration)',
+          requestBody: {
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/PasswordResetRequest' } } },
+          },
+          responses: {
+            '202': { description: 'Reset processed' },
+            '422': { description: 'Validation failed' },
+            '503': { description: 'Firebase or reset is not configured' },
+          },
+        },
+      },
+      '/auth/logout': {
+        post: {
+          tags: ['Auth'],
+          summary: 'Revoke the current customer refresh tokens',
+          security: [{ firebaseAuth: [] }],
+          responses: {
+            '204': { description: 'Tokens revoked' },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+          },
+        },
+      },
+      '/auth/me': {
+        get: {
+          tags: ['Auth'],
+          summary: 'Current customer profile',
+          security: [{ firebaseAuth: [] }],
+          responses: {
+            '200': { description: 'Profile', content: { 'application/json': { schema: { $ref: '#/components/schemas/UserProfile' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+          },
+        },
+      },
       '/categories': {
         get: {
           tags: ['Categories'],

@@ -47,14 +47,20 @@ Every response is a JSON envelope:
 
 ## Module routes
 
-Phase progress: **Catalog (Phase 2) ships live endpoints** (guarded, validated,
-pagination included). All other modules below are registered and guarded, but
-return `501` until their phase ships.
+Phase progress: **Customer identity (Phase 3)** ships live Firebase-backed
+login/register/reset/logout/me; **Catalog (Phase 2)** ships live endpoints
+(guarded, validated, pagination included). All other modules below are
+registered and guarded, but return `501` until their phase ships.
 
-### Identity
-- `POST /auth/login`, `POST /auth/register`, `POST /auth/password/reset`,
-  `GET /auth/me`
-- `GET /users/me`
+### Identity — Phase 3 (implemented)
+- `POST /auth/login` — verify Firebase ID token, find-or-create the local
+  `User`, returns the customer profile (`201` when the profile is new)
+- `POST /auth/register` — same bridge; safe to call again for an existing profile
+- `POST /auth/password/reset` — Firebase password-reset email (generic `202`;
+  never reveals whether an email exists)
+- `POST /auth/logout` — revoke the customer's Firebase refresh tokens (`204`)
+- `GET /auth/me` — current customer profile (+ `emailVerified` from the token)
+- `GET /users/me`, `PATCH /users/me` — profile management (later phase)
 - `GET /addresses`, `POST /addresses`, `GET /addresses/:id`,
   `PATCH /addresses/:id`, `DELETE /addresses/:id`,
   `PATCH /addresses/:id/default` (Firebase)

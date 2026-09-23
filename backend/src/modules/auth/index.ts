@@ -1,22 +1,44 @@
 import { Router } from 'express';
+import { requireFirebase } from '../../middleware/auth.middleware';
+import { validate } from '../../middleware/validation.middleware';
 import { loginLimiter, passwordLimiter } from '../../utils/rate-limit';
-import { pending } from '../helpers';
+import * as controller from './controller';
+import { loginRequestSchema, passwordResetRequestSchema, registerRequestSchema } from './schema';
 
 /**
- * Customer authentication (Firebase). Firebase is the identity provider;
- * this module bridges Firebase verified identities with the local customer
- * profile and manages pre-signed flows where Firebase needs server help.
+ * Customer authentication (Firebase). Firebase is the identity provider; this
+ * module bridges verified Firebase identities with the local customer profile
+ * and manages the flows that need server-side help (reset links, token
+ * revocation).
  *
- * PHASE 3 implements the real controllers:
- *  - POST /auth/login  → verify Firebase ID token, find-or-create local User
- *  - POST /auth/register → create Firebase account + local User
- *  - POST /auth/password/reset → Firebase password reset email
- *  - POST /auth/logout → revoke refresh tokens where applicable
- *  - GET  /auth/me     → current customer profile
+ * Phase 3 implementation:
+ *  - POST /auth/login        → verify ID token, find-or-create local User
+ *  - POST /auth/register     → same bridge; created when the User row is new
+ *  - POST /auth/password/reset → Firebase-generated reset link
+ *  - POST /auth/logout       → revoke the customer's refresh tokens
+ *  - GET  /auth/me           → current customer profile
  */
 export const authRouter = Router();
 
-authRouter.post('/auth/login', loginLimiter(), pending('customer login'));
-authRouter.post('/auth/register', loginLimiter(), pending('customer register'));
-authRouter.post('/auth/password/reset', passwordLimiter(), pending('password reset'));
-authRouter.get('/auth/me', pending('auth me'));
+authRouter.post(
+  '/auth/login',
+  loginLimiter(),
+  validate({ body: loginRequestSchema }),
+  requireFirebase(),
+  controller.login,
+);
+authRouter.post(
+  '/auth/register',
+  loginLimiter(),
+  validate({ body: registerRequestSchema }),
+  requireFirebase(),
+  controller.register,
+);
+authRouter.post(
+  '/auth/password/reset',
+  passwordLimiter(),
+  validate({ body: passwordResetRequestSchema }),
+  controller.passwordReset,
+);
+authRouter.post('/auth/logout', requireFirebase(), controller.logout);
+authRouter.get('/auth/me', requireFirebase(), controller.me);

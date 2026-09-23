@@ -32,6 +32,31 @@ Two independent identity brokers, one authoritative backend.
 Frontend **never** mints the backend's bearer token — it only forwards the
 broker's token.
 
+## Customer authentication endpoints (backend, Phase 3)
+
+`backend/src/modules/auth/` bridges a verified Firebase identity to the local
+customer profile (`User` row, keyed by `firebaseUid`):
+
+- `POST /auth/login` — `{ idToken }` → verify via Firebase Admin, find-or-create
+  the local user, return the public profile. `201` on first sign-in, `200`
+  afterwards.
+- `POST /auth/register` — same bridge, always returns `201` (idempotent).
+- `POST /auth/password/reset` — `{ email }` → Firebase `generatePasswordResetLink`
+  (`FIREBASE_PASSWORD_RESET_URL` redirect target; defaults to `localhost:5173`
+  in dev). Always `202`; the response never reveals whether the account exists.
+- `POST /auth/logout` — revokes the customer's Firebase refresh tokens.
+- `GET /auth/me` — current profile + `emailVerified` claim.
+
+Notes:
+- Anonymous/email-less Firebase users get a stable placeholder email
+  (`<uid>@firebase.sripon.invalid`) so the unique email constraint is satisfied.
+- Suspended (`isActive=false` / `SUSPENDED`) profiles are rejected with `403`.
+- Profiles that pre-existed without auth are linked by email and adopt the
+  `firebaseUid` on first login.
+- The service is covered by `tests/auth.integration.test.ts` (DB-backed) and
+  `tests/auth-validation.test.ts` (DB-free). Endpoints fail closed (`503`) until
+  a Firebase service account is configured (see `docs/firebase.md`).
+
 ## Customer sign-in (web)
 
 - `web/src/services/firebase/auth.ts` — `loginWithEmail`,
