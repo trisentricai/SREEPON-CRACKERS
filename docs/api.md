@@ -48,11 +48,12 @@ Every response is a JSON envelope:
 ## Module routes
 
 Phase progress: **Customer identity (Phase 3)**, **Shopper flows (Phase 4:
-cart + wishlist)**, **Commerce (Phase 5: orders, payments, coupons)** and
-**Content (Phase 6: banners + homepage)** ship live Firebase/Supabase-backed
-endpoints; **Catalog (Phase 2)** ships live endpoints (guarded, validated,
-pagination included). All other modules below are registered and guarded, but
-return `501` until their phase ships.
+cart + wishlist)**, **Commerce (Phase 5: orders, payments, coupons)**,
+**Content (Phase 6: banners + homepage)** and **Settings (Phase 7: store /
+delivery / tax / social / legal storefront config)** ship live
+Firebase/Supabase-backed endpoints; **Catalog (Phase 2)** ships live endpoints
+(guarded, validated, pagination included). All other modules below are
+registered and guarded, but return `501` until their phase ships.
 
 ### Identity — Phase 3 (implemented)
 - `POST /auth/login` — verify Firebase ID token, find-or-create the local

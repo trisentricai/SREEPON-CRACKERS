@@ -632,6 +632,72 @@ export const openApiSpec = swaggerJsdoc({
             },
           },
         },
+        StoreSettingsView: {
+          type: 'object',
+          required: ['name', 'currency', 'maintenanceMode'],
+          properties: {
+            name: { type: 'string' },
+            tagline: { type: 'string' },
+            supportEmail: { type: 'string' },
+            supportPhone: { type: 'string' },
+            currency: { type: 'string' },
+            maintenanceMode: { type: 'boolean' },
+          },
+        },
+        DeliverySettingsView: {
+          type: 'object',
+          required: ['enabled', 'deliveryFee'],
+          properties: {
+            enabled: { type: 'boolean' },
+            deliveryFee: { type: 'string' },
+            freeShippingAbove: { type: 'string', nullable: true },
+            deliveryNote: { type: 'string' },
+          },
+        },
+        TaxSettingsView: {
+          type: 'object',
+          required: ['enabled', 'rate'],
+          properties: {
+            enabled: { type: 'boolean' },
+            rate: { type: 'number' },
+            gstin: { type: 'string', nullable: true },
+            taxInclusive: { type: 'boolean' },
+          },
+        },
+        SocialSettingsView: {
+          type: 'object',
+          properties: {
+            facebookUrl: { type: 'string', format: 'uri', nullable: true },
+            instagramUrl: { type: 'string', format: 'uri', nullable: true },
+            youtubeUrl: { type: 'string', format: 'uri', nullable: true },
+            tiktokUrl: { type: 'string', format: 'uri', nullable: true },
+            whatsappNumber: { type: 'string', nullable: true },
+          },
+        },
+        LegalPage: {
+          type: 'object',
+          required: ['title', 'body'],
+          properties: { title: { type: 'string' }, body: { type: 'string' } },
+        },
+        PublicSettings: {
+          type: 'object',
+          properties: {
+            store: { $ref: '#/components/schemas/StoreSettingsView' },
+            delivery: { $ref: '#/components/schemas/DeliverySettingsView' },
+            tax: { $ref: '#/components/schemas/TaxSettingsView' },
+            social: { $ref: '#/components/schemas/SocialSettingsView' },
+          },
+        },
+        UpdateSettingsRequest: {
+          type: 'object',
+          properties: {
+            store: { type: 'object', description: 'Store identity & support details' },
+            delivery: { type: 'object', description: 'Delivery enabled / fee / free-shipping threshold' },
+            tax: { type: 'object', description: 'Tax rate, GSTIN, inclusion mode' },
+            social: { type: 'object', description: 'Social links & WhatsApp number' },
+            legal: { type: 'object', description: 'Legal policies & notices' },
+          },
+        },
       },
     },
     paths: {
@@ -1200,6 +1266,45 @@ export const openApiSpec = swaggerJsdoc({
           security: [{ supabaseAuth: [] }],
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
           responses: { '204': { description: 'Deleted' }, '404': { $ref: '#/components/responses/NotFound' } },
+        },
+      },
+      '/settings/public': {
+        get: {
+          tags: ['Settings'],
+          summary: 'Store settings frontends need (store, delivery, tax, social)',
+          responses: { '200': { description: 'Public settings', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } } },
+        },
+      },
+      '/settings/legal': {
+        get: {
+          tags: ['Settings'],
+          summary: 'Legal & safety content (policies + notices)',
+          responses: { '200': { description: 'Legal pages', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } } },
+        },
+      },
+      '/admin/settings': {
+        get: {
+          tags: ['Settings'],
+          summary: 'Get all store settings (grouped)',
+          security: [{ supabaseAuth: [] }],
+          responses: {
+            '200': { description: 'All settings', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '403': { $ref: '#/components/responses/Forbidden' },
+          },
+        },
+        patch: {
+          tags: ['Settings'],
+          summary: 'Update one or more settings groups',
+          security: [{ supabaseAuth: [] }],
+          requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/UpdateSettingsRequest' } } } },
+          responses: {
+            '200': { description: 'Updated settings', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '400': { $ref: '#/components/responses/BadRequest' },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '403': { $ref: '#/components/responses/Forbidden' },
+            '422': { $ref: '#/components/responses/Validation' },
+          },
         },
       },
       '/categories': {
