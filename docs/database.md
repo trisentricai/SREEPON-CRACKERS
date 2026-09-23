@@ -3,10 +3,11 @@
 Primary datastore: **PostgreSQL via Supabase**, accessed through **Prisma**.
 
 > **Status (Phase 2):** The full production schema below is implemented in
-> `backend/prisma/schema.prisma`. The initial migration for a fresh database is
-> `backend/prisma/migrations/20260923190000_phase2_initial/migration.sql`;
-> apply it against the target database with `npx prisma migrate deploy` after
-> setting `DATABASE_URL`/`DIRECT_DATABASE_URL`.
+> `backend/prisma/schema.prisma`. Applied to Supabase via `npx prisma migrate deploy`
+> (migration `20260923190000_phase2_initial`); catalog seeded with
+> `npm run prisma:seed` (16 categories, 7 products). `.env` uses the Supabase
+> **direct** host `db.<ref>.supabase.co` for both runtime and migrations — the
+> pooler URL rejects Prisma's session user (`FATAL: tenant/user not found`).
 
 ## Models
 
