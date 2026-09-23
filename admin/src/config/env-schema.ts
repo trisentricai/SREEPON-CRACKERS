@@ -7,8 +7,8 @@ import { z } from 'zod';
  */
 export const envSchema = z.object({
   MODE: z.enum(['development', 'production', 'test']),
-  DEV: z.literal(true).optional(),
-  PROD: z.literal(true).optional(),
+  DEV: z.boolean(),
+  PROD: z.boolean(),
   BASE_URL: z.string().default('/'),
   VITE_API_BASE_URL: z.string().url().default('http://localhost:5000/api/v1'),
 

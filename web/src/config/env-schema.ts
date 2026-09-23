@@ -8,8 +8,8 @@ import { z } from 'zod';
  */
 export const envSchema = z.object({
   MODE: z.enum(['development', 'production', 'test']),
-  DEV: z.literal(true).optional(),
-  PROD: z.literal(true).optional(),
+  DEV: z.boolean(),
+  PROD: z.boolean(),
   BASE_URL: z.string().default('/'),
   SSR: z.boolean().default(false),
   VITE_API_BASE_URL: z.string().url().default('http://localhost:5000/api/v1'),
@@ -20,4 +20,5 @@ export const envSchema = z.object({
   VITE_FIREBASE_STORAGE_BUCKET: z.string().optional(),
   VITE_FIREBASE_MESSAGING_SENDER_ID: z.string().optional(),
   VITE_FIREBASE_APP_ID: z.string().optional(),
+  VITE_FIREBASE_MEASUREMENT_ID: z.string().optional(),
 });
