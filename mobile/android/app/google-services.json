@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "883028401432",
+    "project_id": "sripon-c303b",
+    "storage_bucket": "sripon-c303b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:883028401432:android:64014e1fed417664c9126d",
+        "android_client_info": {
+          "package_name": "com.sripon.sripon"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "883028401432-esc73p8in39ogivog29ep1iaaqkmm1qu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sripon.sripon",
+            "certificate_hash": "7a0b2845efa387ba808837bfd4dcac8207b84918"
+          }
+        },
+        {
+          "client_id": "883028401432-o8lo5b5iigsa59inuu9hn4pv10ebaf2i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCD80D0V0oBzTTwklyZsK1280KSFwOthFU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "883028401432-o8lo5b5iigsa59inuu9hn4pv10ebaf2i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
