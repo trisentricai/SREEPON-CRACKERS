@@ -39,11 +39,10 @@ describe('SriPon API smoke tests', () => {
     expect(typeof res.body.message).toBe('string');
   });
 
-  it('unimplemented module endpoints respond 501 with a clear message', async () => {
-    const res = await request(app).get('/api/v1/settings/public');
+  it('unimplemented admin endpoints remain auth-guarded (never accidentally live)', async () => {
+    const res = await request(app).get('/api/v1/admin/customers');
 
-    expect(res.status).toBe(501);
+    expect(res.status).toBe(401);
     expect(res.body.success).toBe(false);
-    expect(res.body.message).toContain('not implemented');
   });
 });

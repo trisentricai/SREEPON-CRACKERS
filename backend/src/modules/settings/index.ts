@@ -1,19 +1,21 @@
 import { Router } from 'express';
-import { requireSupabase, requireAdminRoles, AdminRole } from '../../middleware/auth.middleware';
-import { pending } from '../helpers';
+import { validate } from '../../middleware/validation.middleware';
+import {
+  requireSupabase,
+  requireAdminRoles,
+  AdminRole,
+} from '../../middleware/auth.middleware';
+import { getAllSettings, getLegalSettings, getPublicSettings, updateSettings } from './controller';
+import { updateSettingsSchema } from './schema';
 
-/**
- * Store-wide configuration (store name, delivery fee, tax, maintenance mode,
- * legal pages, safety notices). PHASE 8/13 implement the real controllers.
- */
 export const settingsRouter = Router();
 
-// Public: read active store settings that the frontends need (not secrets).
-settingsRouter.get('/settings/public', pending('public store settings'));
-settingsRouter.get('/settings/legal', pending('legal & safety content'));
+// Public: read active store settings the frontends need (never secrets).
+settingsRouter.get('/settings/public', getPublicSettings);
+settingsRouter.get('/settings/legal', getLegalSettings);
 
 // Admin
 settingsRouter.use('/admin/settings', requireSupabase(), requireAdminRoles(AdminRole.SUPER_ADMIN, AdminRole.ADMIN));
 
-settingsRouter.get('/admin/settings', pending('get all settings'));
-settingsRouter.patch('/admin/settings', pending('update settings'));
+settingsRouter.get('/admin/settings', getAllSettings);
+settingsRouter.patch('/admin/settings', validate({ body: updateSettingsSchema }), updateSettings);
