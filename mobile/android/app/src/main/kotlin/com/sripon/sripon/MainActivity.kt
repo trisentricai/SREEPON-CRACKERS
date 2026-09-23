@@ -1,4 +1,4 @@
-package com.example.sripon
+package com.sripon.sripon
 
 import io.flutter.embedding.android.FlutterActivity
 
