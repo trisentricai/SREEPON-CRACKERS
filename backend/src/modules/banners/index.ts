@@ -1,26 +1,44 @@
 import { Router } from 'express';
-import { requireSupabase, requireAdminRoles, AdminRole } from '../../middleware/auth.middleware';
-import { pending } from '../helpers';
+import { validate } from '../../middleware/validation.middleware';
+import {
+  requireSupabase,
+  requireAdminRoles,
+  AdminRole,
+} from '../../middleware/auth.middleware';
+import {
+  activateBanner,
+  createBanner,
+  deleteBanner,
+  duplicateBanner,
+  getBanner,
+  listActiveBanners,
+  listAllBanners,
+  listBannersForPlacement,
+  reorderBanners,
+  updateBanner,
+} from './controller';
+import {
+  activateBannerSchema,
+  adminListBannersQuerySchema,
+  createBannerSchema,
+  reorderBannersSchema,
+  updateBannerSchema,
+} from './schema';
 
-/**
- * Promotional banner/poster CMS. Banners are served from the API so the website
- * and the Flutter app reflect admin changes without redeploying.
- * PHASE 8 implements the real controllers.
- */
 export const bannersRouter = Router();
 
 // Public (cacheable)
-bannersRouter.get('/banners', pending('list active banners'));
-bannersRouter.get('/banners/:placement', pending('list banners for placement'));
+bannersRouter.get('/banners', listActiveBanners);
+bannersRouter.get('/banners/:placement', listBannersForPlacement);
 
 // Admin
 bannersRouter.use('/admin/banners', requireSupabase(), requireAdminRoles(AdminRole.SUPER_ADMIN, AdminRole.ADMIN, AdminRole.CONTENT_MANAGER));
 
-bannersRouter.get('/admin/banners', pending('list all banners'));
-bannersRouter.post('/admin/banners', pending('create banner'));
-bannersRouter.get('/admin/banners/:id', pending('get banner'));
-bannersRouter.patch('/admin/banners/:id', pending('update banner'));
-bannersRouter.delete('/admin/banners/:id', pending('delete banner'));
-bannersRouter.post('/admin/banners/:id/duplicate', pending('duplicate banner'));
-bannersRouter.patch('/admin/banners/:id/activate', pending('activate banner'));
-bannersRouter.patch('/admin/banners/reorder', pending('reorder banners'));
+bannersRouter.get('/admin/banners', validate({ query: adminListBannersQuerySchema }), listAllBanners);
+bannersRouter.post('/admin/banners', validate({ body: createBannerSchema }), createBanner);
+bannersRouter.patch('/admin/banners/reorder', validate({ body: reorderBannersSchema }), reorderBanners);
+bannersRouter.get('/admin/banners/:id', getBanner);
+bannersRouter.patch('/admin/banners/:id', validate({ body: updateBannerSchema }), updateBanner);
+bannersRouter.delete('/admin/banners/:id', deleteBanner);
+bannersRouter.post('/admin/banners/:id/duplicate', duplicateBanner);
+bannersRouter.patch('/admin/banners/:id/activate', validate({ body: activateBannerSchema }), activateBanner);

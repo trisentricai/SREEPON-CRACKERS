@@ -48,10 +48,11 @@ Every response is a JSON envelope:
 ## Module routes
 
 Phase progress: **Customer identity (Phase 3)**, **Shopper flows (Phase 4:
-cart + wishlist)** and **Commerce (Phase 5: orders, payments, coupons)** ship
-live Firebase/Supabase-backed endpoints; **Catalog (Phase 2)** ships live
-endpoints (guarded, validated, pagination included). All other modules below
-are registered and guarded, but return `501` until their phase ships.
+cart + wishlist)**, **Commerce (Phase 5: orders, payments, coupons)** and
+**Content (Phase 6: banners + homepage)** ship live Firebase/Supabase-backed
+endpoints; **Catalog (Phase 2)** ships live endpoints (guarded, validated,
+pagination included). All other modules below are registered and guarded, but
+return `501` until their phase ships.
 
 ### Identity — Phase 3 (implemented)
 - `POST /auth/login` — verify Firebase ID token, find-or-create the local
@@ -124,17 +125,28 @@ are registered and guarded, but return `501` until their phase ships.
     enforced server-side for checkout and validation; `PERCENTAGE` discounts
     respect `maxDiscount`; codes are normalized uppercase.
 
-### Content (admin, Supabase — read routes public)
+### Content — Phase 6 (implemented)
 - Banners: `GET /banners`, `GET /banners/:placement` (public);
+  admin (`SUPER_ADMIN | ADMIN | CONTENT_MANAGER`):
   `GET/POST /admin/banners`, `GET/PATCH/DELETE /admin/banners/:id`,
   `POST /admin/banners/:id/duplicate`,
   `PATCH /admin/banners/:id/activate`, `PATCH /admin/banners/reorder`
-- Homepage: `GET /homepage` (public);
-  `GET /admin/homepage`, `PUT /admin/homepage`,
+  - Public reads only return banners that are active **and** inside their
+    scheduled `startAt`/`endAt` window, ordered by placement/displayOrder.
+  - `LINKED_CATEGORY` banners require a `categoryId`; other action types
+    require an `actionTarget`. Duplicating creates an inactive copy; every
+    create/update/delete/activate writes an `AuditLog` row (actor + request id).
+- Homepage: `GET /homepage` (public) composes active sections (with their
+  banners, products and categories resolved from live data), groups active
+  banners by placement, and merges the `SiteSetting`-backed homepage config.
+  Admin (`SUPER_ADMIN | ADMIN | CONTENT_MANAGER`):
+  `GET /admin/homepage`, `PUT /admin/homepage` (upserts the `homepage` config),
   `GET /admin/homepage/sections`, `POST /admin/homepage/sections`,
-  `PATCH /admin/homepage/sections/:id`,
-  `DELETE /admin/homepage/sections/:id`,
-  `PATCH /admin/homepage/sections/reorder`
+  `PATCH /admin/homepage/sections/reorder`,
+  `PATCH /admin/homepage/sections/:id`, `DELETE /admin/homepage/sections/:id`
+  - Section types: `HERO`, `CATEGORY_GRID`, `PRODUCT_CAROUSEL`,
+    `FEATURED_PRODUCTS`, `BEST_SELLERS` (by order-item quantity),
+    `NEW_ARRIVALS`, `PROMOTION`, `CUSTOM_COLLECTION` (uses `config.productIds`).
 
 ### Engagement (Firebase)
 - Notifications: `GET /notifications`,

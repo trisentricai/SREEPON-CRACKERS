@@ -490,6 +490,148 @@ export const openApiSpec = swaggerJsdoc({
           },
         },
         UpdateCouponRequest: { $ref: '#/components/schemas/CreateCouponRequest' },
+        Banner: {
+          type: 'object',
+          required: ['id', 'placement', 'title', 'imageUrl', 'actionType', 'displayOrder', 'isActive'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            placement: { type: 'string', enum: ['HOME_HERO', 'HOME_SECONDARY', 'HOME_MIDDLE', 'HOME_BOTTOM', 'CATEGORY_TOP', 'PRODUCT_PROMOTION', 'APP_HOME'] },
+            title: { type: 'string' },
+            subtitle: { type: 'string', nullable: true },
+            imageUrl: { type: 'string', format: 'url' },
+            actionType: { type: 'string', enum: ['LINKED_PRODUCT', 'LINKED_CATEGORY', 'CUSTOM_URL'] },
+            actionTarget: { type: 'string', nullable: true },
+            category: {
+              type: 'object',
+              nullable: true,
+              required: ['id', 'name', 'slug'],
+              properties: { id: { type: 'string', format: 'uuid' }, name: { type: 'string' }, slug: { type: 'string' } },
+            },
+            displayOrder: { type: 'integer' },
+            startAt: { type: 'string', format: 'date-time', nullable: true },
+            endAt: { type: 'string', format: 'date-time', nullable: true },
+            isActive: { type: 'boolean' },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
+          },
+        },
+        BannerList: {
+          type: 'object',
+          required: ['items', 'pagination'],
+          properties: {
+            items: { type: 'array', items: { $ref: '#/components/schemas/Banner' } },
+            pagination: { $ref: '#/components/schemas/Pagination' },
+          },
+        },
+        CreateBannerRequest: {
+          type: 'object',
+          required: ['placement', 'title', 'imageUrl', 'actionType'],
+          properties: {
+            placement: { type: 'string', enum: ['HOME_HERO', 'HOME_SECONDARY', 'HOME_MIDDLE', 'HOME_BOTTOM', 'CATEGORY_TOP', 'PRODUCT_PROMOTION', 'APP_HOME'] },
+            title: { type: 'string' },
+            subtitle: { type: 'string' },
+            imageUrl: { type: 'string', format: 'url' },
+            actionType: { type: 'string', enum: ['LINKED_PRODUCT', 'LINKED_CATEGORY', 'CUSTOM_URL'] },
+            actionTarget: { type: 'string', description: 'Required unless actionType is LINKED_CATEGORY' },
+            categoryId: { type: 'string', format: 'uuid', description: 'Required for LINKED_CATEGORY banners' },
+            displayOrder: { type: 'integer', default: 0 },
+            startAt: { type: 'string', format: 'date-time' },
+            endAt: { type: 'string', format: 'date-time' },
+            isActive: { type: 'boolean', default: true },
+          },
+        },
+        UpdateBannerRequest: { $ref: '#/components/schemas/CreateBannerRequest' },
+        ActivateBannerRequest: {
+          type: 'object',
+          required: ['isActive'],
+          properties: { isActive: { type: 'boolean' } },
+        },
+        ReorderBannersRequest: {
+          type: 'object',
+          required: ['items'],
+          properties: {
+            items: {
+              type: 'array',
+              items: {
+                type: 'object',
+                required: ['id', 'displayOrder'],
+                properties: { id: { type: 'string', format: 'uuid' }, displayOrder: { type: 'integer' } },
+              },
+            },
+          },
+        },
+        HomepageSection: {
+          type: 'object',
+          required: ['id', 'type', 'displayOrder', 'isActive'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            type: { type: 'string', enum: ['HERO', 'CATEGORY_GRID', 'PRODUCT_CAROUSEL', 'FEATURED_PRODUCTS', 'BEST_SELLERS', 'NEW_ARRIVALS', 'PROMOTION', 'CUSTOM_COLLECTION'] },
+            title: { type: 'string', nullable: true },
+            config: { type: 'object', nullable: true },
+            displayOrder: { type: 'integer' },
+            isActive: { type: 'boolean' },
+            createdAt: { type: 'string', format: 'date-time' },
+            updatedAt: { type: 'string', format: 'date-time' },
+          },
+        },
+        HomepageConfig: {
+          type: 'object',
+          properties: {
+            heroTitle: { type: 'string' },
+            heroTagline: { type: 'string' },
+          },
+        },
+        Homepage: {
+          type: 'object',
+          required: ['config', 'sections', 'banners'],
+          properties: {
+            config: { $ref: '#/components/schemas/HomepageConfig' },
+            sections: {
+              type: 'array',
+              items: {
+                allOf: [{ $ref: '#/components/schemas/HomepageSection' }],
+                properties: { content: { type: 'object' } },
+              },
+            },
+            banners: {
+              type: 'array',
+              items: {
+                type: 'object',
+                required: ['placement', 'items'],
+                properties: {
+                  placement: { type: 'string' },
+                  items: { type: 'array', items: { $ref: '#/components/schemas/Banner' } },
+                },
+              },
+            },
+          },
+        },
+        CreateSectionRequest: {
+          type: 'object',
+          required: ['type'],
+          properties: {
+            type: { type: 'string', enum: ['HERO', 'CATEGORY_GRID', 'PRODUCT_CAROUSEL', 'FEATURED_PRODUCTS', 'BEST_SELLERS', 'NEW_ARRIVALS', 'PROMOTION', 'CUSTOM_COLLECTION'] },
+            title: { type: 'string' },
+            config: { type: 'object' },
+            displayOrder: { type: 'integer', default: 0 },
+            isActive: { type: 'boolean', default: true },
+          },
+        },
+        UpdateSectionRequest: { $ref: '#/components/schemas/CreateSectionRequest' },
+        ReorderSectionsRequest: {
+          type: 'object',
+          required: ['items'],
+          properties: {
+            items: {
+              type: 'array',
+              items: {
+                type: 'object',
+                required: ['id', 'displayOrder'],
+                properties: { id: { type: 'string', format: 'uuid' }, displayOrder: { type: 'integer' } },
+              },
+            },
+          },
+        },
       },
     },
     paths: {
@@ -893,6 +1035,171 @@ export const openApiSpec = swaggerJsdoc({
           security: [{ supabaseAuth: [] }],
           parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
           responses: { '204': { description: 'Coupon deleted' }, '404': { $ref: '#/components/responses/NotFound' } },
+        },
+      },
+      '/banners': {
+        get: {
+          tags: ['Banners'],
+          summary: 'List all active banners (cacheable)',
+          responses: { '200': { description: 'Active banners', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } } },
+        },
+      },
+      '/banners/{placement}': {
+        get: {
+          tags: ['Banners'],
+          summary: 'List active banners for a placement',
+          parameters: [{ name: 'placement', in: 'path', required: true, schema: { type: 'string', enum: ['HOME_HERO', 'HOME_SECONDARY', 'HOME_MIDDLE', 'HOME_BOTTOM', 'CATEGORY_TOP', 'PRODUCT_PROMOTION', 'APP_HOME'] } }],
+          responses: {
+            '200': { description: 'Active banners for placement', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '400': { $ref: '#/components/responses/BadRequest' },
+          },
+        },
+      },
+      '/admin/banners': {
+        get: {
+          tags: ['Banners'],
+          summary: 'List all banners (paginated, filterable)',
+          security: [{ supabaseAuth: [] }],
+          parameters: [
+            { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
+            { name: 'limit', in: 'query', schema: { type: 'integer', default: 20, maximum: 100 } },
+            { name: 'placement', in: 'query', schema: { type: 'string', enum: ['HOME_HERO', 'HOME_SECONDARY', 'HOME_MIDDLE', 'HOME_BOTTOM', 'CATEGORY_TOP', 'PRODUCT_PROMOTION', 'APP_HOME'] } },
+            { name: 'isActive', in: 'query', schema: { type: 'boolean' } },
+            { name: 'q', in: 'query', schema: { type: 'string' } },
+          ],
+          responses: { '200': { description: 'Paginated banners', content: { 'application/json': { schema: { $ref: '#/components/schemas/BannerList' } } } } },
+        },
+        post: {
+          tags: ['Banners'],
+          summary: 'Create a banner',
+          security: [{ supabaseAuth: [] }],
+          requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateBannerRequest' } } } },
+          responses: { '201': { description: 'Created', content: { 'application/json': { schema: { $ref: '#/components/schemas/Banner' } } } } },
+        },
+      },
+      '/admin/banners/reorder': {
+        patch: {
+          tags: ['Banners'],
+          summary: 'Reorder banners by displayOrder',
+          security: [{ supabaseAuth: [] }],
+          requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/ReorderBannersRequest' } } } },
+          responses: { '200': { description: 'Updated banner list', content: { 'application/json': { schema: { $ref: '#/components/schemas/BannerList' } } } } },
+        },
+      },
+      '/admin/banners/{id}': {
+        get: {
+          tags: ['Banners'],
+          summary: 'Get a banner',
+          security: [{ supabaseAuth: [] }],
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          responses: {
+            '200': { description: 'Banner', content: { 'application/json': { schema: { $ref: '#/components/schemas/Banner' } } } },
+            '404': { $ref: '#/components/responses/NotFound' },
+          },
+        },
+        patch: {
+          tags: ['Banners'],
+          summary: 'Update a banner',
+          security: [{ supabaseAuth: [] }],
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/UpdateBannerRequest' } } } },
+          responses: {
+            '200': { description: 'Updated banner', content: { 'application/json': { schema: { $ref: '#/components/schemas/Banner' } } } },
+            '404': { $ref: '#/components/responses/NotFound' },
+          },
+        },
+        delete: {
+          tags: ['Banners'],
+          summary: 'Delete a banner',
+          security: [{ supabaseAuth: [] }],
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          responses: { '204': { description: 'Deleted' }, '404': { $ref: '#/components/responses/NotFound' } },
+        },
+      },
+      '/admin/banners/{id}/duplicate': {
+        post: {
+          tags: ['Banners'],
+          summary: 'Duplicate a banner (copy is created inactive)',
+          security: [{ supabaseAuth: [] }],
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          responses: { '201': { description: 'Duplicated banner', content: { 'application/json': { schema: { $ref: '#/components/schemas/Banner' } } } } },
+        },
+      },
+      '/admin/banners/{id}/activate': {
+        patch: {
+          tags: ['Banners'],
+          summary: 'Activate or deactivate a banner',
+          security: [{ supabaseAuth: [] }],
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/ActivateBannerRequest' } } } },
+          responses: { '200': { description: 'Updated banner', content: { 'application/json': { schema: { $ref: '#/components/schemas/Banner' } } } } },
+        },
+      },
+      '/homepage': {
+        get: {
+          tags: ['Homepage'],
+          summary: 'Composed public homepage (sections + banners + products)',
+          responses: { '200': { description: 'Homepage', content: { 'application/json': { schema: { $ref: '#/components/schemas/Homepage' } } } } },
+        },
+      },
+      '/admin/homepage': {
+        get: {
+          tags: ['Homepage'],
+          summary: 'Get homepage configuration',
+          security: [{ supabaseAuth: [] }],
+          responses: { '200': { description: 'Homepage config', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } } },
+        },
+        put: {
+          tags: ['Homepage'],
+          summary: 'Update homepage configuration',
+          security: [{ supabaseAuth: [] }],
+          requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/HomepageConfig' } } } },
+          responses: { '200': { description: 'Homepage config saved', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } } },
+        },
+      },
+      '/admin/homepage/sections': {
+        get: {
+          tags: ['Homepage'],
+          summary: 'List homepage sections',
+          security: [{ supabaseAuth: [] }],
+          parameters: [{ name: 'isActive', in: 'query', schema: { type: 'boolean' } }],
+          responses: { '200': { description: 'Sections', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } } },
+        },
+        post: {
+          tags: ['Homepage'],
+          summary: 'Create a homepage section',
+          security: [{ supabaseAuth: [] }],
+          requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateSectionRequest' } } } },
+          responses: { '201': { description: 'Created', content: { 'application/json': { schema: { $ref: '#/components/schemas/HomepageSection' } } } } },
+        },
+      },
+      '/admin/homepage/sections/reorder': {
+        patch: {
+          tags: ['Homepage'],
+          summary: 'Reorder homepage sections by displayOrder',
+          security: [{ supabaseAuth: [] }],
+          requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/ReorderSectionsRequest' } } } },
+          responses: { '200': { description: 'Updated sections', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } } },
+        },
+      },
+      '/admin/homepage/sections/{id}': {
+        patch: {
+          tags: ['Homepage'],
+          summary: 'Update a homepage section',
+          security: [{ supabaseAuth: [] }],
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          requestBody: { content: { 'application/json': { schema: { $ref: '#/components/schemas/UpdateSectionRequest' } } } },
+          responses: {
+            '200': { description: 'Updated section', content: { 'application/json': { schema: { $ref: '#/components/schemas/HomepageSection' } } } },
+            '404': { $ref: '#/components/responses/NotFound' },
+          },
+        },
+        delete: {
+          tags: ['Homepage'],
+          summary: 'Delete a homepage section',
+          security: [{ supabaseAuth: [] }],
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          responses: { '204': { description: 'Deleted' }, '404': { $ref: '#/components/responses/NotFound' } },
         },
       },
       '/categories': {
