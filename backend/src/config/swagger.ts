@@ -1761,6 +1761,73 @@ export const openApiSpec = swaggerJsdoc({
           },
         },
       },
+      '/admin/analytics/dashboard': {
+        get: {
+          tags: ['Analytics'],
+          summary: 'Dashboard KPI summary',
+          security: [{ supabaseAuth: [] }],
+          responses: {
+            '200': { description: 'Dashboard metrics', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '403': { $ref: '#/components/responses/Forbidden' },
+          },
+        },
+      },
+      '/admin/analytics/revenue': {
+        get: {
+          tags: ['Analytics'],
+          summary: 'Revenue over time (daily, paid orders)',
+          security: [{ supabaseAuth: [] }],
+          parameters: [{ name: 'days', in: 'query', schema: { type: 'integer', default: 30, maximum: 365 } }],
+          responses: {
+            '200': { description: 'Daily revenue series', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '403': { $ref: '#/components/responses/Forbidden' },
+          },
+        },
+      },
+      '/admin/analytics/orders': {
+        get: {
+          tags: ['Analytics'],
+          summary: 'Order volume over time (daily, paid/unpaid)',
+          security: [{ supabaseAuth: [] }],
+          parameters: [{ name: 'days', in: 'query', schema: { type: 'integer', default: 30, maximum: 365 } }],
+          responses: {
+            '200': { description: 'Daily order series', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '403': { $ref: '#/components/responses/Forbidden' },
+          },
+        },
+      },
+      '/admin/analytics/top-products': {
+        get: {
+          tags: ['Analytics'],
+          summary: 'Top products by paid revenue and units',
+          security: [{ supabaseAuth: [] }],
+          parameters: [
+            { name: 'limit', in: 'query', schema: { type: 'integer', default: 10, maximum: 100 } },
+            { name: 'days', in: 'query', schema: { type: 'integer', default: 365, maximum: 365 } },
+          ],
+          responses: {
+            '200': { description: 'Top products', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '403': { $ref: '#/components/responses/Forbidden' },
+          },
+        },
+      },
+      '/admin/analytics/categories': {
+        get: {
+          tags: ['Analytics'],
+          summary: 'Category performance by paid revenue and units',
+          security: [{ supabaseAuth: [] }],
+          parameters: [{ name: 'days', in: 'query', schema: { type: 'integer', default: 365, maximum: 365 } }],
+          responses: {
+            '200': { description: 'Category performance', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '403': { $ref: '#/components/responses/Forbidden' },
+          },
+        },
+      },
       '/products/{id}': {
         get: {
           tags: ['Products'],

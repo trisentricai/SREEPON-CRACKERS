@@ -1,21 +1,23 @@
 import { Router } from 'express';
 import { requireSupabase, requireAdminRoles, AdminRole } from '../../middleware/auth.middleware';
-import { pending } from '../helpers';
+import { validate } from '../../middleware/validation.middleware';
+import { getCategoryPerformance, getDashboard, getOrdersOverTime, getRevenueOverTime, getTopProducts } from './controller';
+import { analyticsQuerySchema, categoriesQuerySchema, topProductsQuerySchema } from './schema';
 
 /**
  * Read-only analytics for the admin dashboard. Every metric is computed from
- * real order/inventory/user data. PHASE 13 implements the real controllers.
+ * real order/inventory/user data.
  */
 export const analyticsRouter = Router();
 
 analyticsRouter.use(
-    '/admin/analytics',
-    requireSupabase(),
-    requireAdminRoles(AdminRole.SUPER_ADMIN, AdminRole.ADMIN, AdminRole.ANALYST),
-  );
+  '/admin/analytics',
+  requireSupabase(),
+  requireAdminRoles(AdminRole.SUPER_ADMIN, AdminRole.ADMIN, AdminRole.ANALYST),
+);
 
-analyticsRouter.get('/admin/analytics/dashboard', pending('dashboard metrics'));
-analyticsRouter.get('/admin/analytics/revenue', pending('revenue over time'));
-analyticsRouter.get('/admin/analytics/orders', pending('orders over time'));
-analyticsRouter.get('/admin/analytics/top-products', pending('top products'));
-analyticsRouter.get('/admin/analytics/categories', pending('category performance'));
+analyticsRouter.get('/admin/analytics/dashboard', getDashboard);
+analyticsRouter.get('/admin/analytics/revenue', validate({ query: analyticsQuerySchema }), getRevenueOverTime);
+analyticsRouter.get('/admin/analytics/orders', validate({ query: analyticsQuerySchema }), getOrdersOverTime);
+analyticsRouter.get('/admin/analytics/top-products', validate({ query: topProductsQuerySchema }), getTopProducts);
+analyticsRouter.get('/admin/analytics/categories', validate({ query: categoriesQuerySchema }), getCategoryPerformance);
