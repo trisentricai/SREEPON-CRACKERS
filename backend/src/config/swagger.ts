@@ -166,6 +166,13 @@ export const openApiSpec = swaggerJsdoc({
             createdAt: { type: 'string', format: 'date-time' },
           },
         },
+        UpdateProfileRequest: {
+          type: 'object',
+          properties: {
+            name: { type: 'string', nullable: true, description: 'Display name (null clears)' },
+            phone: { type: 'string', nullable: true, description: 'Phone (null clears)' },
+          },
+        },
         LoginRequest: {
           type: 'object',
           required: ['idToken'],
@@ -763,6 +770,45 @@ export const openApiSpec = swaggerJsdoc({
           security: [{ firebaseAuth: [] }],
           responses: {
             '200': { description: 'Profile', content: { 'application/json': { schema: { $ref: '#/components/schemas/UserProfile' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+          },
+        },
+      },
+      '/users/me': {
+        get: {
+          tags: ['Users'],
+          summary: 'Current customer profile (user profile management)',
+          security: [{ firebaseAuth: [] }],
+          responses: {
+            '200': { description: 'Profile', content: { 'application/json': { schema: { $ref: '#/components/schemas/UserProfile' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+          },
+        },
+        patch: {
+          tags: ['Users'],
+          summary: 'Update editable profile fields (name, phone)',
+          security: [{ firebaseAuth: [] }],
+          requestBody: {
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/UpdateProfileRequest' } } },
+          },
+          responses: {
+            '200': { description: 'Updated profile', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '422': { description: 'Validation failed' },
+          },
+        },
+      },
+      '/users/me/orders': {
+        get: {
+          tags: ['Users'],
+          summary: 'Current customer order history (paginated)',
+          security: [{ firebaseAuth: [] }],
+          parameters: [
+            { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
+            { name: 'limit', in: 'query', schema: { type: 'integer', default: 20, maximum: 100 } },
+          ],
+          responses: {
+            '200': { description: 'Paginated order history', content: { 'application/json': { schema: { $ref: '#/components/schemas/PaginatedProducts' } } } },
             '401': { $ref: '#/components/responses/Unauthorized' },
           },
         },
