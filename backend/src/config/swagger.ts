@@ -173,6 +173,63 @@ export const openApiSpec = swaggerJsdoc({
             phone: { type: 'string', nullable: true, description: 'Phone (null clears)' },
           },
         },
+        AddressView: {
+          type: 'object',
+          required: ['id', 'label', 'fullName', 'phone', 'line1', 'city', 'state', 'pincode', 'country', 'isDefault', 'createdAt'],
+          properties: {
+            id: { type: 'string', format: 'uuid' },
+            label: { type: 'string', example: 'Home' },
+            fullName: { type: 'string' },
+            phone: { type: 'string' },
+            line1: { type: 'string' },
+            line2: { type: 'string', nullable: true },
+            city: { type: 'string' },
+            state: { type: 'string' },
+            pincode: { type: 'string' },
+            country: { type: 'string', example: 'IN' },
+            isDefault: { type: 'boolean' },
+            createdAt: { type: 'string', format: 'date-time' },
+          },
+        },
+        AddressListResponse: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean' },
+            message: { type: 'string' },
+            data: { type: 'object', properties: { items: { type: 'array', items: { $ref: '#/components/schemas/AddressView' } } } },
+          },
+        },
+        CreateAddressRequest: {
+          type: 'object',
+          required: ['fullName', 'phone', 'line1', 'city', 'state', 'pincode'],
+          properties: {
+            label: { type: 'string', default: 'Home' },
+            fullName: { type: 'string' },
+            phone: { type: 'string' },
+            line1: { type: 'string' },
+            line2: { type: 'string', nullable: true },
+            city: { type: 'string' },
+            state: { type: 'string' },
+            pincode: { type: 'string' },
+            country: { type: 'string', default: 'IN' },
+            isDefault: { type: 'boolean' },
+          },
+        },
+        UpdateAddressRequest: {
+          type: 'object',
+          properties: {
+            label: { type: 'string' },
+            fullName: { type: 'string' },
+            phone: { type: 'string' },
+            line1: { type: 'string' },
+            line2: { type: 'string', nullable: true },
+            city: { type: 'string' },
+            state: { type: 'string' },
+            pincode: { type: 'string' },
+            country: { type: 'string' },
+            isDefault: { type: 'boolean' },
+          },
+        },
         LoginRequest: {
           type: 'object',
           required: ['idToken'],
@@ -810,6 +867,82 @@ export const openApiSpec = swaggerJsdoc({
           responses: {
             '200': { description: 'Paginated order history', content: { 'application/json': { schema: { $ref: '#/components/schemas/PaginatedProducts' } } } },
             '401': { $ref: '#/components/responses/Unauthorized' },
+          },
+        },
+      },
+      '/addresses': {
+        get: {
+          tags: ['Addresses'],
+          summary: 'List the caller owned shipping addresses (default first)',
+          security: [{ firebaseAuth: [] }],
+          responses: {
+            '200': { description: 'Address list', content: { 'application/json': { schema: { $ref: '#/components/schemas/AddressListResponse' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+          },
+        },
+        post: {
+          tags: ['Addresses'],
+          summary: 'Create a shipping address (first address becomes default)',
+          security: [{ firebaseAuth: [] }],
+          requestBody: {
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateAddressRequest' } } },
+          },
+          responses: {
+            '201': { description: 'Created address', content: { 'application/json': { schema: { $ref: '#/components/schemas/AddressView' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '422': { description: 'Validation failed' },
+          },
+        },
+      },
+      '/addresses/{id}': {
+        get: {
+          tags: ['Addresses'],
+          summary: 'Get one owned address',
+          security: [{ firebaseAuth: [] }],
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          responses: {
+            '200': { description: 'Address', content: { 'application/json': { schema: { $ref: '#/components/schemas/AddressView' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '404': { $ref: '#/components/responses/NotFound' },
+          },
+        },
+        patch: {
+          tags: ['Addresses'],
+          summary: 'Update an owned address',
+          security: [{ firebaseAuth: [] }],
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          requestBody: {
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/UpdateAddressRequest' } } },
+          },
+          responses: {
+            '200': { description: 'Updated address', content: { 'application/json': { schema: { $ref: '#/components/schemas/AddressView' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '404': { $ref: '#/components/responses/NotFound' },
+            '422': { description: 'Validation failed' },
+          },
+        },
+        delete: {
+          tags: ['Addresses'],
+          summary: 'Delete an owned address',
+          security: [{ firebaseAuth: [] }],
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          responses: {
+            '204': { description: 'Address deleted' },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '404': { $ref: '#/components/responses/NotFound' },
+          },
+        },
+      },
+      '/addresses/{id}/default': {
+        patch: {
+          tags: ['Addresses'],
+          summary: 'Set this address as the default (demotes the previous default)',
+          security: [{ firebaseAuth: [] }],
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          responses: {
+            '200': { description: 'Default address set', content: { 'application/json': { schema: { $ref: '#/components/schemas/AddressView' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '404': { $ref: '#/components/responses/NotFound' },
           },
         },
       },
