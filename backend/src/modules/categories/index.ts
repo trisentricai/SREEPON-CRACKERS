@@ -26,6 +26,7 @@ categoriesRouter.use(
   requireAdminRoles(AdminRole.SUPER_ADMIN, AdminRole.ADMIN, AdminRole.PRODUCT_MANAGER),
 );
 
+categoriesRouter.get('/admin/categories', validate({ query: listCategoriesQuerySchema }), controller.listAdminCategories);
 categoriesRouter.post('/admin/categories', validate({ body: createCategorySchema }), controller.createCategory);
 categoriesRouter.patch(
   '/admin/categories/:id',

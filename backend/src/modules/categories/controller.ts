@@ -10,6 +10,12 @@ export const listCategories = asyncHandler(async (req: Request, res: Response) =
   res.json(ok(categories, `${categories.length} categor${categories.length === 1 ? 'y' : 'ies'}`));
 });
 
+export const listAdminCategories = asyncHandler(async (req: Request, res: Response) => {
+  const query = getValidatedQuery<ListCategoriesQuery>(req);
+  const categories = await service.listCategories({ ...query, includeInactive: true });
+  res.json(ok(categories, `${categories.length} categor${categories.length === 1 ? 'y' : 'ies'}`));
+});
+
 export const getCategoryTree = asyncHandler(async (_req: Request, res: Response) => {
   const tree = await service.getCategoryTree(false);
   res.json(ok(tree, 'Category tree'));
