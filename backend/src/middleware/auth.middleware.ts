@@ -1,7 +1,7 @@
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
 import type { DecodedIdToken } from 'firebase-admin/auth';
 import { getFirebaseAuth } from '../infrastructure/firebase';
-import { verifySupabaseToken, type SupabaseClaims } from '../infrastructure/supabase';
+import { getSupabaseAdmin, verifySupabaseToken, type SupabaseClaims } from '../infrastructure/supabase';
 import { ADMIN_ROLES, AdminRole } from '../types/enums';
 import { ApiError, asyncHandler } from '../utils/http';
 import { logger } from '../utils/logger';
@@ -69,7 +69,9 @@ export const requireSupabase = (): RequestHandler =>
 
 /**
  * Role-based authorization. The role is resolved from the verified token
- * claims (app_metadata.role for Supabase admins), never from the client.
+ * claims (app_metadata.roles for Supabase admins), never from the client.
+ * When a token lacks a role (e.g. issued before a role change), the current
+ * role is fetched authoritatively from the Supabase admin API instead.
  */
 export const requireAdminRoles = (...roles: AdminRole[]): RequestHandler =>
   asyncHandler(async (req: Request, _res: Response, next: NextFunction) => {
@@ -78,16 +80,29 @@ export const requireAdminRoles = (...roles: AdminRole[]): RequestHandler =>
       throw ApiError.unauthorized('Admin authentication required');
     }
 
-    // Prefer the explicitly managed role stored on the admin profile; fall back
-    // to any roles present in the token's app_metadata.
+    // Prefer any roles present in the token's app_metadata.
     const tokenRole = claims.app_metadata?.roles?.[0] as AdminRole | undefined;
-    const appRole =
+    let appRole =
       tokenRole && (ADMIN_ROLES as readonly string[]).includes(tokenRole) ? tokenRole : undefined;
+
+    // Stale-token fallback: pull the current role from Supabase. Tokens are
+    // valid for ~1h and carry the app_metadata snapshot from when they were
+    // issued, so a role change can leave old sessions claiming no role.
+    if (!appRole) {
+      const adminClient = getSupabaseAdmin();
+      if (adminClient) {
+        const { data: profile } = await adminClient.auth.admin.getUserById(claims.sub);
+        const profileRole = profile?.user?.app_metadata?.roles?.[0] as AdminRole | undefined;
+        if (profileRole && (ADMIN_ROLES as readonly string[]).includes(profileRole)) {
+          appRole = profileRole;
+        }
+      }
+    }
 
     if (!appRole) {
       logger.warn(
         { adminId: claims.sub, email: claims.email },
-        'Denied admin access: no recognized role in token claims',
+        'Denied admin access: no recognized role in token claims or admin profile',
       );
       throw ApiError.forbidden('No admin role assigned to this account');
     }
