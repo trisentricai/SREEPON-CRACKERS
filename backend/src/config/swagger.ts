@@ -238,6 +238,15 @@ export const openApiSpec = swaggerJsdoc({
             platform: { type: 'string', enum: ['android', 'ios', 'web', 'other'] },
           },
         },
+        AdjustStockRequest: {
+          type: 'object',
+          required: ['delta', 'reason'],
+          properties: {
+            delta: { type: 'integer', description: 'Positive adds stock, negative removes (never below reserved)' },
+            reason: { type: 'string', enum: ['RECOUNT', 'DAMAGE', 'RETURN', 'STOCK_IN', 'CANCELLATION', 'OTHER'] },
+            note: { type: 'string' },
+          },
+        },
         LoginRequest: {
           type: 'object',
           required: ['idToken'],
@@ -1681,6 +1690,73 @@ export const openApiSpec = swaggerJsdoc({
           ],
           responses: {
             '200': { description: 'Customer order history', content: { 'application/json': { schema: { $ref: '#/components/schemas/PaginatedProducts' } } } },
+            '404': { $ref: '#/components/responses/NotFound' },
+          },
+        },
+      },
+      '/admin/inventory': {
+        get: {
+          tags: ['Inventory'],
+          summary: 'List inventory with availability (paginated, searchable)',
+          security: [{ supabaseAuth: [] }],
+          parameters: [
+            { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
+            { name: 'limit', in: 'query', schema: { type: 'integer', default: 20, maximum: 100 } },
+            { name: 'q', in: 'query', schema: { type: 'string', description: 'Product name or SKU search' } },
+          ],
+          responses: {
+            '200': { description: 'Paginated inventory', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '403': { $ref: '#/components/responses/Forbidden' },
+          },
+        },
+      },
+      '/admin/inventory/low-stock': {
+        get: {
+          tags: ['Inventory'],
+          summary: 'List products at or below their low-stock threshold',
+          security: [{ supabaseAuth: [] }],
+          responses: {
+            '200': { description: 'Low-stock products', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '403': { $ref: '#/components/responses/Forbidden' },
+          },
+        },
+      },
+      '/admin/inventory/{productId}/adjust': {
+        post: {
+          tags: ['Inventory'],
+          summary: 'Adjust stock (positive in, negative out), audited + logged',
+          security: [{ supabaseAuth: [] }],
+          parameters: [{ name: 'productId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          requestBody: {
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/AdjustStockRequest' } } },
+          },
+          responses: {
+            '200': { description: 'Updated inventory', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '400': { $ref: '#/components/responses/BadRequest' },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '403': { $ref: '#/components/responses/Forbidden' },
+            '404': { $ref: '#/components/responses/NotFound' },
+            '409': { description: 'Adjustment would dip below reserved stock' },
+            '422': { $ref: '#/components/responses/Validation' },
+          },
+        },
+      },
+      '/admin/inventory/{productId}/transactions': {
+        get: {
+          tags: ['Inventory'],
+          summary: 'Inventory transaction history for a product',
+          security: [{ supabaseAuth: [] }],
+          parameters: [
+            { name: 'productId', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+            { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
+            { name: 'limit', in: 'query', schema: { type: 'integer', default: 20, maximum: 100 } },
+          ],
+          responses: {
+            '200': { description: 'Paginated transactions', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '403': { $ref: '#/components/responses/Forbidden' },
             '404': { $ref: '#/components/responses/NotFound' },
           },
         },
