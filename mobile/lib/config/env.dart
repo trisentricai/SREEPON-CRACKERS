@@ -25,7 +25,7 @@ class SriPonConfig {
   static SriPonConfig _load() {
     const apiBaseUrl = String.fromEnvironment(
       'API_BASE_URL',
-      defaultValue: 'http://localhost:5000/api/v1',
+      defaultValue: 'https://sreepon-crackers.onrender.com/api/v1',
     );
     const firebaseAuthEnabled = bool.fromEnvironment('FIREBASE_AUTH_ENABLED');
     return SriPonConfig(

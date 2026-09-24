@@ -10,7 +10,7 @@ export const envSchema = z.object({
   DEV: z.boolean(),
   PROD: z.boolean(),
   BASE_URL: z.string().default('/'),
-  VITE_API_BASE_URL: z.string().url().default('http://localhost:5000/api/v1'),
+  VITE_API_BASE_URL: z.string().url().default('https://sreepon-crackers.onrender.com/api/v1'),
 
   VITE_SUPABASE_URL: z.string().url().optional(),
   VITE_SUPABASE_ANON_KEY: z.string().optional(),
