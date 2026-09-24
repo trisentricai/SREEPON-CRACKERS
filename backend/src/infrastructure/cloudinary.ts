@@ -80,3 +80,42 @@ export async function deleteFromCloudinary(publicId: string, resourceType = 'ima
   }
   await client.uploader.destroy(publicId, { resource_type: resourceType }).catch(() => undefined);
 }
+
+export interface SignedUploadPayload {
+  cloudName: string;
+  apiKey: string;
+  timestamp: number;
+  folder: string | undefined;
+  resourceType: string;
+  signature: string;
+}
+
+/**
+ * Build a signature for a direct (browser/app) upload to Cloudinary. The
+ * client uploads bytes straight to Cloudinary using this payload; the backend
+ * never proxies media bytes. Returns null when Cloudinary is not configured.
+ */
+export function createSignedUploadPayload(options: {
+  folder?: string;
+  resourceType?: 'image' | 'video' | 'raw';
+}): SignedUploadPayload | null {
+  const client = getCloudinary();
+  if (!client) {
+    return null;
+  }
+  const timestamp = Math.round(Date.now() / 1000);
+  const resourceType = options.resourceType ?? 'image';
+  const params: Record<string, string | number> = { timestamp };
+  if (options.folder) {
+    params.folder = options.folder;
+  }
+  const signature = client.utils.api_sign_request(params, client.config().api_secret ?? '');
+  return {
+    cloudName: client.config().cloud_name ?? '',
+    apiKey: client.config().api_key ?? '',
+    timestamp,
+    folder: options.folder,
+    resourceType,
+    signature,
+  };
+}

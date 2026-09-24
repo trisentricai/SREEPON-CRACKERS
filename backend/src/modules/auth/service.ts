@@ -23,6 +23,7 @@ export interface PublicProfile {
   email: string;
   name: string | null;
   phone: string | null;
+  avatarUrl: string | null;
   isActive: boolean;
   createdAt: Date;
 }
@@ -32,6 +33,7 @@ export function toPublicProfile(user: {
   email: string;
   name: string | null;
   phone: string | null;
+  avatarUrl: string | null;
   isActive: boolean;
   createdAt: Date;
 }): PublicProfile {
@@ -41,6 +43,7 @@ export function toPublicProfile(user: {
     email: user.email,
     name: user.name,
     phone: user.phone,
+    avatarUrl: user.avatarUrl,
     isActive: user.isActive,
     createdAt: user.createdAt,
   };

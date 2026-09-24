@@ -17,6 +17,7 @@ import { homepageRouter } from '../modules/homepage';
 import { notificationsRouter } from '../modules/notifications';
 import { analyticsRouter } from '../modules/analytics';
 import { settingsRouter } from '../modules/settings';
+import { mediaRouter } from '../modules/media';
 
 /**
  * API v1 route table.
@@ -57,6 +58,9 @@ v1Router.use(notificationsRouter);
 v1Router.use(analyticsRouter);
 v1Router.use(settingsRouter);
 v1Router.use(inventoryRouter);
+
+// Media
+v1Router.use(mediaRouter);
 
 // Guest cart merge (requires auth) and misc
 v1Router.get('/ping', (_req, res) => {

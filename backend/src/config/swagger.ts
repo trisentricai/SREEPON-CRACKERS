@@ -59,6 +59,30 @@ export const openApiSpec = swaggerJsdoc({
             },
           },
         },
+        BadRequest: {
+          description: 'Malformed request',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ErrorResponse' },
+            },
+          },
+        },
+        Validation: {
+          description: 'Validation failed',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ErrorResponse' },
+            },
+          },
+        },
+        ServiceUnavailable: {
+          description: 'Dependency not configured (e.g. Firebase / Supabase / Cloudinary)',
+          content: {
+            'application/json': {
+              schema: { $ref: '#/components/schemas/ErrorResponse' },
+            },
+          },
+        },
       },
       schemas: {
         ApiResponse: {
@@ -171,6 +195,21 @@ export const openApiSpec = swaggerJsdoc({
           properties: {
             name: { type: 'string', nullable: true, description: 'Display name (null clears)' },
             phone: { type: 'string', nullable: true, description: 'Phone (null clears)' },
+          },
+        },
+        AvatarUploadRequest: {
+          type: 'object',
+          required: ['image', 'mimeType'],
+          properties: {
+            image: { type: 'string', description: 'Base64-encoded image bytes (max ~2 MB)' },
+            mimeType: { type: 'string', enum: ['image/jpeg', 'image/png', 'image/webp'] },
+          },
+        },
+        SignUploadRequest: {
+          type: 'object',
+          properties: {
+            folder: { type: 'string', example: 'sripon/products', description: 'Cloudinary folder; defaults to root' },
+            resourceType: { type: 'string', enum: ['image', 'video', 'raw'], default: 'image' },
           },
         },
         AddressView: {
@@ -909,6 +948,40 @@ export const openApiSpec = swaggerJsdoc({
           responses: {
             '200': { description: 'Paginated order history', content: { 'application/json': { schema: { $ref: '#/components/schemas/PaginatedProducts' } } } },
             '401': { $ref: '#/components/responses/Unauthorized' },
+          },
+        },
+      },
+      '/users/me/avatar': {
+        post: {
+          tags: ['Users'],
+          summary: 'Upload the current customer avatar (base64 image)',
+          security: [{ firebaseAuth: [] }],
+          requestBody: {
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/AvatarUploadRequest' } } },
+          },
+          responses: {
+            '200': { description: 'Avatar updated', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '400': { $ref: '#/components/responses/BadRequest' },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '422': { $ref: '#/components/responses/Validation' },
+            '503': { $ref: '#/components/responses/ServiceUnavailable' },
+          },
+        },
+      },
+      '/admin/media/sign': {
+        post: {
+          tags: ['Media'],
+          summary: 'Signed Cloudinary upload payload for direct media uploads',
+          security: [{ supabaseAuth: [] }],
+          requestBody: {
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/SignUploadRequest' } } },
+          },
+          responses: {
+            '200': { description: 'Signed upload payload', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '403': { $ref: '#/components/responses/Forbidden' },
+            '422': { $ref: '#/components/responses/Validation' },
+            '503': { $ref: '#/components/responses/ServiceUnavailable' },
           },
         },
       },
@@ -1963,6 +2036,7 @@ export const openApiSpec = swaggerJsdoc({
       { name: 'Health', description: 'Service health' },
       { name: 'Auth', description: 'Customer authentication (Firebase)' },
       { name: 'Users', description: 'Customer profiles' },
+      { name: 'Media', description: 'Cloudinary uploads & avatar' },
       { name: 'Admins', description: 'Admin authentication & management (Supabase)' },
       { name: 'Products', description: 'Product catalog & management' },
       { name: 'Categories', description: 'Nested category management' },
