@@ -10,7 +10,9 @@ const app = createApp();
 const server = http.createServer(app);
 
 const PORT = env.PORT;
-const HOST = env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
+// Bind to all interfaces so the service is reachable on any host, including Render's
+// port-availability probe (0.0.0.0). Tests import `server` without calling listen().
+const HOST = process.env.NODE_ENV === 'test' ? '127.0.0.1' : '0.0.0.0';
 
 server.listen(PORT, HOST, () => {
   logger.info(
