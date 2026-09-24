@@ -1,18 +1,27 @@
 import { Router } from 'express';
 import { requireFirebase } from '../../middleware/auth.middleware';
-import { pending } from '../helpers';
+import { validate } from '../../middleware/validation.middleware';
+import {
+  getUnreadCount,
+  listNotifications,
+  markAllNotificationsRead,
+  markNotificationRead,
+  registerDevice,
+  unregisterDevice,
+} from './controller';
+import { listNotificationsQuerySchema, registerDeviceSchema } from './schema';
 
 /**
- * Customer notifications (FCM-backed).
- * PHASE 12 implements the real controllers and push delivery workers.
+ * Customer notifications (FCM-backed storage). Push delivery subscribes to
+ * registered device tokens; this phase owns the inbox and device registry.
  */
 export const notificationsRouter = Router();
 
 notificationsRouter.use('/notifications', requireFirebase());
 
-notificationsRouter.get('/notifications', pending('list my notifications'));
-notificationsRouter.patch('/notifications/:id/read', pending('mark notification read'));
-notificationsRouter.patch('/notifications/read-all', pending('mark all read'));
-notificationsRouter.get('/notifications/unread-count', pending('unread count'));
-notificationsRouter.post('/notifications/devices', pending('register FCM device token'));
-notificationsRouter.delete('/notifications/devices/:token', pending('unregister FCM device token'));
+notificationsRouter.get('/notifications', validate({ query: listNotificationsQuerySchema }), listNotifications);
+notificationsRouter.get('/notifications/unread-count', getUnreadCount);
+notificationsRouter.patch('/notifications/read-all', markAllNotificationsRead);
+notificationsRouter.patch('/notifications/:id/read', markNotificationRead);
+notificationsRouter.post('/notifications/devices', validate({ body: registerDeviceSchema }), registerDevice);
+notificationsRouter.delete('/notifications/devices/:token', unregisterDevice);

@@ -230,6 +230,14 @@ export const openApiSpec = swaggerJsdoc({
             isDefault: { type: 'boolean' },
           },
         },
+        RegisterDeviceRequest: {
+          type: 'object',
+          required: ['token'],
+          properties: {
+            token: { type: 'string', description: 'FCM device token' },
+            platform: { type: 'string', enum: ['android', 'ios', 'web', 'other'] },
+          },
+        },
         LoginRequest: {
           type: 'object',
           required: ['idToken'],
@@ -866,6 +874,83 @@ export const openApiSpec = swaggerJsdoc({
           ],
           responses: {
             '200': { description: 'Paginated order history', content: { 'application/json': { schema: { $ref: '#/components/schemas/PaginatedProducts' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+          },
+        },
+      },
+      '/notifications': {
+        get: {
+          tags: ['Notifications'],
+          summary: 'List the caller notifications (paginated, newest first)',
+          security: [{ firebaseAuth: [] }],
+          parameters: [
+            { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
+            { name: 'limit', in: 'query', schema: { type: 'integer', default: 20, maximum: 100 } },
+          ],
+          responses: {
+            '200': { description: 'Paginated notifications', content: { 'application/json': { schema: { $ref: '#/components/schemas/PaginatedProducts' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+          },
+        },
+      },
+      '/notifications/unread-count': {
+        get: {
+          tags: ['Notifications'],
+          summary: 'Unread notification count for the badge',
+          security: [{ firebaseAuth: [] }],
+          responses: {
+            '200': { description: 'Unread count', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+          },
+        },
+      },
+      '/notifications/read-all': {
+        patch: {
+          tags: ['Notifications'],
+          summary: 'Mark all notifications as read',
+          security: [{ firebaseAuth: [] }],
+          responses: {
+            '200': { description: 'Marked count', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+          },
+        },
+      },
+      '/notifications/{id}/read': {
+        patch: {
+          tags: ['Notifications'],
+          summary: 'Mark one notification as read',
+          security: [{ firebaseAuth: [] }],
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          responses: {
+            '200': { description: 'Updated notification', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '404': { $ref: '#/components/responses/NotFound' },
+          },
+        },
+      },
+      '/notifications/devices': {
+        post: {
+          tags: ['Notifications'],
+          summary: 'Register this device for push notifications',
+          security: [{ firebaseAuth: [] }],
+          requestBody: {
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/RegisterDeviceRequest' } } },
+          },
+          responses: {
+            '200': { description: 'Device registered', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '422': { description: 'Validation failed' },
+          },
+        },
+      },
+      '/notifications/devices/{token}': {
+        delete: {
+          tags: ['Notifications'],
+          summary: 'Unregister a device token',
+          security: [{ firebaseAuth: [] }],
+          parameters: [{ name: 'token', in: 'path', required: true, schema: { type: 'string' } }],
+          responses: {
+            '200': { description: 'Device unregistered', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
             '401': { $ref: '#/components/responses/Unauthorized' },
           },
         },
