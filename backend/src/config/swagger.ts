@@ -247,6 +247,31 @@ export const openApiSpec = swaggerJsdoc({
             note: { type: 'string' },
           },
         },
+        CreateAdminRequest: {
+          type: 'object',
+          required: ['email', 'password', 'role'],
+          properties: {
+            email: { type: 'string', format: 'email' },
+            password: { type: 'string', format: 'password', minLength: 8 },
+            name: { type: 'string' },
+            role: { type: 'string', enum: ['SUPER_ADMIN', 'ADMIN', 'PRODUCT_MANAGER', 'ORDER_MANAGER', 'CONTENT_MANAGER', 'ANALYST'] },
+          },
+        },
+        UpdateAdminRequest: {
+          type: 'object',
+          properties: {
+            email: { type: 'string', format: 'email' },
+            name: { type: 'string' },
+            isActive: { type: 'boolean', description: 'Ban (false) or unban (true) the account' },
+          },
+        },
+        ChangeAdminRoleRequest: {
+          type: 'object',
+          required: ['role'],
+          properties: {
+            role: { type: 'string', enum: ['SUPER_ADMIN', 'ADMIN', 'PRODUCT_MANAGER', 'ORDER_MANAGER', 'CONTENT_MANAGER', 'ANALYST'] },
+          },
+        },
         LoginRequest: {
           type: 'object',
           required: ['idToken'],
@@ -1825,6 +1850,100 @@ export const openApiSpec = swaggerJsdoc({
             '200': { description: 'Category performance', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
             '401': { $ref: '#/components/responses/Unauthorized' },
             '403': { $ref: '#/components/responses/Forbidden' },
+          },
+        },
+      },
+      '/admins': {
+        get: {
+          tags: ['Admins'],
+          summary: 'List admin accounts (paginated, searchable)',
+          security: [{ supabaseAuth: [] }],
+          parameters: [
+            { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
+            { name: 'limit', in: 'query', schema: { type: 'integer', default: 20, maximum: 100 } },
+            { name: 'q', in: 'query', schema: { type: 'string', description: 'Email or name search' } },
+          ],
+          responses: {
+            '200': { description: 'Paginated admins', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '403': { $ref: '#/components/responses/Forbidden' },
+          },
+        },
+        post: {
+          tags: ['Admins'],
+          summary: 'Create an admin account (SUPER_ADMIN, ADMIN)',
+          security: [{ supabaseAuth: [] }],
+          requestBody: {
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/CreateAdminRequest' } } },
+          },
+          responses: {
+            '201': { description: 'Admin created', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '400': { $ref: '#/components/responses/BadRequest' },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '403': { $ref: '#/components/responses/Forbidden' },
+            '409': { description: 'An account with this email already exists' },
+            '422': { $ref: '#/components/responses/Validation' },
+          },
+        },
+      },
+      '/admins/{id}': {
+        get: {
+          tags: ['Admins'],
+          summary: 'Get an admin account',
+          security: [{ supabaseAuth: [] }],
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+          responses: {
+            '200': { description: 'Admin account', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '404': { $ref: '#/components/responses/NotFound' },
+          },
+        },
+        patch: {
+          tags: ['Admins'],
+          summary: 'Update an admin account (SUPER_ADMIN, ADMIN)',
+          security: [{ supabaseAuth: [] }],
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+          requestBody: {
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/UpdateAdminRequest' } } },
+          },
+          responses: {
+            '200': { description: 'Admin updated', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '400': { $ref: '#/components/responses/BadRequest' },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '403': { $ref: '#/components/responses/Forbidden' },
+            '404': { $ref: '#/components/responses/NotFound' },
+            '422': { $ref: '#/components/responses/Validation' },
+          },
+        },
+        delete: {
+          tags: ['Admins'],
+          summary: 'Delete an admin account (SUPER_ADMIN, ADMIN)',
+          security: [{ supabaseAuth: [] }],
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+          responses: {
+            '200': { description: 'Admin deleted', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '400': { $ref: '#/components/responses/BadRequest' },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '403': { $ref: '#/components/responses/Forbidden' },
+          },
+        },
+      },
+      '/admins/{id}/role': {
+        patch: {
+          tags: ['Admins'],
+          summary: 'Change an admin role (SUPER_ADMIN only, audited)',
+          security: [{ supabaseAuth: [] }],
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string' } }],
+          requestBody: {
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/ChangeAdminRoleRequest' } } },
+          },
+          responses: {
+            '200': { description: 'Role updated', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '400': { $ref: '#/components/responses/BadRequest' },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '403': { $ref: '#/components/responses/Forbidden' },
+            '404': { $ref: '#/components/responses/NotFound' },
+            '422': { $ref: '#/components/responses/Validation' },
           },
         },
       },
