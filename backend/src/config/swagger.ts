@@ -1374,6 +1374,53 @@ export const openApiSpec = swaggerJsdoc({
           },
         },
       },
+      '/admin/customers': {
+        get: {
+          tags: ['Customers'],
+          summary: 'List customers (paginated, filterable, searchable)',
+          security: [{ supabaseAuth: [] }],
+          parameters: [
+            { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
+            { name: 'limit', in: 'query', schema: { type: 'integer', default: 20, maximum: 100 } },
+            { name: 'q', in: 'query', schema: { type: 'string', description: 'Name, email or phone search' } },
+            { name: 'status', in: 'query', schema: { type: 'string', enum: ['ACTIVE', 'SUSPENDED', 'DELETED'] } },
+            { name: 'isActive', in: 'query', schema: { type: 'boolean' } },
+          ],
+          responses: {
+            '200': { description: 'Paginated customer list with order aggregates', content: { 'application/json': { schema: { $ref: '#/components/schemas/PaginatedProducts' } } } },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '403': { $ref: '#/components/responses/Forbidden' },
+          },
+        },
+      },
+      '/admin/customers/{id}': {
+        get: {
+          tags: ['Customers'],
+          summary: 'Customer profile + order aggregates (detail)',
+          security: [{ supabaseAuth: [] }],
+          parameters: [{ name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } }],
+          responses: {
+            '200': { description: 'Customer detail', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
+            '404': { $ref: '#/components/responses/NotFound' },
+          },
+        },
+      },
+      '/admin/customers/{id}/orders': {
+        get: {
+          tags: ['Customers'],
+          summary: 'Paginated order history for a customer',
+          security: [{ supabaseAuth: [] }],
+          parameters: [
+            { name: 'id', in: 'path', required: true, schema: { type: 'string', format: 'uuid' } },
+            { name: 'page', in: 'query', schema: { type: 'integer', default: 1 } },
+            { name: 'limit', in: 'query', schema: { type: 'integer', default: 20, maximum: 100 } },
+          ],
+          responses: {
+            '200': { description: 'Customer order history', content: { 'application/json': { schema: { $ref: '#/components/schemas/PaginatedProducts' } } } },
+            '404': { $ref: '#/components/responses/NotFound' },
+          },
+        },
+      },
       '/products/{id}': {
         get: {
           tags: ['Products'],
@@ -1404,6 +1451,7 @@ export const openApiSpec = swaggerJsdoc({
       { name: 'Homepage', description: 'Homepage CMS' },
       { name: 'Notifications', description: 'FCM notifications' },
       { name: 'Analytics', description: 'Admin analytics' },
+      { name: 'Customers', description: 'Customer management (admin CRM)' },
       { name: 'Settings', description: 'Store settings & legal content' },
     ],
   },

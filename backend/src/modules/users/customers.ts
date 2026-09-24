@@ -1,15 +1,19 @@
-import { Router } from 'express';
+﻿import { Router } from 'express';
 import { requireSupabase, requireAdminRoles, AdminRole } from '../../middleware/auth.middleware';
 import { pending } from '../helpers';
 
 /**
- * Customer management (admin view). Read-only operational visibility — never
- * exposes authentication credentials.
- * PHASE 6+ implements the real controllers.
+ * Customer management (admin CRM). Supabase-guarded, restricted to
+ * SUPER_ADMIN / ADMIN / ORDER_MANAGER. Phase 8 mounts the guarded routes;
+ * controllers land in the next phase.
  */
 export const adminCustomersRouter = Router();
 
-adminCustomersRouter.use('/admin/customers', requireSupabase(), requireAdminRoles(AdminRole.SUPER_ADMIN, AdminRole.ADMIN, AdminRole.ORDER_MANAGER));
+adminCustomersRouter.use(
+  '/admin/customers',
+  requireSupabase(),
+  requireAdminRoles(AdminRole.SUPER_ADMIN, AdminRole.ADMIN, AdminRole.ORDER_MANAGER),
+);
 
 adminCustomersRouter.get('/admin/customers', pending('list customers'));
 adminCustomersRouter.get('/admin/customers/:id', pending('get customer'));
