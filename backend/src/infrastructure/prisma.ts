@@ -17,7 +17,10 @@ if (!isProduction) {
   globalForPrisma.prisma = prisma;
 }
 
-/** Cheap health probe: SELECT 1. Throws if the database is unreachable. */
+/** Cheap health probe: SELECT 1 with a short timeout. Throws if the database is unreachable. */
 export async function pingDatabase(): Promise<void> {
-  await prisma.$queryRaw`SELECT 1`;
+  await Promise.race([
+    prisma.$queryRaw`SELECT 1`,
+    new Promise((_, reject) => setTimeout(() => reject(new Error('ping timeout')), 3000)),
+  ]);
 }
