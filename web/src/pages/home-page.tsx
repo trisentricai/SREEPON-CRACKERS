@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
+import { PartyPopper, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { api } from '@/api/client';
 import type { ApiEnvelope, CategoryTreeNode, HomepageData, PublicSettings } from '@/api/types';
@@ -80,14 +81,31 @@ export function HomePage() {
 
 function HeroFallback({ storeName, tagline }: { storeName?: string; tagline?: string }) {
   return (
-    <section className="bg-gradient-to-br from-orange-600 to-orange-800 text-white">
-      <div className="mx-auto max-w-7xl px-4 py-20 text-center">
-        <p className="text-sm font-medium uppercase tracking-widest text-orange-200">Festive crackers &amp; fireworks</p>
-        <h1 className="mt-4 text-4xl font-extrabold sm:text-5xl">{storeName ?? 'SriPon'}</h1>
-        <p className="mx-auto mt-4 max-w-2xl text-orange-100">{tagline ?? 'Celebrate responsibly'}</p>
-        <div className="mt-8 flex justify-center gap-4">
-          <Link to="/products" className="rounded-full bg-white px-6 py-2.5 font-semibold text-orange-700 hover:bg-orange-50">
+    <section className="relative overflow-hidden bg-gradient-to-br from-ember-600 via-ember-700 to-ember-900 text-white">
+      <div className="pointer-events-none absolute inset-0" aria-hidden>
+        <div className="absolute -right-16 -top-24 h-72 w-72 rounded-full bg-gold-400/25 blur-3xl" />
+        <div className="absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-ember-400/25 blur-3xl" />
+        <Sparkles className="absolute left-10 top-12 h-6 w-6 text-gold-300/50" />
+        <Sparkles className="absolute bottom-14 right-1/4 h-5 w-5 text-gold-200/40" />
+      </div>
+      <div className="relative mx-auto max-w-7xl px-4 py-24 text-center sm:py-28">
+        <span className="inline-block rounded-full border border-gold-300/40 bg-gold-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-gold-200">
+          Festive crackers &amp; fireworks
+        </span>
+        <h1 className="mt-5 font-display text-4xl font-extrabold sm:text-6xl">{storeName ?? 'SriPon'}</h1>
+        <p className="mx-auto mt-4 max-w-2xl text-lg text-ember-100">{tagline ?? 'Celebrate responsibly'}</p>
+        <div className="mt-9 flex flex-wrap justify-center gap-4">
+          <Link
+            to="/products"
+            className="rounded-full bg-white px-7 py-3 font-semibold text-ember-800 shadow-lg transition duration-300 hover:-translate-y-0.5 hover:bg-ember-50"
+          >
             Shop now
+          </Link>
+          <Link
+            to="/products"
+            className="rounded-full border border-white/40 bg-white/10 px-7 py-3 font-semibold text-white backdrop-blur transition duration-300 hover:bg-white/20"
+          >
+            Browse all
           </Link>
         </div>
       </div>
@@ -169,12 +187,14 @@ function BannerStrip({
       )}
       <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-transparent" />
       <div className="relative z-10 mx-auto flex min-h-[320px] max-w-7xl flex-col justify-center px-4 py-16 text-white">
-        {banner.title && <h2 className="max-w-xl text-3xl font-extrabold sm:text-4xl">{banner.title}</h2>}
-        {banner.subtitle && <p className="mt-3 max-w-lg text-orange-100">{banner.subtitle}</p>}
+        {banner.title && (
+          <h2 className="max-w-xl font-display text-3xl font-extrabold sm:text-4xl">{banner.title}</h2>
+        )}
+        {banner.subtitle && <p className="mt-3 max-w-lg text-ember-100">{banner.subtitle}</p>}
         {banner.actionTarget && (
           <Link
             to={banner.actionTarget}
-            className="mt-6 inline-block w-fit rounded-full bg-white px-6 py-2.5 font-semibold text-orange-700 hover:bg-orange-50"
+            className="mt-6 inline-block w-fit rounded-full bg-white px-7 py-2.5 font-semibold text-ember-800 shadow-lg transition duration-300 hover:-translate-y-0.5 hover:bg-ember-50"
           >
             Shop now
           </Link>
@@ -191,13 +211,18 @@ function BannerCard({
 }) {
   const target = banner.actionTarget ?? (banner.category?.slug ? `/products/${banner.category.slug}` : '/products');
   return (
-    <Link to={target} className="group relative overflow-hidden rounded-xl border border-orange-100 bg-orange-50">
+    <Link
+      to={target}
+      className="group relative overflow-hidden rounded-xl border border-line bg-paper-strong transition duration-300 hover:-translate-y-0.5 hover:shadow-lg"
+    >
       {banner.imageUrl && (
         <img src={banner.imageUrl} alt={banner.title ?? 'Promotion'} className="h-40 w-full object-cover" loading="lazy" />
       )}
       <div className="p-5">
-        {banner.title && <h3 className="font-semibold text-orange-900 group-hover:text-orange-700">{banner.title}</h3>}
-        {banner.subtitle && <p className="mt-1 text-sm text-orange-900/60">{banner.subtitle}</p>}
+        {banner.title && (
+          <h3 className="font-display font-semibold text-ember-900 group-hover:text-ember-700">{banner.title}</h3>
+        )}
+        {banner.subtitle && <p className="mt-1 text-sm text-ember-900/60">{banner.subtitle}</p>}
       </div>
     </Link>
   );
@@ -214,12 +239,15 @@ function CategoryGrid({
         <Link
           key={category.slug}
           to={`/products/${category.slug}`}
-          className="group flex flex-col items-center gap-3 rounded-xl border border-orange-100 bg-white p-6 text-center transition hover:shadow-md"
+          className="group flex flex-col items-center gap-3 rounded-xl border border-line bg-paper-strong p-6 text-center transition duration-300 hover:-translate-y-0.5 hover:shadow-lg"
         >
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-orange-100 text-2xl" aria-hidden>
-            🎆
+          <div
+            className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-ember-100 to-gold-100 text-ember-700 transition duration-300 group-hover:scale-105"
+            aria-hidden
+          >
+            <PartyPopper className="h-7 w-7" />
           </div>
-          <p className="font-semibold text-orange-900 group-hover:text-orange-700">{category.name}</p>
+          <p className="font-display font-semibold text-ember-900 group-hover:text-ember-700">{category.name}</p>
         </Link>
       ))}
     </div>

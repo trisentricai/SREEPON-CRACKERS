@@ -10,7 +10,7 @@ function resolveUserId(req: Request): Promise<string> {
 
 export const listAddresses = asyncHandler(async (req: Request, res: Response) => {
   const addresses = await service.listAddresses(await resolveUserId(req));
-  res.json(ok({ items: addresses }, `${addresses.length} address(es)`));
+  res.json(ok(addresses, `${addresses.length} address(es)`));
 });
 
 export const createAddress = asyncHandler(async (req: Request, res: Response) => {

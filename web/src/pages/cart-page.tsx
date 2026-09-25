@@ -78,11 +78,11 @@ function CartContent() {
   if (!cart || cart.items.length === 0) {
     return (
       <section className="mx-auto max-w-7xl px-4 py-12">
-        <h1 className="text-2xl font-bold text-orange-800">Shopping cart</h1>
+        <h1 className="text-2xl font-bold text-ember-800">Shopping cart</h1>
         <div className="mt-4">
           <EmptyState title="Your cart is empty">
             <p>
-              <Link to="/products" className="font-medium text-orange-700 underline">Browse the catalogue</Link>{' '}
+              <Link to="/products" className="font-medium text-ember-700 underline">Browse the catalogue</Link>{' '}
               and add your favourites.
             </p>
           </EmptyState>
@@ -93,7 +93,7 @@ function CartContent() {
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-8">
-      <h1 className="text-2xl font-bold text-orange-800">Shopping cart</h1>
+      <h1 className="text-2xl font-bold text-ember-800">Shopping cart</h1>
       {cart.outOfStockCount > 0 && (
         <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
           One or more items are out of stock and can't be ordered. Remove them or adjust quantities below.
@@ -103,8 +103,8 @@ function CartContent() {
       <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_320px]">
         <ul className="space-y-4">
           {cart.items.map((item) => (
-            <li key={item.id} className="flex gap-4 rounded-xl border border-orange-100 bg-white p-4">
-              <Link to={`/products/slug/${item.product.slug}`} className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-orange-50">
+            <li key={item.id} className="flex gap-4 rounded-xl border border-ember-100 bg-white p-4">
+              <Link to={`/products/slug/${item.product.slug}`} className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-ember-50">
                 {item.product.imageUrl ? (
                   <img src={item.product.imageUrl} alt={item.product.name} className="h-full w-full object-cover" />
                 ) : (
@@ -114,18 +114,18 @@ function CartContent() {
                 )}
               </Link>
               <div className="flex flex-1 flex-col">
-                <Link to={`/products/slug/${item.product.slug}`} className="font-semibold text-orange-900 hover:text-orange-700">
+                <Link to={`/products/slug/${item.product.slug}`} className="font-semibold text-ember-900 hover:text-ember-700">
                   {item.product.name}
                 </Link>
-                <p className="text-xs text-orange-900/50">{formatUnit(item.product.unit)} · {formatMoney(item.product.basePrice)} each</p>
+                <p className="text-xs text-ember-900/50">{formatUnit(item.product.unit)} · {formatMoney(item.product.basePrice)} each</p>
                 <div className="mt-auto flex items-center justify-between pt-2">
-                  <label className="flex items-center gap-2 text-sm text-orange-900/70">
+                  <label className="flex items-center gap-2 text-sm text-ember-900/70">
                     Qty
                     <select
                       value={item.quantity}
                       disabled={updateQuantity.isPending}
                       onChange={(e) => updateQuantity.mutate({ itemId: item.id, quantity: Number(e.target.value) })}
-                      className="rounded-lg border border-orange-200 px-2 py-1 text-sm disabled:opacity-50"
+                      className="rounded-lg border border-ember-200 px-2 py-1 text-sm disabled:opacity-50"
                     >
                       {Array.from({ length: item.availableStock + 1 }, (_, i) => i + 1).map((n) => (
                         <option key={n} value={n}>{n}</option>
@@ -133,11 +133,11 @@ function CartContent() {
                     </select>
                   </label>
                   <div className="text-right">
-                    <p className="font-bold text-orange-800">{formatMoney(item.lineTotal)}</p>
+                    <p className="font-bold text-ember-800">{formatMoney(item.lineTotal)}</p>
                     <button
                       onClick={() => removeItem.mutate(item.id)}
                       disabled={removeItem.isPending}
-                      className="text-xs text-orange-900/50 underline hover:text-red-600"
+                      className="text-xs text-ember-900/50 underline hover:text-red-600"
                     >
                       Remove
                     </button>
@@ -148,32 +148,32 @@ function CartContent() {
           ))}
         </ul>
 
-        <aside className="h-fit rounded-xl border border-orange-100 bg-orange-50/50 p-5">
-          <h2 className="text-lg font-semibold text-orange-900">Order summary</h2>
+        <aside className="h-fit rounded-xl border border-ember-100 bg-ember-50/50 p-5">
+          <h2 className="text-lg font-semibold text-ember-900">Order summary</h2>
           <dl className="mt-4 space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-orange-900/60">Subtotal ({cart.totalQuantity} item{cart.totalQuantity === 1 ? '' : 's'})</dt>
-              <dd className="font-medium text-orange-900">{formatMoney(cart.subtotal)}</dd>
+              <dt className="text-ember-900/60">Subtotal ({cart.totalQuantity} item{cart.totalQuantity === 1 ? '' : 's'})</dt>
+              <dd className="font-medium text-ember-900">{formatMoney(cart.subtotal)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-orange-900/60">Delivery</dt>
-              <dd className="text-orange-900/60">Calculated at checkout</dd>
+              <dt className="text-ember-900/60">Delivery</dt>
+              <dd className="text-ember-900/60">Calculated at checkout</dd>
             </div>
-            <div className="flex justify-between border-t border-orange-100 pt-3 text-base">
-              <dt className="font-semibold text-orange-900">Total</dt>
-              <dd className="font-bold text-orange-800">{formatMoney(cart.subtotal)}</dd>
+            <div className="flex justify-between border-t border-ember-100 pt-3 text-base">
+              <dt className="font-semibold text-ember-900">Total</dt>
+              <dd className="font-bold text-ember-800">{formatMoney(cart.subtotal)}</dd>
             </div>
           </dl>
           <Link
             to="/checkout"
-            className="mt-5 block rounded-lg bg-orange-600 px-4 py-2.5 text-center font-semibold text-white hover:bg-orange-700"
+            className="mt-5 block rounded-lg bg-ember-600 px-4 py-2.5 text-center font-semibold text-white hover:bg-ember-700"
           >
             Proceed to checkout
           </Link>
           <button
             onClick={() => clearCart.mutate()}
             disabled={clearCart.isPending}
-            className="mt-2 w-full rounded-lg border border-orange-200 px-4 py-2 text-sm text-orange-700 hover:bg-orange-50 disabled:opacity-50"
+            className="mt-2 w-full rounded-lg border border-ember-200 px-4 py-2 text-sm text-ember-700 hover:bg-ember-50 disabled:opacity-50"
           >
             Clear cart
           </button>

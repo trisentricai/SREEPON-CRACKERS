@@ -71,7 +71,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           if (_authError != null)
             Padding(
               padding: const EdgeInsets.only(top: 12),
-              child: Text(_authError!, style: const TextStyle(color: Color(0xFFB3261E))),
+              child: Text(_authError!, style: const TextStyle(color: SriPonColors.danger)),
             ),
           const SizedBox(height: 16),
           FilledButton(

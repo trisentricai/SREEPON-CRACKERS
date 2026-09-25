@@ -3,15 +3,37 @@ import 'package:flutter/material.dart';
 /// Shared, dependency-free UI primitives for the SriPon Flutter shell.
 /// Feature-specific components are added by the mobile phases.
 
-/// SriPon brand palette.
+/// SriPon brand palette — single source of truth, byte-identical to the
+/// web design tokens (web/src/index.css).
 abstract final class SriPonColors {
-  static const saffron = Color(0xFFE65C00);
-  static const saffron600 = Color(0xFFCC5300);
+  /// Vibrant brand ember (hero gradients, containers, festive accents).
+  static const ember = Color(0xFFE65C00);
+  static const ember100 = Color(0xFFFFE9D6);
+  static const ember300 = Color(0xFFFFB77E);
+  static const ember900 = Color(0xFF7A2D03);
+
+  /// Action ember — filled buttons/selections (4.5:1 white text).
+  static const emberDeep = Color(0xFFC2410C);
+
+  /// Festive gold accent.
   static const gold = Color(0xFFD9A021);
+  static const gold100 = Color(0xFFF9EFD4);
+  static const gold900 = Color(0xFF5E3F00);
+
+  /// Warm surfaces + ink.
   static const paper = Color(0xFFFFF8F0);
+  static const paperStrong = Color(0xFFFFFDF8);
   static const ink = Color(0xFF241B16);
   static const inkMuted = Color(0xFF6F5A4C);
   static const line = Color(0xFFE8DDD0);
+
+  /// Semantic status.
+  static const success = Color(0xFF1B7A33);
+  static const danger = Color(0xFFB3261E);
+
+  /// Legacy aliases (kept for compatibility).
+  static const saffron = ember;
+  static const saffron600 = emberDeep;
 }
 
 /// Inline loading indicator used by buttons and refresh actions.

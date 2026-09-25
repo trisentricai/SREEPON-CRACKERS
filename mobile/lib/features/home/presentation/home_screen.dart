@@ -54,6 +54,7 @@ class HomeScreen extends ConsumerWidget {
       children: [
         if (hero.isNotEmpty) _HeroBanner(banners: hero),
         ...sections.map((section) => _buildSection(context, section)),
+        if (sections.isEmpty) const _HomeFallback(),
         const SizedBox(height: 24),
       ],
     );
@@ -76,22 +77,75 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-class _HeroBanner extends StatelessWidget {
+class _HeroBanner extends StatefulWidget {
   const _HeroBanner({required this.banners});
 
   final List<BrandBanner> banners;
 
   @override
+  State<_HeroBanner> createState() => _HeroBannerState();
+}
+
+class _HeroBannerState extends State<_HeroBanner> {
+  int _page = 0;
+
+  @override
   Widget build(BuildContext context) {
+    final banners = widget.banners;
+    if (banners.isEmpty) return const SizedBox.shrink();
     final scheme = Theme.of(context).colorScheme;
-    final banner = banners.first;
+    return Column(
+      children: [
+        SizedBox(
+          height: 180,
+          child: PageView.builder(
+            itemCount: banners.length,
+            onPageChanged: (index) => setState(() => _page = index),
+            itemBuilder: (context, index) => _HeroSlide(banner: banners[index]),
+          ),
+        ),
+        if (banners.length > 1)
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                for (var i = 0; i < banners.length; i++)
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                    width: i == _page ? 18 : 6,
+                    height: 6,
+                    decoration: BoxDecoration(
+                      color: i == _page ? scheme.primary : scheme.outlineVariant,
+                      borderRadius: BorderRadius.circular(3),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+class _HeroSlide extends StatelessWidget {
+  const _HeroSlide({required this.banner});
+
+  final BrandBanner banner;
+
+  @override
+  Widget build(BuildContext context) {
     final imageUrl = banner.imageUrl;
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-      height: 160,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        color: scheme.primaryContainer,
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [SriPonColors.emberDeep, SriPonColors.ember900],
+        ),
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(
@@ -101,7 +155,6 @@ class _HeroBanner extends StatelessWidget {
             SriponImage(url: imageUrl)
           else
             Container(
-              color: scheme.primaryContainer,
               padding: const EdgeInsets.all(20),
               alignment: Alignment.centerLeft,
               child: Column(
@@ -111,7 +164,7 @@ class _HeroBanner extends StatelessWidget {
                   Text(
                     banner.title ?? 'Season’s festive collection',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: scheme.onPrimaryContainer,
+                          color: Colors.white,
                           fontWeight: FontWeight.w800,
                         ),
                   ),
@@ -120,13 +173,126 @@ class _HeroBanner extends StatelessWidget {
                     Text(
                       banner.subtitle!,
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: scheme.onPrimaryContainer.withValues(alpha: 0.8),
+                            color: Colors.white.withValues(alpha: 0.85),
                           ),
                     ),
                   ],
                 ],
               ),
             ),
+        ],
+      ),
+    );
+  }
+}
+
+class _HomeFallback extends ConsumerWidget {
+  const _HomeFallback();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final categories = ref.watch(categoriesTreeProvider);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const _FallbackHero(),
+        const SectionHeading(title: 'Shop by category'),
+        categories.when(
+          loading: () => const SizedBox(
+            height: 96,
+            child: Center(child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))),
+          ),
+          error: (_, __) => const SizedBox.shrink(),
+          data: (tree) {
+            final tiles = _activeCategories(tree);
+            if (tiles.isEmpty) return const SizedBox.shrink();
+            return SizedBox(
+              height: 100,
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                scrollDirection: Axis.horizontal,
+                itemCount: tiles.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 14),
+                itemBuilder: (context, index) {
+                  final category = tiles[index];
+                  return CategoryTile(
+                    name: category.name,
+                    imageUrl: category.bannerImageUrl,
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => ProductListScreen(categorySlug: category.slug, title: category.name),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+        ),
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const ProductListScreen()),
+              ),
+              icon: const Icon(Icons.grid_view),
+              label: const Text('Browse all products'),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  static List<CategoryTreeNode> _activeCategories(List<CategoryTreeNode> tree) {
+    final result = <CategoryTreeNode>[];
+    for (final node in tree) {
+      if (node.productCount > 0 && node.isActive) {
+        result.add(node);
+      }
+      for (final child in node.children) {
+        if (child.productCount > 0 && child.isActive) {
+          result.add(child);
+        }
+      }
+    }
+    return result;
+  }
+}
+
+class _FallbackHero extends StatelessWidget {
+  const _FallbackHero();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      padding: const EdgeInsets.all(20),
+      height: 150,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [SriPonColors.emberDeep, SriPonColors.ember900],
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Fresh from the factory',
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Diwali crackers, sparklers & gift boxes — straight to your door.',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white.withValues(alpha: 0.85)),
+          ),
         ],
       ),
     );

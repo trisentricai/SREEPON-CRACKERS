@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import '../models/models.dart';
 import '../utils/format.dart';
 
-export 'widgets.dart' show SriPonEmptyState, SriPonSpinner;
+export 'widgets.dart' show SriPonEmptyState, SriPonSpinner, SriPonColors;
 
 /// Image with a graceful fallback when [url] is null or fails to load.
 class SriponImage extends StatelessWidget {
@@ -78,8 +78,11 @@ class ProductCard extends StatelessWidget {
     return Card(
       clipBehavior: Clip.antiAlias,
       elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-      color: scheme.surface,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(color: scheme.outlineVariant),
+      ),
+      color: scheme.surfaceContainerLow,
       margin: EdgeInsets.zero,
       child: InkWell(
         onTap: onTap,

@@ -39,19 +39,19 @@ export function ProductsPage() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-8">
       <header>
-        <p className="text-sm text-orange-900/50">
-          <Link to="/products" className="hover:text-orange-700">Catalogue</Link>
-          {activeCategory && <span className="text-orange-900/40"> / {activeCategory.name}</span>}
+        <p className="text-sm text-ember-900/50">
+          <Link to="/products" className="hover:text-ember-700">Catalogue</Link>
+          {activeCategory && <span className="text-ember-900/40"> / {activeCategory.name}</span>}
         </p>
-        <h1 className="mt-1 text-2xl font-bold text-orange-800">
+        <h1 className="mt-1 font-display text-2xl font-bold text-ember-800">
           {activeCategory?.name ?? 'Shop crackers &amp; fireworks'}
         </h1>
-        <p className="mt-1 text-sm text-orange-900/50">All items are age-gated; shop responsibly.</p>
+        <p className="mt-1 text-sm text-ember-900/50">All items are age-gated; shop responsibly.</p>
       </header>
 
       <div className="mt-6 grid gap-8 lg:grid-cols-[240px_1fr]">
         <aside className="hidden lg:block">
-          <p className="mb-3 text-sm font-semibold text-orange-800">Categories</p>
+          <p className="mb-3 text-sm font-semibold text-ember-800">Categories</p>
           <CategoryRail categories={categories.data ?? []} active={activeCategory?.slug} />
         </aside>
 
@@ -113,13 +113,13 @@ function ProductList({
             value={draftQ}
             onChange={(e) => setDraftQ(e.target.value)}
             placeholder="Search by name or SKU…"
-            className="w-full rounded-lg border border-orange-200 px-3 py-2 text-sm"
+            className="w-full rounded-lg border border-ember-200 px-3 py-2 text-sm"
           />
-          <button type="submit" className="rounded-lg bg-orange-600 px-4 py-2 text-sm text-white hover:bg-orange-700">
+          <button type="submit" className="rounded-lg bg-ember-600 px-4 py-2 text-sm text-white hover:bg-ember-700">
             Search
           </button>
         </form>
-        <label className="flex items-center gap-2 text-sm text-orange-900/70">
+        <label className="flex items-center gap-2 text-sm text-ember-900/70">
           Sort
           <select
             value={sort}
@@ -127,7 +127,7 @@ function ProductList({
               setSort(e.target.value as ProductSort);
               setPage(1);
             }}
-            className="rounded-lg border border-orange-200 px-3 py-2 text-sm"
+            className="rounded-lg border border-ember-200 px-3 py-2 text-sm"
           >
             {SORTS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -147,7 +147,7 @@ function ProductList({
           </EmptyState>
         ) : (
           <>
-            <p className="mb-4 text-sm text-orange-900/50">
+            <p className="mb-4 text-sm text-ember-900/50">
               {pagination?.total ?? 0} product{pagination?.total === 1 ? '' : 's'}
               {initialQ && <> matching “{initialQ}”</>}
             </p>
@@ -161,17 +161,17 @@ function ProductList({
                 <button
                   disabled={page <= 1}
                   onClick={() => setPage((p) => p - 1)}
-                  className="rounded-lg border border-orange-200 px-3 py-1.5 text-sm disabled:opacity-40"
+                  className="rounded-lg border border-ember-200 px-3 py-1.5 text-sm disabled:opacity-40"
                 >
                   Previous
                 </button>
-                <span className="px-2 text-sm text-orange-900/60">
+                <span className="px-2 text-sm text-ember-900/60">
                   Page {pagination.page} of {pagination.pages}
                 </span>
                 <button
                   disabled={page >= pagination.pages}
                   onClick={() => setPage((p) => p + 1)}
-                  className="rounded-lg border border-orange-200 px-3 py-1.5 text-sm disabled:opacity-40"
+                  className="rounded-lg border border-ember-200 px-3 py-1.5 text-sm disabled:opacity-40"
                 >
                   Next
                 </button>
@@ -199,7 +199,7 @@ function CategoryRail({ categories, active }: { categories: CategoryTreeNode[]; 
       <li>
         <Link
           to="/products"
-          className={`block rounded-lg px-3 py-2 ${!active ? 'bg-orange-100 font-semibold text-orange-800' : 'text-orange-900/70 hover:bg-orange-50'}`}
+          className={`block rounded-lg px-3 py-2 ${!active ? 'bg-ember-100 font-semibold text-ember-800' : 'text-ember-900/70 hover:bg-ember-50'}`}
         >
           All products
         </Link>
@@ -227,7 +227,7 @@ function CategoryBranch({
         <Link
           to={`/products/${category.slug}`}
           style={{ paddingLeft: `${12 + depth * 12}px` }}
-          className={`block rounded-lg py-2 pr-3 ${active === category.slug ? 'bg-orange-100 font-semibold text-orange-800' : 'text-orange-900/70 hover:bg-orange-50'}`}
+          className={`block rounded-lg py-2 pr-3 ${active === category.slug ? 'bg-ember-100 font-semibold text-ember-800' : 'text-ember-900/70 hover:bg-ember-50'}`}
         >
           {category.name}
         </Link>

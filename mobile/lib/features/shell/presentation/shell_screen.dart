@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/theme/sripon_theme.dart';
 import '../../auth/presentation/profile_screen.dart';
 import '../../cart/presentation/cart_screen.dart';
 import '../../cart/presentation/checkout_screen.dart';
@@ -20,16 +21,7 @@ class ShellScreen extends StatelessWidget {
     return MaterialApp(
       title: 'SriPon',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFFE65C00),
-          brightness: Brightness.light,
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.transparent,
-        ),
-      ),
+      theme: SriPonTheme.light,
       onGenerateRoute: (settings) => _buildRoute(settings.name),
       home: const MainTabs(),
     );

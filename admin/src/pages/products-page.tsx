@@ -1,13 +1,15 @@
 ﻿import { useState } from 'react';
+import axios from 'axios';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/client';
 import type {
   ApiEnvelope,
   CreateProductInput,
   Product,
+  ProductImage,
   ProductListResponse,
   ProductUnit,
-  UpdateProductInput,
+  SignedUpload,
 } from '@/api/types';
 import {
   Badge,
@@ -29,6 +31,12 @@ const LIMIT = 20;
 
 const UNITS: ProductUnit[] = ['BOX', 'PACKET', 'SINGLE', 'OTHER'];
 
+interface ProductImageEntry {
+  id?: string;
+  url: string;
+  cloudinaryPublicId?: string;
+}
+
 interface ProductFormState {
   name: string;
   slug: string;
@@ -41,6 +49,7 @@ interface ProductFormState {
   categoryId: string;
   isActive: boolean;
   isFeatured: boolean;
+  images: ProductImageEntry[];
 }
 
 const EMPTY_FORM: ProductFormState = {
@@ -55,6 +64,7 @@ const EMPTY_FORM: ProductFormState = {
   categoryId: '',
   isActive: true,
   isFeatured: false,
+  images: [],
 };
 
 function toForm(product: Product): ProductFormState {
@@ -70,6 +80,7 @@ function toForm(product: Product): ProductFormState {
     categoryId: product.category?.id ?? '',
     isActive: product.isActive,
     isFeatured: product.isFeatured,
+    images: product.images.map((image) => ({ id: image.id, url: image.url })),
   };
 }
 
@@ -90,6 +101,13 @@ function buildPayload(form: ProductFormState): CreateProductInput {
   };
 }
 
+function buildImages(form: ProductFormState): CreateProductInput['images'] {
+  return form.images.map((image) => ({
+    url: image.url,
+    ...(image.cloudinaryPublicId ? { cloudinaryPublicId: image.cloudinaryPublicId } : {}),
+  }));
+}
+
 /** Products — catalog CRUD against the complete backend. */
 export function ProductsPage() {
   const queryClient = useQueryClient();
@@ -100,6 +118,8 @@ export function ProductsPage() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [form, setForm] = useState<ProductFormState>(EMPTY_FORM);
   const [formError, setFormError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['admin-products', page, q],
@@ -128,14 +148,31 @@ export function ProductsPage() {
       queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
     ]);
 
+  /** Attach/remove images on edit via the per-image admin endpoints. */
+  async function persistImages(productId: string, original: ProductImage[], next: ProductImageEntry[]) {
+    const kept = new Set(next.map((image) => image.id).filter((id): id is string => Boolean(id)));
+    await Promise.all(
+      original
+        .filter((image) => !kept.has(image.id))
+        .map((image) => apiClient.delete(`/admin/products/${productId}/images/${image.id}`)),
+    );
+    for (const image of next) {
+      if (image.id) continue;
+      await apiClient.post(`/admin/products/${productId}/images`, {
+        url: image.url,
+        cloudinaryPublicId: image.cloudinaryPublicId,
+      });
+    }
+  }
+
   const saveProduct = useMutation({
     mutationFn: async (payload: CreateProductInput) => {
       if (editing) {
-        const update: UpdateProductInput = { ...payload };
-        const { data } = await apiClient.patch(`/admin/products/${editing.id}`, update);
+        const { data } = await apiClient.patch(`/admin/products/${editing.id}`, payload);
+        await persistImages(editing.id, editing.images, form.images);
         return data;
       }
-      const { data } = await apiClient.post('/admin/products', payload);
+      const { data } = await apiClient.post('/admin/products', { ...payload, images: buildImages(form) });
       return data;
     },
     onSuccess: () => {
@@ -168,6 +205,7 @@ export function ProductsPage() {
     setEditing(null);
     setForm(EMPTY_FORM);
     setFormError(null);
+    setUploadError(null);
     setModalOpen(true);
   }
 
@@ -175,7 +213,47 @@ export function ProductsPage() {
     setEditing(product);
     setForm(toForm(product));
     setFormError(null);
+    setUploadError(null);
     setModalOpen(true);
+  }
+
+  /** Sign an upload on the backend, push bytes straight to Cloudinary, append the URL. */
+  async function handleFile(file: File) {
+    if (!file.type.startsWith('image/')) {
+      setUploadError('Please choose an image file.');
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError('Image must be 5 MB or smaller.');
+      return;
+    }
+    setUploadError(null);
+    setUploading(true);
+    try {
+      const { data } = await apiClient.post<ApiEnvelope<SignedUpload>>('/admin/media/sign', {
+        folder: 'sripon/products',
+        resourceType: 'image',
+      });
+      const signature = data.data;
+      const body = new FormData();
+      body.append('file', file);
+      body.append('api_key', signature.apiKey);
+      body.append('timestamp', String(signature.timestamp));
+      body.append('folder', signature.folder);
+      body.append('signature', signature.signature);
+      const upload = await axios.post<{ secure_url: string; public_id: string }>(
+        `https://api.cloudinary.com/v1_1/${signature.cloudName}/${signature.resourceType}/upload`,
+        body,
+      );
+      setForm((f) => ({
+        ...f,
+        images: [...f.images, { url: upload.data.secure_url, cloudinaryPublicId: upload.data.public_id }],
+      }));
+    } catch (err) {
+      setUploadError(err instanceof Error ? `Upload failed: ${err.message}` : 'Upload failed');
+    } finally {
+      setUploading(false);
+    }
   }
 
   function submit() {
@@ -243,8 +321,23 @@ export function ProductsPage() {
                 {data.items.map((product) => (
                   <tr key={product.id} className="hover:bg-slate-50">
                     <td className="px-4 py-3">
-                      <p className="font-medium text-slate-800">{product.name}</p>
-                      <p className="text-xs text-slate-400">{product.unit}</p>
+                      <div className="flex items-center gap-3">
+                        {product.images.length > 0 ? (
+                          <img
+                            src={product.images[0].url}
+                            alt=""
+                            className="h-10 w-10 shrink-0 rounded-lg border border-slate-200 object-cover"
+                          />
+                        ) : (
+                          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-dashed border-slate-300 text-xs text-slate-400">
+                            —
+                          </span>
+                        )}
+                        <div>
+                          <p className="font-medium text-slate-800">{product.name}</p>
+                          <p className="text-xs text-slate-400">{product.unit}</p>
+                        </div>
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-slate-600">{product.sku}</td>
                     <td className="px-4 py-3 text-slate-600">{product.category?.name ?? '—'}</td>
@@ -377,6 +470,46 @@ export function ProductsPage() {
               rows={3}
               className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
             />
+          </Field>
+        </div>
+
+        <div className="mt-4">
+          <Field label="Product images" hint="Upload photos of the product — the first one is used as the cover. 5 MB max each.">
+            <div className="flex flex-wrap items-start gap-3">
+              {form.images.map((image, index) => (
+                <div
+                  key={image.id ?? image.url}
+                  className="relative h-24 w-24 overflow-hidden rounded-lg border border-slate-200"
+                >
+                  <img src={image.url} alt={`Product image ${index + 1}`} className="h-full w-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setForm((f) => ({ ...f, images: f.images.filter((_, i) => i !== index) }))
+                    }
+                    className="absolute right-1 top-1 rounded-md bg-red-600 px-1.5 py-0.5 text-xs text-white hover:bg-red-700"
+                    aria-label={`Remove image ${index + 1}`}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+              <label className="flex h-24 w-36 cursor-pointer items-center justify-center rounded-lg border border-dashed border-slate-300 text-xs text-slate-500 transition-colors hover:border-orange-400 hover:text-orange-600">
+                {uploading ? 'Uploading…' : '+ Add image'}
+                <input
+                  type="file"
+                  accept="image/*"
+                  disabled={uploading}
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    e.target.value = '';
+                    if (file) void handleFile(file);
+                  }}
+                />
+              </label>
+            </div>
+            {uploadError && <p className="mt-2 text-xs text-red-600">{uploadError}</p>}
           </Field>
         </div>
 

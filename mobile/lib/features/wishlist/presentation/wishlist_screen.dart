@@ -128,7 +128,7 @@ class _WishlistTile extends ConsumerWidget {
                         padding: const EdgeInsets.only(top: 4),
                         child: Text(
                           'Currently unavailable',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: const Color(0xFFB3261E)),
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: SriPonColors.danger),
                         ),
                       ),
                     const SizedBox(height: 8),

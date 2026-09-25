@@ -1,1 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;500;600;700&family=Rubik:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
+
+/* ------------------------------------------------------------------ */
+/* SriPon design tokens — banked against the Flutter app palette       */
+/* (mobile/lib/core/widgets/widgets.dart: ember = saffron, gold,       */
+/* paper, ink, line — kept byte-identical so both apps match).         */
+/* ------------------------------------------------------------------ */
+
+@theme {
+  --font-sans: "Nunito Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Rubik", "Nunito Sans", ui-sans-serif, sans-serif;
+  --default-font-family: var(--font-sans);
+
+  /* Ember — primary brand orange (saffron #e65c00, deep #c2410c). */
+  --color-ember-50: #fff6ed;
+  --color-ember-100: #ffe9d6;
+  --color-ember-200: #ffd2ae;
+  --color-ember-300: #ffb77e;
+  --color-ember-400: #f7934a;
+  --color-ember-500: #ef751f;
+  --color-ember-600: #e65c00;
+  --color-ember-700: #c2410c;
+  --color-ember-800: #9a3b05;
+  --color-ember-900: #7a2d03;
+  --color-ember-950: #4c1c02;
+
+  /* Gold — secondary festive accent. */
+  --color-gold-100: #f9efd4;
+  --color-gold-200: #f2dfa4;
+  --color-gold-300: #e9cc72;
+  --color-gold-400: #e0b94a;
+  --color-gold-500: #d9a021;
+  --color-gold-600: #b98315;
+  --color-gold-700: #9e6a00;
+  --color-gold-800: #7d5400;
+  --color-gold-900: #5e3f00;
+
+  /* Warm surfaces + ink. */
+  --color-paper: #fff8f0;
+  --color-paper-strong: #fffdf8;
+  --color-ink: #241b16;
+  --color-ink-muted: #6f5a4c;
+  --color-line: #e8ddd0;
+
+  /* Semantic aliases. */
+  --color-background: #fff8f0;
+  --color-foreground: #241b16;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ember-600);
+    outline-offset: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

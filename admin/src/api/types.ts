@@ -85,6 +85,7 @@ export interface CreateProductInput {
   isFeatured: boolean;
   minimumAge?: number | null;
   isApproved?: boolean;
+  images?: Array<{ url: string; cloudinaryPublicId?: string; altText?: string }>;
 }
 
 export interface UpdateProductInput {

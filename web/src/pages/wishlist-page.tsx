@@ -72,11 +72,11 @@ function WishlistContent() {
   if (items.length === 0) {
     return (
       <section className="mx-auto max-w-7xl px-4 py-12">
-        <h1 className="text-2xl font-bold text-orange-800">Wishlist</h1>
+        <h1 className="text-2xl font-bold text-ember-800">Wishlist</h1>
         <div className="mt-4">
           <EmptyState title="Your wishlist is empty">
             <p>
-              <Link to="/products" className="font-medium text-orange-700 underline">Browse the catalogue</Link>{' '}
+              <Link to="/products" className="font-medium text-ember-700 underline">Browse the catalogue</Link>{' '}
               and save the items you like.
             </p>
           </EmptyState>
@@ -87,14 +87,14 @@ function WishlistContent() {
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-8">
-      <h1 className="text-2xl font-bold text-orange-800">Wishlist ({items.length})</h1>
+      <h1 className="text-2xl font-bold text-ember-800">Wishlist ({items.length})</h1>
       {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (
-          <article key={item.id} className="flex flex-col rounded-xl border border-orange-100 bg-white p-4">
+          <article key={item.id} className="flex flex-col rounded-xl border border-ember-100 bg-white p-4">
             <Link to={`/products/slug/${item.product.slug}`} className="flex items-center gap-4">
-              <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-orange-50">
+              <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-ember-50">
                 {item.product.imageUrl ? (
                   <img src={item.product.imageUrl} alt={item.product.name} className="h-full w-full object-cover" />
                 ) : (
@@ -104,26 +104,26 @@ function WishlistContent() {
                 )}
               </div>
               <div>
-                <h2 className="font-semibold text-orange-900 hover:text-orange-700">{item.product.name}</h2>
-                <p className="text-xs text-orange-900/50">{formatUnit(item.product.unit)}</p>
+                <h2 className="font-semibold text-ember-900 hover:text-ember-700">{item.product.name}</h2>
+                <p className="text-xs text-ember-900/50">{formatUnit(item.product.unit)}</p>
               </div>
             </Link>
             <div className="mt-3 flex items-end justify-between">
-              <p className="font-bold text-orange-800">{formatMoney(item.product.basePrice)}</p>
+              <p className="font-bold text-ember-800">{formatMoney(item.product.basePrice)}</p>
               {!item.isAvailable && <p className="text-xs font-medium text-red-600">Out of stock</p>}
             </div>
             <div className="mt-3 flex gap-2">
               <button
                 onClick={() => moveToCart.mutate(item.product.id)}
                 disabled={!item.isAvailable || moveToCart.isPending}
-                className="flex-1 rounded-lg bg-orange-600 px-3 py-2 text-sm font-semibold text-white hover:bg-orange-700 disabled:opacity-50"
+                className="flex-1 rounded-lg bg-ember-600 px-3 py-2 text-sm font-semibold text-white hover:bg-ember-700 disabled:opacity-50"
               >
                 Move to cart
               </button>
               <button
                 onClick={() => removeItem.mutate(item.product.id)}
                 disabled={removeItem.isPending}
-                className="rounded-lg border border-orange-200 px-3 py-2 text-sm text-orange-700 hover:bg-orange-50 disabled:opacity-50"
+                className="rounded-lg border border-ember-200 px-3 py-2 text-sm text-ember-700 hover:bg-ember-50 disabled:opacity-50"
               >
                 Remove
               </button>

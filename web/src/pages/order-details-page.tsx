@@ -95,7 +95,7 @@ export function OrderDetailsPage() {
       <section className="mx-auto max-w-7xl px-4 py-16">
         <EmptyState title="Sign in to view this order">
           <p>
-            <Link to="/profile" className="font-medium text-orange-700 underline">Sign in</Link> to continue.
+            <Link to="/profile" className="font-medium text-ember-700 underline">Sign in</Link> to continue.
           </p>
         </EmptyState>
       </section>
@@ -122,16 +122,16 @@ export function OrderDetailsPage() {
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-8">
-      <nav className="text-sm text-orange-900/50">
-        <Link to="/orders" className="hover:text-orange-700">Orders</Link> /{' '}
-        <span className="text-orange-900/70">{order.orderNumber}</span>
+      <nav className="text-sm text-ember-900/50">
+        <Link to="/orders" className="hover:text-ember-700">Orders</Link> /{' '}
+        <span className="text-ember-900/70">{order.orderNumber}</span>
       </nav>
 
       <header className="mt-3 flex flex-wrap items-center gap-3">
-        <h1 className="font-mono text-2xl font-bold text-orange-800">{order.orderNumber}</h1>
+        <h1 className="font-mono text-2xl font-bold text-ember-800">{order.orderNumber}</h1>
         <OrderStatusBadge status={order.status} />
         <PaymentBadge status={order.paymentStatus} />
-        <span className="text-sm text-orange-900/50">{formatDateTime(order.createdAt)}</span>
+        <span className="text-sm text-ember-900/50">{formatDateTime(order.createdAt)}</span>
       </header>
       {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
 
@@ -140,9 +140,9 @@ export function OrderDetailsPage() {
           <SectionHeading title="Items" />
           <ul className="space-y-3">
             {order.items.map((item) => (
-              <li key={item.id} className="rounded-xl border border-orange-100 bg-white p-3">
+              <li key={item.id} className="rounded-xl border border-ember-100 bg-white p-3">
                 <div className="flex items-center gap-4">
-                  <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-orange-50">
+                  <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-ember-50">
                     {item.imageUrl ? (
                       <img src={item.imageUrl} alt={item.productName} className="h-full w-full object-cover" />
                     ) : (
@@ -152,18 +152,18 @@ export function OrderDetailsPage() {
                     )}
                   </div>
                   <div className="flex-1">
-                    <p className="font-semibold text-orange-900">{item.productName}</p>
-                    <p className="text-xs text-orange-900/50">{item.sku} · {item.unit} · ×{item.quantity}</p>
+                    <p className="font-semibold text-ember-900">{item.productName}</p>
+                    <p className="text-xs text-ember-900/50">{item.sku} · {item.unit} · ×{item.quantity}</p>
                   </div>
                   <div className="text-right">
-                    <p className="font-bold text-orange-800">{formatMoney(item.lineTotal)}</p>
+                    <p className="font-bold text-ember-800">{formatMoney(item.lineTotal)}</p>
                     {returnable && (
                       <button
                         onClick={() => {
                           setReturnReason('');
                           setShowReturn((v) => !v);
                         }}
-                        className="text-xs text-orange-900/50 underline hover:text-orange-700"
+                        className="text-xs text-ember-900/50 underline hover:text-ember-700"
                       >
                         Request return
                       </button>
@@ -172,7 +172,7 @@ export function OrderDetailsPage() {
                 </div>
                 {showReturn && (
                   <form
-                    className="mt-3 flex gap-2 border-t border-orange-100 pt-3"
+                    className="mt-3 flex gap-2 border-t border-ember-100 pt-3"
                     onSubmit={(e) => {
                       e.preventDefault();
                       requestReturn.mutate(item);
@@ -183,12 +183,12 @@ export function OrderDetailsPage() {
                       placeholder="Reason for return"
                       value={returnReason}
                       onChange={(e) => setReturnReason(e.target.value)}
-                      className="flex-1 rounded-lg border border-orange-200 px-3 py-2 text-sm"
+                      className="flex-1 rounded-lg border border-ember-200 px-3 py-2 text-sm"
                     />
                     <button
                       type="submit"
                       disabled={requestReturn.isPending}
-                      className="rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700 disabled:opacity-50"
+                      className="rounded-lg bg-ember-600 px-4 py-2 text-sm font-semibold text-white hover:bg-ember-700 disabled:opacity-50"
                     >
                       {requestReturn.isPending ? 'Sending…' : 'Submit'}
                     </button>
@@ -203,9 +203,9 @@ export function OrderDetailsPage() {
               <SectionHeading title="Return requests" />
               <ul className="space-y-2 text-sm">
                 {order.returnRequests.map((request) => (
-                  <li key={request.id} className="rounded-lg border border-orange-100 bg-orange-50/50 p-3">
-                    <p className="font-medium text-orange-900">{request.status.replace(/_/g, ' ')}</p>
-                    <p className="mt-0.5 text-orange-900/60">{request.reason}</p>
+                  <li key={request.id} className="rounded-lg border border-ember-100 bg-ember-50/50 p-3">
+                    <p className="font-medium text-ember-900">{request.status.replace(/_/g, ' ')}</p>
+                    <p className="mt-0.5 text-ember-900/60">{request.reason}</p>
                   </li>
                 ))}
               </ul>
@@ -214,39 +214,39 @@ export function OrderDetailsPage() {
         </div>
 
         <aside className="space-y-6">
-          <div className="rounded-xl border border-orange-100 bg-orange-50/50 p-5">
+          <div className="rounded-xl border border-ember-100 bg-ember-50/50 p-5">
             <SectionHeading title="Totals" />
             <dl className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <dt className="text-orange-900/60">Subtotal</dt>
+                <dt className="text-ember-900/60">Subtotal</dt>
                 <dd>{formatMoney(order.subtotal)}</dd>
               </div>
               {order.discount !== '0.00' && (
                 <div className="flex justify-between">
-                  <dt className="text-orange-900/60">Discount{order.coupon ? ` (${order.coupon.code})` : ''}</dt>
+                  <dt className="text-ember-900/60">Discount{order.coupon ? ` (${order.coupon.code})` : ''}</dt>
                   <dd className="text-green-700">−{formatMoney(order.discount)}</dd>
                 </div>
               )}
               <div className="flex justify-between">
-                <dt className="text-orange-900/60">Delivery</dt>
+                <dt className="text-ember-900/60">Delivery</dt>
                 <dd>{formatMoney(order.deliveryFee)}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-orange-900/60">Tax</dt>
+                <dt className="text-ember-900/60">Tax</dt>
                 <dd>{formatMoney(order.tax)}</dd>
               </div>
-              <div className="flex justify-between border-t border-orange-100 pt-3 text-base">
-                <dt className="font-semibold text-orange-900">Grand total</dt>
-                <dd className="font-bold text-orange-800">{formatMoney(order.grandTotal)}</dd>
+              <div className="flex justify-between border-t border-ember-100 pt-3 text-base">
+                <dt className="font-semibold text-ember-900">Grand total</dt>
+                <dd className="font-bold text-ember-800">{formatMoney(order.grandTotal)}</dd>
               </div>
             </dl>
           </div>
 
           {order.address && (
-            <div className="rounded-xl border border-orange-100 bg-white p-5 text-sm">
+            <div className="rounded-xl border border-ember-100 bg-white p-5 text-sm">
               <SectionHeading title="Deliver to" />
-              <p className="font-medium text-orange-900">{order.address.fullName}</p>
-              <p className="mt-1 text-orange-900/70">
+              <p className="font-medium text-ember-900">{order.address.fullName}</p>
+              <p className="mt-1 text-ember-900/70">
                 {order.address.line1}
                 {order.address.line2 ? `, ${order.address.line2}` : ''}
                 <br />
@@ -260,14 +260,14 @@ export function OrderDetailsPage() {
           )}
 
           {order.payments.length > 0 && (
-            <div className="rounded-xl border border-orange-100 bg-white p-5 text-sm">
+            <div className="rounded-xl border border-ember-100 bg-white p-5 text-sm">
               <SectionHeading title="Payments" />
               <ul className="space-y-2">
                 {order.payments.map((payment) => (
                   <li key={payment.id} className="flex items-center justify-between">
-                    <span className="text-orange-900/70">{payment.provider}</span>
+                    <span className="text-ember-900/70">{payment.provider}</span>
                     <span className="flex items-center gap-2">
-                      <span className="font-medium text-orange-900">{formatMoney(payment.amount)}</span>
+                      <span className="font-medium text-ember-900">{formatMoney(payment.amount)}</span>
                       <Badge tone={payment.status === 'PAID' ? 'green' : payment.status === 'FAILED' ? 'red' : 'amber'}>
                         {payment.status}
                       </Badge>
@@ -279,9 +279,9 @@ export function OrderDetailsPage() {
           )}
 
           {order.notes && (
-            <div className="rounded-xl border border-orange-100 bg-white p-5 text-sm">
+            <div className="rounded-xl border border-ember-100 bg-white p-5 text-sm">
               <SectionHeading title="Notes" />
-              <p className="whitespace-pre-line text-orange-900/70">{order.notes}</p>
+              <p className="whitespace-pre-line text-ember-900/70">{order.notes}</p>
             </div>
           )}
 
@@ -289,7 +289,7 @@ export function OrderDetailsPage() {
             <button
               onClick={() => downloadInvoice.mutate()}
               disabled={downloadInvoice.isPending}
-              className="w-full rounded-lg border border-orange-300 px-4 py-2 text-sm font-semibold text-orange-700 hover:bg-orange-50 disabled:opacity-50"
+              className="w-full rounded-lg border border-ember-300 px-4 py-2 text-sm font-semibold text-ember-700 hover:bg-ember-50 disabled:opacity-50"
             >
               {downloadInvoice.isPending ? 'Preparing…' : 'Download invoice'}
             </button>

@@ -103,6 +103,21 @@ class ProductQuery {
       featured: featured ?? this.featured,
     );
   }
+
+  @override
+  bool operator ==(Object other) =>
+      other is ProductQuery &&
+      other.page == page &&
+      other.limit == limit &&
+      other.category == category &&
+      other.q == q &&
+      other.sort == sort &&
+      other.minPrice == minPrice &&
+      other.maxPrice == maxPrice &&
+      other.featured == featured;
+
+  @override
+  int get hashCode => Object.hash(page, limit, category, q, sort, minPrice, maxPrice, featured);
 }
 
 /* ------------------------------------------------------------------ */
@@ -114,8 +129,10 @@ final cartProvider = FutureProvider<Cart>((ref) async {
 });
 
 final wishlistProvider = FutureProvider<List<WishlistItem>>((ref) async {
-  final raw = await api.getRaw('/wishlist');
-  return (raw as List<dynamic>).map((item) => WishlistItem.fromJson(item)).toList();
+  return api.get('/wishlist', fromJson: (json) {
+    final raw = json as List<dynamic>;
+    return raw.map((item) => WishlistItem.fromJson(item)).toList();
+  });
 });
 
 /* ------------------------------------------------------------------ */
@@ -123,9 +140,22 @@ final wishlistProvider = FutureProvider<List<WishlistItem>>((ref) async {
 /* ------------------------------------------------------------------ */
 
 final addressesProvider = FutureProvider<List<Address>>((ref) async {
-  final raw = await api.getRaw('/addresses');
-  return (raw as List<dynamic>).map((address) => Address.fromJson(address)).toList();
+  return api.get('/addresses', fromJson: (json) {
+    final raw = _listFrom(json);
+    return raw.map((address) => Address.fromJson(address)).toList();
+  });
 });
+
+/// Coerce an endpoint payload to a list, tolerating both a bare array and the
+/// legacy `{ items: [...] }` list envelope some deployed backends still return.
+List<dynamic> _listFrom(Object? json) {
+  if (json is List) return json;
+  if (json is Map<String, dynamic>) {
+    final items = json['items'];
+    if (items is List) return items;
+  }
+  return const [];
+}
 
 /* ------------------------------------------------------------------ */
 /* Orders (auth-gated)                                                 */
