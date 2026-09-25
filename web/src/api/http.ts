@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { AxiosError, AxiosInstance } from 'axios';
+import type { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import type { ApiEnvelope, ApiErrorCode } from './types';
 
 /**
@@ -43,6 +43,11 @@ export interface RequestContext {
   headers?: Record<string, string>;
 }
 
+// First-login race: authenticated queries can beat the POST /auth/login bridge
+// that find-or-creates the backend User row. On a "profile not found" 401 we
+// run the bridge once and retry the original request.
+type RetriableConfig = InternalAxiosRequestConfig & { _profileBridgeRetried?: boolean };
+
 export function createApiClient(baseUrl: string, getToken: () => Promise<string | null>): AxiosInstance {
   const client = axios.create({
     baseURL: baseUrl,
@@ -58,9 +63,31 @@ export function createApiClient(baseUrl: string, getToken: () => Promise<string 
 
   client.interceptors.response.use(
     (response) => response,
-    (error: AxiosError<ApiEnvelope<unknown>>) => {
+    async (error: AxiosError<ApiEnvelope<unknown>>) => {
       const status = error.response?.status ?? 0;
       const payload = error.response?.data;
+      const config = error.config as RetriableConfig | undefined;
+
+      if (
+        status === 401 &&
+        payload &&
+        typeof payload.message === 'string' &&
+        payload.message.toLowerCase().includes('profile not found') &&
+        config &&
+        !config._profileBridgeRetried
+      ) {
+        const idToken = await getToken();
+        if (idToken) {
+          config._profileBridgeRetried = true;
+          try {
+            await client.post('/auth/login', { idToken });
+          } catch {
+            // Bridge failed; fall through and surface the original error.
+          }
+          return client(config);
+        }
+      }
+
       if (payload && typeof payload.message === 'string') {
         return Promise.reject(ApiError.fromResponse(payload, status));
       }

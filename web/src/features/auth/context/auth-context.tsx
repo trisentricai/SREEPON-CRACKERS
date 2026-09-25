@@ -22,6 +22,8 @@ export interface AuthContextValue {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  redirectError: string | null;
+  clearRedirectError: () => void;
   login: (email: string, password: string) => Promise<User>;
   register: (email: string, password: string) => Promise<User>;
   logout: () => Promise<void>;
@@ -32,6 +34,7 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [redirectError, setRedirectError] = useState<string | null>(null);
   const bridgedUid = useRef<string | null>(null);
 
   useEffect(() => {
@@ -42,8 +45,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     (async () => {
       try {
         await resolveRedirectSignIn();
-      } catch {
-        // Best-effort: consuming the redirect result must never block boot.
+      } catch (e) {
+        // Best-effort: consuming the redirect result must never block boot,
+        // but surface the reason so Google sign-in failure isn't silent.
+        console.warn('Redirect sign-in failed', e);
+        if (active) {
+          setRedirectError(e instanceof Error ? e.message : 'Google sign-in could not complete');
+        }
       }
       if (!active) return;
       unsubscribe = onAuthStateChanged(auth, (next) => {
@@ -96,10 +104,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
+  const clearRedirectError = useCallback(() => setRedirectError(null), []);
+
   const value: AuthContextValue = {
     user,
     isLoading,
     isAuthenticated: Boolean(user),
+    redirectError,
+    clearRedirectError,
     login,
     register,
     logout,

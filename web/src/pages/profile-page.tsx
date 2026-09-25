@@ -32,7 +32,7 @@ function friendlyAuthError(err: unknown): string {
  * lets the customer edit it and manage saved addresses.
  */
 export function ProfilePage() {
-  const { user, isLoading, isAuthenticated, login, register, logout } = useAuth();
+  const { user, isLoading, isAuthenticated, redirectError, clearRedirectError, login, register, logout } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -95,6 +95,12 @@ export function ProfilePage() {
     }
   }
 
+  function handleGoogle() {
+    setError(null);
+    clearRedirectError();
+    void loginWithGoogle().catch((e) => setError(friendlyAuthError(e)));
+  }
+
   return (
     <section className="mx-auto max-w-7xl px-4 py-12">
       <h1 className="text-2xl font-bold text-ember-800">Sign in to SriPon</h1>
@@ -134,9 +140,7 @@ export function ProfilePage() {
         </button>
         <button
           type="button"
-          onClick={() => {
-            void loginWithGoogle().catch((e) => setError(friendlyAuthError(e)));
-          }}
+          onClick={handleGoogle}
           className="rounded-lg border border-ember-300 px-4 py-2 text-ember-700 hover:bg-ember-50"
         >
           Continue with Google
@@ -156,6 +160,7 @@ export function ProfilePage() {
         >
           Forgot password?
         </button>
+        {redirectError && <p className="text-sm text-red-600">{redirectError}</p>}
         {error && <p className="text-sm text-red-600">{error}</p>}
         {info && <p className="text-sm text-green-700">{info}</p>}
       </form>
