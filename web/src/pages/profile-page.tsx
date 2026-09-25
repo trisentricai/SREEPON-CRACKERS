@@ -9,6 +9,23 @@ import { useAuth } from '@/features/auth/context/auth-context';
 import { loginWithGoogle, resetPassword } from '@/services/firebase/auth';
 import { formatDate } from '@/lib/format';
 
+const AUTH_ERROR_MESSAGES: Record<string, string> = {
+  'auth/invalid-login-credentials': 'Invalid email or password.',
+  'auth/invalid-email': 'Please enter a valid email address.',
+  'auth/user-disabled': 'This account has been disabled.',
+  'auth/weak-password': 'Password must be at least 6 characters.',
+  'auth/email-already-in-use': 'An account already exists for this email.',
+  'auth/too-many-requests': 'Too many attempts — please try again shortly.',
+  'auth/network-request-failed': 'Network error — please check your connection.',
+  'auth/popup-blocked': 'The sign-in window was blocked — allow popups for this site.',
+};
+
+function friendlyAuthError(err: unknown): string {
+  const code = (err as { code?: string } | null)?.code;
+  if (code && AUTH_ERROR_MESSAGES[code]) return AUTH_ERROR_MESSAGES[code];
+  return err instanceof Error && err.message ? err.message : 'Authentication failed';
+}
+
 /**
  * Profile / sign-in / address book.
  * Authenticated route shows the real backend profile (name, phone, avatar) and
@@ -74,7 +91,7 @@ export function ProfilePage() {
       if (mode === 'login') await login(email, password);
       else await register(email, password);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Authentication failed');
+      setError(friendlyAuthError(e));
     }
   }
 
@@ -99,6 +116,7 @@ export function ProfilePage() {
         <input
           type="password"
           required
+          minLength={6}
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
@@ -117,7 +135,7 @@ export function ProfilePage() {
         <button
           type="button"
           onClick={() => {
-            void loginWithGoogle().catch((e) => setError(e instanceof Error ? e.message : 'Google sign-in failed'));
+            void loginWithGoogle().catch((e) => setError(friendlyAuthError(e)));
           }}
           className="rounded-lg border border-ember-300 px-4 py-2 text-ember-700 hover:bg-ember-50"
         >
@@ -132,7 +150,7 @@ export function ProfilePage() {
             }
             void resetPassword(email)
               .then(() => setInfo('Password reset email sent.'))
-              .catch((e) => setError(e instanceof Error ? e.message : 'Reset failed'));
+              .catch((e) => setError(friendlyAuthError(e)));
           }}
           className="text-sm text-ember-700 underline"
         >
