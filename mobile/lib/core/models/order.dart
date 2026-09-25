@@ -2,7 +2,23 @@
 library;
 
 import 'api_envelope.dart';
-import 'commerce.dart';
+
+class OrderCustomer {
+  const OrderCustomer({this.email, this.name});
+
+  final String? email;
+  final String? name;
+
+  factory OrderCustomer.fromJson(dynamic json) {
+    if (json is! Map<String, dynamic>) {
+      throw const FormatException('Expected map for order customer');
+    }
+    return OrderCustomer(
+      email: optionalString(json['email']),
+      name: optionalString(json['name']),
+    );
+  }
+}
 
 enum OrderStatus {
   pending('PENDING'),
@@ -251,7 +267,7 @@ class Order {
   final String? deliveredAt;
   final String createdAt;
   final String updatedAt;
-  final PublicProfile? customer;
+  final OrderCustomer? customer;
   final List<OrderItem> items;
   final List<OrderPayment> payments;
   final List<OrderReturnRequest> returnRequests;
@@ -279,7 +295,7 @@ class Order {
       deliveredAt: optionalString(json['deliveredAt']),
       createdAt: requiredString(json['createdAt'], 'order.createdAt'),
       updatedAt: requiredString(json['updatedAt'], 'order.updatedAt'),
-      customer: json['customer'] != null ? PublicProfile.fromJson(json['customer']) : null,
+      customer: json['customer'] != null ? OrderCustomer.fromJson(json['customer']) : null,
       items: (json['items'] as List<dynamic>?)
               ?.map((item) => OrderItem.fromJson(item))
               .toList() ??
