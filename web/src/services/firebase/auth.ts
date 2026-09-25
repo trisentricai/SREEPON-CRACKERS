@@ -2,6 +2,7 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
+  signInWithPopup,
   signInWithRedirect,
   getRedirectResult,
   GoogleAuthProvider,
@@ -9,6 +10,7 @@ import {
   signOut,
 } from 'firebase/auth';
 import type { Auth, User, Unsubscribe } from 'firebase/auth';
+import type { FirebaseError } from 'firebase/app';
 import { getFirebaseAuth } from './index';
 
 /**
@@ -37,17 +39,39 @@ export async function registerWithEmail(email: string, password: string): Promis
 }
 
 /**
- * Google sign-in uses the full-page redirect flow instead of a popup: popups
- * can't receive the auth handshake when the CDN/browser isolates the window
- * (COOP), which made `signInWithPopup` fail with an internal SDK assertion.
+ * Google sign-in. Uses the popup flow first: it surfaces the outcome directly
+ * to the caller (never a silent return), so failures are visible in the UI.
+ * If the browser blocks the popup we fall back to the full-page redirect,
+ * which is resolved by `resolveRedirectSignIn()` at boot.
  */
 export async function loginWithGoogle(): Promise<void> {
-  await signInWithRedirect(resolveAuth(), new GoogleAuthProvider());
+  const auth = resolveAuth();
+  const provider = new GoogleAuthProvider();
+  try {
+    console.info('[auth] opening Google popup from', window.location.href);
+    await signInWithPopup(auth, provider);
+    console.info('[auth] Google popup signed in');
+  } catch (e) {
+    const code = (e as FirebaseError).code;
+    if (code === 'auth/popup-blocked' || code === 'auth/operation-not-supported-in-this-environment') {
+      console.warn('[auth] popup blocked, falling back to redirect', code);
+      await signInWithRedirect(auth, provider);
+      return;
+    }
+    throw e;
+  }
 }
 
 /** After a redirect-based sign-in, resolve the pending result. Call once at boot. */
 export async function resolveRedirectSignIn(): Promise<User | null> {
-  const result = await getRedirectResult(resolveAuth());
+  const auth = resolveAuth();
+  const result = await getRedirectResult(auth);
+  console.info(
+    '[auth] getRedirectResult ->',
+    result?.user?.email ?? null,
+    '| currentUser:',
+    auth.currentUser?.email ?? null,
+  );
   return result?.user ?? null;
 }
 
