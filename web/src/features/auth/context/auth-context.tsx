@@ -3,7 +3,7 @@ import type { Unsubscribe, User } from 'firebase/auth';
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { api } from '@/api/client';
-import { getFirebaseAuth } from '@/services/firebase';
+import { getAuthToken, getFirebaseAuth } from '@/services/firebase';
 import {
   logOut as doLogOut,
   loginWithEmail,
@@ -68,9 +68,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     if (bridgedUid.current === user.uid) return;
     bridgedUid.current = user.uid;
-    api.post('/auth/login').catch((err) => {
-      console.warn('Session bridge to backend failed', err);
-    });
+    void (async () => {
+      try {
+        const idToken = await getAuthToken();
+        if (!idToken) return;
+        await api.post('/auth/login', { idToken });
+      } catch (err) {
+        console.warn('Session bridge to backend failed', err);
+      }
+    })();
   }, [user]);
 
   const login = useCallback(async (email: string, password: string) => {
