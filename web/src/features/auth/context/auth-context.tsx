@@ -44,7 +44,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     (async () => {
       try {
-        await resolveRedirectSignIn();
+        const redirected = await resolveRedirectSignIn();
+        if (active && redirected) {
+          console.info('[auth] Google redirect result consumed:', redirected.email ?? redirected.uid);
+        }
       } catch (e) {
         // Best-effort: consuming the redirect result must never block boot,
         // but surface the reason so Google sign-in failure isn't silent.
