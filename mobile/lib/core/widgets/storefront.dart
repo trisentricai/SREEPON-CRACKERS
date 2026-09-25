@@ -211,15 +211,16 @@ class PriceRow extends StatelessWidget {
     final heading = size == 'large' ? Theme.of(context).textTheme.titleLarge : Theme.of(context).textTheme.titleMedium;
     final label = size == 'large' ? Theme.of(context).textTheme.bodyMedium : Theme.of(context).textTheme.bodySmall;
     final hasDiscount = discountPercent(basePrice, mrpPrice) != null;
-    return Row(
-      mainAxisSize: MainAxisSize.min,
+    return Wrap(
+      spacing: 6,
+      runSpacing: 2,
+      crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         Text(
           formatMoney(basePrice),
           style: heading?.copyWith(color: scheme.primary, fontWeight: FontWeight.w700),
         ),
-        if (hasDiscount && mrpPrice != null) ...[
-          const SizedBox(width: 6),
+        if (hasDiscount && mrpPrice != null)
           Text(
             formatMoney(mrpPrice),
             style: label?.copyWith(
@@ -227,7 +228,6 @@ class PriceRow extends StatelessWidget {
               decoration: TextDecoration.lineThrough,
             ),
           ),
-        ],
       ],
     );
   }

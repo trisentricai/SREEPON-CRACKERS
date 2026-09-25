@@ -2,7 +2,8 @@ import {
   onAuthStateChanged,
   signInWithEmailAndPassword,
   createUserWithEmailAndPassword,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   GoogleAuthProvider,
   sendPasswordResetEmail,
   signOut,
@@ -35,9 +36,19 @@ export async function registerWithEmail(email: string, password: string): Promis
   return credentials.user;
 }
 
-export async function loginWithGoogle(): Promise<User> {
-  const credentials = await signInWithPopup(resolveAuth(), new GoogleAuthProvider());
-  return credentials.user;
+/**
+ * Google sign-in uses the full-page redirect flow instead of a popup: popups
+ * can't receive the auth handshake when the CDN/browser isolates the window
+ * (COOP), which made `signInWithPopup` fail with an internal SDK assertion.
+ */
+export async function loginWithGoogle(): Promise<void> {
+  await signInWithRedirect(resolveAuth(), new GoogleAuthProvider());
+}
+
+/** After a redirect-based sign-in, resolve the pending result. Call once at boot. */
+export async function resolveRedirectSignIn(): Promise<User | null> {
+  const result = await getRedirectResult(resolveAuth());
+  return result?.user ?? null;
 }
 
 export async function resetPassword(email: string): Promise<void> {
