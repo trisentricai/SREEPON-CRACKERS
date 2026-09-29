@@ -40,7 +40,7 @@ export function ProductsPage() {
     <section className="mx-auto max-w-7xl px-4 py-8">
       <header>
         <p className="text-sm text-ember-900/50">
-          <Link to="/products" className="hover:text-ember-700">Catalogue</Link>
+          <Link to="/products" className="hover:text-coral-700">Catalogue</Link>
           {activeCategory && <span className="text-ember-900/40"> / {activeCategory.name}</span>}
         </p>
         <h1 className="mt-1 font-display text-2xl font-bold text-ember-800">
@@ -115,7 +115,7 @@ function ProductList({
             placeholder="Search by name or SKU…"
             className="w-full rounded-lg border border-ember-200 px-3 py-2 text-sm"
           />
-          <button type="submit" className="rounded-lg bg-ember-600 px-4 py-2 text-sm text-white hover:bg-ember-700">
+          <button type="submit" className="rounded-lg bg-coral-600 px-4 py-2 text-sm text-white hover:bg-coral-700">
             Search
           </button>
         </form>
@@ -199,7 +199,7 @@ function CategoryRail({ categories, active }: { categories: CategoryTreeNode[]; 
       <li>
         <Link
           to="/products"
-          className={`block rounded-lg px-3 py-2 ${!active ? 'bg-ember-100 font-semibold text-ember-800' : 'text-ember-900/70 hover:bg-ember-50'}`}
+          className={`block rounded-lg px-3 py-2 ${!active ? 'bg-coral-100 font-semibold text-coral-700' : 'text-ember-900/70 hover:bg-coral-50'}`}
         >
           All products
         </Link>
@@ -227,7 +227,7 @@ function CategoryBranch({
         <Link
           to={`/products/${category.slug}`}
           style={{ paddingLeft: `${12 + depth * 12}px` }}
-          className={`block rounded-lg py-2 pr-3 ${active === category.slug ? 'bg-ember-100 font-semibold text-ember-800' : 'text-ember-900/70 hover:bg-ember-50'}`}
+          className={`block rounded-lg py-2 pr-3 ${active === category.slug ? 'bg-coral-100 font-semibold text-coral-700' : 'text-ember-900/70 hover:bg-coral-50'}`}
         >
           {category.name}
         </Link>

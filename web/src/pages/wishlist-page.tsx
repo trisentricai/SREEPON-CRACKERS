@@ -76,7 +76,7 @@ function WishlistContent() {
         <div className="mt-4">
           <EmptyState title="Your wishlist is empty">
             <p>
-              <Link to="/products" className="font-medium text-ember-700 underline">Browse the catalogue</Link>{' '}
+              <Link to="/products" className="font-medium text-coral-600 underline">Browse the catalogue</Link>{' '}
               and save the items you like.
             </p>
           </EmptyState>
@@ -104,7 +104,7 @@ function WishlistContent() {
                 )}
               </div>
               <div>
-                <h2 className="font-semibold text-ember-900 hover:text-ember-700">{item.product.name}</h2>
+                <h2 className="font-semibold text-ember-900 hover:text-coral-700">{item.product.name}</h2>
                 <p className="text-xs text-ember-900/50">{formatUnit(item.product.unit)}</p>
               </div>
             </Link>
@@ -116,14 +116,14 @@ function WishlistContent() {
               <button
                 onClick={() => moveToCart.mutate(item.product.id)}
                 disabled={!item.isAvailable || moveToCart.isPending}
-                className="flex-1 rounded-lg bg-ember-600 px-3 py-2 text-sm font-semibold text-white hover:bg-ember-700 disabled:opacity-50"
+                className="flex-1 rounded-lg bg-coral-600 px-3 py-2 text-sm font-semibold text-white hover:bg-coral-700 disabled:opacity-50"
               >
                 Move to cart
               </button>
               <button
                 onClick={() => removeItem.mutate(item.product.id)}
                 disabled={removeItem.isPending}
-                className="rounded-lg border border-ember-200 px-3 py-2 text-sm text-ember-700 hover:bg-ember-50 disabled:opacity-50"
+                className="rounded-lg border border-coral-200 px-3 py-2 text-sm text-coral-600 hover:bg-coral-50 disabled:opacity-50"
               >
                 Remove
               </button>

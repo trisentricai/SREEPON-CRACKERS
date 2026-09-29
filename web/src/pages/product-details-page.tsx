@@ -85,11 +85,11 @@ export function ProductDetailsPage() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-8">
       <nav className="text-sm text-ember-900/50">
-        <Link to="/products" className="hover:text-ember-700">Catalogue</Link>
+        <Link to="/products" className="hover:text-coral-700">Catalogue</Link>
         {product.category && (
           <>
             {' / '}
-            <Link to={`/products/${product.category.slug}`} className="hover:text-ember-700">
+            <Link to={`/products/${product.category.slug}`} className="hover:text-coral-700">
               {product.category.name}
             </Link>
           </>
@@ -139,7 +139,7 @@ export function ProductDetailsPage() {
           {product.shortDescription && <p className="mt-2 text-ember-900/70">{product.shortDescription}</p>}
 
           <div className="mt-4 flex items-baseline gap-3">
-            <span className="text-3xl font-extrabold text-ember-700">{formatMoney(product.basePrice)}</span>
+            <span className="text-3xl font-extrabold text-coral-600">{formatMoney(product.basePrice)}</span>
             {product.mrpPrice && (
               <span className="text-lg text-ember-900/40 line-through">{formatMoney(product.mrpPrice)}</span>
             )}
@@ -201,14 +201,14 @@ export function ProductDetailsPage() {
             <button
               onClick={() => addToCart.mutate()}
               disabled={!isAuthenticated || !inStock || addToCart.isPending}
-              className="rounded-lg bg-ember-600 px-6 py-2.5 font-semibold text-white hover:bg-ember-700 disabled:opacity-50"
+              className="rounded-lg bg-coral-600 px-6 py-2.5 font-semibold text-white hover:bg-coral-700 disabled:opacity-50"
             >
               {addToCart.isPending ? 'Adding…' : 'Add to cart'}
             </button>
             <button
               onClick={() => addToWishlist.mutate()}
               disabled={!isAuthenticated || addToWishlist.isPending}
-              className="rounded-lg border border-ember-300 px-6 py-2.5 font-semibold text-ember-700 hover:bg-ember-50 disabled:opacity-50"
+              className="rounded-lg border border-coral-300 px-6 py-2.5 font-semibold text-coral-600 hover:bg-coral-50 disabled:opacity-50"
             >
               {addToWishlist.isPending ? 'Saving…' : 'Add to wishlist'}
             </button>
@@ -216,7 +216,7 @@ export function ProductDetailsPage() {
 
           {!isAuthenticated && (
             <p className="mt-4 text-sm text-ember-900/60">
-              <Link to="/profile" className="font-medium text-ember-700 underline">Sign in</Link> to add
+              <Link to="/profile" className="font-medium text-coral-600 underline">Sign in</Link> to add
               items to your cart or wishlist.
             </p>
           )}

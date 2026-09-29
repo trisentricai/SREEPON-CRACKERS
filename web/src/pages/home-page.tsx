@@ -81,7 +81,7 @@ export function HomePage() {
 
 function HeroFallback({ storeName, tagline }: { storeName?: string; tagline?: string }) {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-ember-600 via-ember-700 to-ember-900 text-white">
+    <section className="relative overflow-hidden bg-gradient-to-br from-coral-500 via-coral-600 to-coral-700 text-white">
       <div className="pointer-events-none absolute inset-0" aria-hidden>
         <div className="absolute -right-16 -top-24 h-72 w-72 rounded-full bg-gold-400/25 blur-3xl" />
         <div className="absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-ember-400/25 blur-3xl" />
@@ -97,7 +97,7 @@ function HeroFallback({ storeName, tagline }: { storeName?: string; tagline?: st
         <div className="mt-9 flex flex-wrap justify-center gap-4">
           <Link
             to="/products"
-            className="rounded-full bg-white px-7 py-3 font-semibold text-ember-800 shadow-lg transition duration-300 hover:-translate-y-0.5 hover:bg-ember-50"
+            className="rounded-full bg-white px-7 py-3 font-semibold text-coral-600 shadow-lg transition duration-300 hover:-translate-y-0.5 hover:bg-coral-50"
           >
             Shop now
           </Link>
@@ -194,7 +194,7 @@ function BannerStrip({
         {banner.actionTarget && (
           <Link
             to={banner.actionTarget}
-            className="mt-6 inline-block w-fit rounded-full bg-white px-7 py-2.5 font-semibold text-ember-800 shadow-lg transition duration-300 hover:-translate-y-0.5 hover:bg-ember-50"
+            className="mt-6 inline-block w-fit rounded-full bg-white px-7 py-2.5 font-semibold text-coral-600 shadow-lg transition duration-300 hover:-translate-y-0.5 hover:bg-coral-50"
           >
             Shop now
           </Link>
@@ -220,7 +220,7 @@ function BannerCard({
       )}
       <div className="p-5">
         {banner.title && (
-          <h3 className="font-display font-semibold text-ember-900 group-hover:text-ember-700">{banner.title}</h3>
+          <h3 className="font-display font-semibold text-ember-900 group-hover:text-coral-600">{banner.title}</h3>
         )}
         {banner.subtitle && <p className="mt-1 text-sm text-ember-900/60">{banner.subtitle}</p>}
       </div>
@@ -242,12 +242,12 @@ function CategoryGrid({
           className="group flex flex-col items-center gap-3 rounded-xl border border-line bg-paper-strong p-6 text-center transition duration-300 hover:-translate-y-0.5 hover:shadow-lg"
         >
           <div
-            className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-ember-100 to-gold-100 text-ember-700 transition duration-300 group-hover:scale-105"
+            className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-coral-100 to-gold-100 text-coral-600 transition duration-300 group-hover:scale-105"
             aria-hidden
           >
             <PartyPopper className="h-7 w-7" />
           </div>
-          <p className="font-display font-semibold text-ember-900 group-hover:text-ember-700">{category.name}</p>
+          <p className="font-display font-semibold text-ember-900 group-hover:text-coral-600">{category.name}</p>
         </Link>
       ))}
     </div>

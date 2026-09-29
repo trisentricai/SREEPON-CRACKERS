@@ -16,7 +16,7 @@ export function AdminPhaseState({
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-8 shadow-sm">
       <div className="flex items-center gap-3">
-        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-ember-100 text-lg">
+        <span className="inline-flex h-10 w-10 items-center justify-center rounded-full bg-coral-100 text-lg">
           🚀
         </span>
         <div>

@@ -95,7 +95,7 @@ export function OrderDetailsPage() {
       <section className="mx-auto max-w-7xl px-4 py-16">
         <EmptyState title="Sign in to view this order">
           <p>
-            <Link to="/profile" className="font-medium text-ember-700 underline">Sign in</Link> to continue.
+            <Link to="/profile" className="font-medium text-coral-600 underline">Sign in</Link> to continue.
           </p>
         </EmptyState>
       </section>
@@ -123,7 +123,7 @@ export function OrderDetailsPage() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-8">
       <nav className="text-sm text-ember-900/50">
-        <Link to="/orders" className="hover:text-ember-700">Orders</Link> /{' '}
+        <Link to="/orders" className="hover:text-coral-700">Orders</Link> /{' '}
         <span className="text-ember-900/70">{order.orderNumber}</span>
       </nav>
 
@@ -163,7 +163,7 @@ export function OrderDetailsPage() {
                           setReturnReason('');
                           setShowReturn((v) => !v);
                         }}
-                        className="text-xs text-ember-900/50 underline hover:text-ember-700"
+                        className="text-xs text-ember-900/50 underline hover:text-coral-700"
                       >
                         Request return
                       </button>
@@ -188,7 +188,7 @@ export function OrderDetailsPage() {
                     <button
                       type="submit"
                       disabled={requestReturn.isPending}
-                      className="rounded-lg bg-ember-600 px-4 py-2 text-sm font-semibold text-white hover:bg-ember-700 disabled:opacity-50"
+                      className="rounded-lg bg-coral-600 px-4 py-2 text-sm font-semibold text-white hover:bg-coral-700 disabled:opacity-50"
                     >
                       {requestReturn.isPending ? 'Sending…' : 'Submit'}
                     </button>
@@ -289,7 +289,7 @@ export function OrderDetailsPage() {
             <button
               onClick={() => downloadInvoice.mutate()}
               disabled={downloadInvoice.isPending}
-              className="w-full rounded-lg border border-ember-300 px-4 py-2 text-sm font-semibold text-ember-700 hover:bg-ember-50 disabled:opacity-50"
+              className="w-full rounded-lg border border-coral-300 px-4 py-2 text-sm font-semibold text-coral-600 hover:bg-coral-50 disabled:opacity-50"
             >
               {downloadInvoice.isPending ? 'Preparing…' : 'Download invoice'}
             </button>

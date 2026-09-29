@@ -128,20 +128,20 @@ export function ProfilePage() {
           onChange={(e) => setPassword(e.target.value)}
           className="rounded-lg border border-ember-200 px-3 py-2 text-sm"
         />
-        <button type="submit" className="rounded-lg bg-ember-600 px-4 py-2 text-white hover:bg-ember-700">
+        <button type="submit" className="rounded-lg bg-coral-600 px-4 py-2 text-white hover:bg-coral-700">
           Sign in
         </button>
         <button
           type="button"
           onClick={() => void handleAuth('register')}
-          className="rounded-lg border border-ember-300 px-4 py-2 text-ember-700 hover:bg-ember-50"
+          className="rounded-lg border border-coral-300 px-4 py-2 text-coral-600 hover:bg-coral-50"
         >
           Create account
         </button>
         <button
           type="button"
           onClick={handleGoogle}
-          className="rounded-lg border border-ember-300 px-4 py-2 text-ember-700 hover:bg-ember-50"
+          className="rounded-lg border border-coral-300 px-4 py-2 text-coral-600 hover:bg-coral-50"
         >
           Continue with Google
         </button>
@@ -156,7 +156,7 @@ export function ProfilePage() {
               .then(() => setInfo('Password reset email sent.'))
               .catch((e) => setError(friendlyAuthError(e)));
           }}
-          className="text-sm text-ember-700 underline"
+          className="text-sm text-coral-600 underline"
         >
           Forgot password?
         </button>
@@ -204,10 +204,10 @@ function ProfileSummary({
       <header className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-bold text-ember-800">Your Profile</h1>
         <div className="flex items-center gap-4 text-sm">
-          <Link to="/orders" className="text-ember-700 underline">Orders</Link>
-          <Link to="/wishlist" className="text-ember-700 underline">Wishlist</Link>
-          <Link to="/cart" className="text-ember-700 underline">Cart</Link>
-          <button onClick={onLogout} className="text-ember-700 underline">
+          <Link to="/orders" className="text-coral-600 underline">Orders</Link>
+          <Link to="/wishlist" className="text-coral-600 underline">Wishlist</Link>
+          <Link to="/cart" className="text-coral-600 underline">Cart</Link>
+          <button onClick={onLogout} className="text-coral-600 underline">
             Sign out
           </button>
         </div>
@@ -264,7 +264,7 @@ function ProfileSummary({
             <button
               type="submit"
               disabled={saving}
-              className="rounded-lg bg-ember-600 px-4 py-2 text-sm font-semibold text-white hover:bg-ember-700 disabled:opacity-50"
+              className="rounded-lg bg-coral-600 px-4 py-2 text-sm font-semibold text-white hover:bg-coral-700 disabled:opacity-50"
             >
               {saving ? 'Saving…' : 'Save changes'}
             </button>
@@ -333,7 +333,7 @@ function AddressBook({ addresses }: { addresses: Address[] }) {
             </div>
             <div className="mt-2 flex gap-3 text-xs">
               {!address.isDefault && (
-                <button onClick={() => setDefault.mutate(address.id)} className="text-ember-700 underline hover:text-ember-800">
+                <button onClick={() => setDefault.mutate(address.id)} className="text-coral-600 underline hover:text-coral-700">
                   Set default
                 </button>
               )}
@@ -347,7 +347,7 @@ function AddressBook({ addresses }: { addresses: Address[] }) {
 
       {adding && <AddressForm onDone={() => { setAdding(false); void invalidate(); }} onError={setMessage} />}
       {!adding && (
-        <button onClick={() => setAdding(true)} className="mt-3 rounded-lg border border-ember-300 px-4 py-2 text-sm font-semibold text-ember-700 hover:bg-ember-50">
+        <button onClick={() => setAdding(true)} className="mt-3 rounded-lg border border-coral-300 px-4 py-2 text-sm font-semibold text-coral-600 hover:bg-coral-50">
           + Add address
         </button>
       )}
@@ -407,10 +407,10 @@ function AddressForm({ onDone, onError }: { onDone: () => void; onError: (messag
         Set as default
       </label>
       <div className="flex gap-2 sm:col-span-2">
-        <button type="submit" disabled={saving} className="rounded-lg bg-ember-600 px-4 py-2 text-sm font-semibold text-white hover:bg-ember-700 disabled:opacity-50">
+        <button type="submit" disabled={saving} className="rounded-lg bg-coral-600 px-4 py-2 text-sm font-semibold text-white hover:bg-coral-700 disabled:opacity-50">
           {saving ? 'Saving…' : 'Save address'}
         </button>
-        <button type="button" onClick={onDone} className="rounded-lg border border-ember-300 px-4 py-2 text-sm text-ember-700 hover:bg-ember-50">
+        <button type="button" onClick={onDone} className="rounded-lg border border-coral-300 px-4 py-2 text-sm text-coral-600 hover:bg-coral-50">
           Cancel
         </button>
       </div>

@@ -53,7 +53,7 @@ export function AdminLayout() {
               className={({ isActive }) =>
                 `block rounded-lg px-3 py-2 text-sm transition-colors ${
                   isActive
-                    ? 'bg-ember-600 font-medium text-white'
+                    ? 'bg-coral-600 font-medium text-white'
                     : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                 }`
               }

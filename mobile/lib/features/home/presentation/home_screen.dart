@@ -144,7 +144,7 @@ class _HeroSlide extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [SriPonColors.emberDeep, SriPonColors.ember900],
+          colors: [SriPonColors.coral600, SriPonColors.coral700],
         ),
       ),
       clipBehavior: Clip.antiAlias,
@@ -277,7 +277,7 @@ class _FallbackHero extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [SriPonColors.emberDeep, SriPonColors.ember900],
+          colors: [SriPonColors.coral600, SriPonColors.coral700],
         ),
       ),
       child: Column(

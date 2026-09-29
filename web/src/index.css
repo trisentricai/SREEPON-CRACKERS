@@ -39,6 +39,7 @@
   /* Coral — festive accent (fireworks glow); deep variants keep text/buttons AA. */
   --color-coral-50: #fff2f0;
   --color-coral-100: #ffe3df;
+  --color-coral-200: #ffcfc8;
   --color-coral-300: #ff9d8f;
   --color-coral-400: #ff8169;
   --color-coral-500: #ff6b5a;
@@ -71,7 +72,7 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-ember-600);
+    outline: 2px solid var(--color-coral-600);
     outline-offset: 2px;
   }
 }

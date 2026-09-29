@@ -9,26 +9,26 @@ abstract final class SriPonTheme {
   /// Active customer theme (light).
   static ThemeData get light => _build(
         brightness: Brightness.light,
-        primary: SriPonColors.emberDeep,
+        primary: SriPonColors.coral600,
         onPrimary: Colors.white,
-        primaryContainer: SriPonColors.ember100,
-        onPrimaryContainer: SriPonColors.ember900,
-        secondary: SriPonColors.gold,
-        onSecondary: SriPonColors.ink,
+        primaryContainer: SriPonColors.coral100,
+        onPrimaryContainer: SriPonColors.coral700,
+        secondary: SriPonColors.teal600,
+        onSecondary: Colors.white,
         surface: SriPonColors.paper,
         onSurface: SriPonColors.ink,
         surfaceContainerLow: SriPonColors.paperStrong,
-        surfaceContainerHighest: SriPonColors.ember100,
+        surfaceContainerHighest: SriPonColors.coral100,
       );
 
   /// Dark theme — token-ready for the upcoming dark-mode toggle.
   static ThemeData get dark => _build(
         brightness: Brightness.dark,
-        primary: SriPonColors.ember300,
+        primary: SriPonColors.coral300,
         onPrimary: SriPonColors.ink,
-        primaryContainer: SriPonColors.ember900,
-        onPrimaryContainer: SriPonColors.ember100,
-        secondary: const Color(0xFFE9CC72),
+        primaryContainer: SriPonColors.coral700,
+        onPrimaryContainer: SriPonColors.coral100,
+        secondary: SriPonColors.teal400,
         onSecondary: SriPonColors.ink,
         surface: const Color(0xFF1C140F),
         onSurface: const Color(0xFFFFF6ED),
@@ -50,7 +50,7 @@ abstract final class SriPonTheme {
     required Color surfaceContainerHighest,
   }) {
     final seeded = ColorScheme.fromSeed(
-      seedColor: SriPonColors.ember,
+      seedColor: SriPonColors.coral600,
       brightness: brightness,
     );
     final scheme = seeded.copyWith(
@@ -61,8 +61,8 @@ abstract final class SriPonTheme {
       onPrimaryContainer: onPrimaryContainer,
       secondary: secondary,
       onSecondary: onSecondary,
-      secondaryContainer: SriPonColors.gold100,
-      onSecondaryContainer: SriPonColors.gold900,
+      secondaryContainer: SriPonColors.teal100,
+      onSecondaryContainer: SriPonColors.teal700,
       tertiary: SriPonColors.gold,
       onTertiary: SriPonColors.ink,
       tertiaryContainer: SriPonColors.gold100,

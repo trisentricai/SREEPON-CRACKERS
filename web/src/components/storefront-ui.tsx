@@ -140,7 +140,7 @@ export function ProductCard({ product }: { product: CardProduct }) {
       </div>
       <div className="flex flex-1 flex-col p-3">
         <p className="text-xs text-ember-900/50">{product.category?.name ?? formatUnit(product.unit)}</p>
-        <h3 className="mt-0.5 line-clamp-2 font-display text-sm font-semibold text-ember-900 group-hover:text-ember-700">
+        <h3 className="mt-0.5 line-clamp-2 font-display text-sm font-semibold text-ember-900 group-hover:text-coral-600">
           {product.name}
         </h3>
         <div className="mt-2 flex items-baseline gap-2">
@@ -181,7 +181,7 @@ export function AuthGate({ isAuthenticated, isLoading, children, title }: { isAu
       <section className="mx-auto max-w-7xl px-4 py-16">
         <EmptyState title={title}>
           <p className="mt-3">
-            <Link to="/profile" className="font-medium text-ember-700 underline">
+            <Link to="/profile" className="font-medium text-teal-600 underline">
               Sign in
             </Link>{' '}
             to continue.
