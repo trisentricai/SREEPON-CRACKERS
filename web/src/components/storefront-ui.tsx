@@ -77,7 +77,7 @@ export function SectionHeading({ title, subtitle, to }: { title: string; subtitl
         {subtitle && <p className="mt-1 text-sm text-ember-900/60">{subtitle}</p>}
       </div>
       {to && (
-        <Link to={to} className="shrink-0 text-sm font-medium text-ember-700 hover:underline">
+        <Link to={to} className="shrink-0 text-sm font-medium text-teal-600 hover:underline">
           View all →
         </Link>
       )}
@@ -144,7 +144,7 @@ export function ProductCard({ product }: { product: CardProduct }) {
           {product.name}
         </h3>
         <div className="mt-2 flex items-baseline gap-2">
-          <span className="font-display font-bold text-ember-800">{formatMoney(product.basePrice)}</span>
+          <span className="font-display font-bold text-coral-600">{formatMoney(product.basePrice)}</span>
           {product.mrpPrice && (
             <span className="text-xs text-ember-900/40 line-through">{formatMoney(product.mrpPrice)}</span>
           )}

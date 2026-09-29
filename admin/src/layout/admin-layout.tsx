@@ -53,7 +53,7 @@ export function AdminLayout() {
               className={({ isActive }) =>
                 `block rounded-lg px-3 py-2 text-sm transition-colors ${
                   isActive
-                    ? 'bg-orange-600 font-medium text-white'
+                    ? 'bg-ember-600 font-medium text-white'
                     : 'text-slate-300 hover:bg-slate-800 hover:text-white'
                 }`
               }
@@ -66,7 +66,7 @@ export function AdminLayout() {
           {user?.email && <p className="truncate">{user.email}</p>}
           <button
             onClick={() => void logout()}
-            className="mt-2 text-orange-400 underline hover:text-orange-300"
+            className="mt-2 text-teal-400 underline hover:text-teal-300"
           >
             Sign out
           </button>

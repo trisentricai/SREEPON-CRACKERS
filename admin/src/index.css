@@ -1,16 +1,32 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand-50: #fff7ed;
-  --color-brand-100: #ffedd5;
-  --color-brand-200: #fed7aa;
-  --color-brand-300: #fdba74;
-  --color-brand-400: #fb923c;
-  --color-brand-500: #f97316;
-  --color-brand-600: #ea580c;
-  --color-brand-700: #c2410c;
-  --color-brand-800: #9a3412;
-  --color-brand-900: #7c2d12;
+  /* Aligned with the customer storefront (web/src/index.css) so both apps share a brand. */
+  --color-ember-50: #fff6ed;
+  --color-ember-100: #ffe9d6;
+  --color-ember-200: #ffd2ae;
+  --color-ember-300: #ffb77e;
+  --color-ember-400: #f7934a;
+  --color-ember-500: #ef751f;
+  --color-ember-600: #e65c00;
+  --color-ember-700: #c2410c;
+  --color-ember-800: #9a3b05;
+  --color-ember-900: #7a2d03;
+  --color-ember-950: #4c1c02;
+
+  --color-coral-50: #fff2f0;
+  --color-coral-100: #ffe3df;
+  --color-coral-300: #ff9d8f;
+  --color-coral-400: #ff8169;
+  --color-coral-500: #ff6b5a;
+  --color-coral-600: #e8513f;
+  --color-coral-700: #c93a29;
+
+  --color-teal-100: #ccfbf1;
+  --color-teal-400: #2dd4bf;
+  --color-teal-500: #14b8a6;
+  --color-teal-600: #0d9488;
+  --color-teal-700: #0f766e;
 }
 
 html,

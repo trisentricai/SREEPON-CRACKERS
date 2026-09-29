@@ -27,6 +27,16 @@ abstract final class SriPonColors {
   static const inkMuted = Color(0xFF6F5A4C);
   static const line = Color(0xFFE8DDD0);
 
+  /// Festive coral accent (deep variants keep text/buttons AA) and its
+  /// complementary teal — mirrored from web/src/index.css.
+  static const coral500 = Color(0xFFFF6B5A);
+  static const coral600 = Color(0xFFE8513F);
+  static const coral700 = Color(0xFFC93A29);
+  static const teal400 = Color(0xFF2DD4BF);
+  static const teal500 = Color(0xFF14B8A6);
+  static const teal600 = Color(0xFF0D9488);
+  static const teal700 = Color(0xFF0F766E);
+
   /// Semantic status.
   static const success = Color(0xFF1B7A33);
   static const danger = Color(0xFFB3261E);

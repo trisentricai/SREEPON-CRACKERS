@@ -36,6 +36,22 @@
   --color-gold-800: #7d5400;
   --color-gold-900: #5e3f00;
 
+  /* Coral — festive accent (fireworks glow); deep variants keep text/buttons AA. */
+  --color-coral-50: #fff2f0;
+  --color-coral-100: #ffe3df;
+  --color-coral-300: #ff9d8f;
+  --color-coral-400: #ff8169;
+  --color-coral-500: #ff6b5a;
+  --color-coral-600: #e8513f;
+  --color-coral-700: #c93a29;
+
+  /* Teal — complementary trust/success accent. */
+  --color-teal-100: #ccfbf1;
+  --color-teal-400: #2dd4bf;
+  --color-teal-500: #14b8a6;
+  --color-teal-600: #0d9488;
+  --color-teal-700: #0f766e;
+
   /* Warm surfaces + ink. */
   --color-paper: #fff8f0;
   --color-paper-strong: #fffdf8;

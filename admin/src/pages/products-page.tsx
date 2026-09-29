@@ -468,7 +468,7 @@ export function ProductsPage() {
               value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
               rows={3}
-              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-ember-600 focus:outline-none"
             />
           </Field>
         </div>
@@ -494,7 +494,7 @@ export function ProductsPage() {
                   </button>
                 </div>
               ))}
-              <label className="flex h-24 w-36 cursor-pointer items-center justify-center rounded-lg border border-dashed border-slate-300 text-xs text-slate-500 transition-colors hover:border-orange-400 hover:text-orange-600">
+              <label className="flex h-24 w-36 cursor-pointer items-center justify-center rounded-lg border border-dashed border-slate-300 text-xs text-slate-500 transition-colors hover:border-coral-400 hover:text-coral-600">
                 {uploading ? 'Uploading…' : '+ Add image'}
                 <input
                   type="file"

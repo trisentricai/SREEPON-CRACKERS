@@ -50,7 +50,7 @@ export function LoginPage() {
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-ember-600 focus:outline-none"
           />
         </label>
 
@@ -62,14 +62,14 @@ export function LoginPage() {
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-orange-500 focus:outline-none"
+            className="mt-1 w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-ember-600 focus:outline-none"
           />
         </label>
 
         <button
           type="submit"
           disabled={submitting || !supabaseReady}
-          className="mt-6 w-full rounded-lg bg-orange-600 px-4 py-2 text-white transition-colors hover:bg-orange-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="mt-6 w-full rounded-lg bg-ember-600 px-4 py-2 text-white transition-colors hover:bg-ember-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           {submitting ? 'Signing in…' : 'Sign in'}
         </button>

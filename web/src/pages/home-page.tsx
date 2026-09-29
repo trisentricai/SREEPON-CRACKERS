@@ -85,8 +85,8 @@ function HeroFallback({ storeName, tagline }: { storeName?: string; tagline?: st
       <div className="pointer-events-none absolute inset-0" aria-hidden>
         <div className="absolute -right-16 -top-24 h-72 w-72 rounded-full bg-gold-400/25 blur-3xl" />
         <div className="absolute -bottom-24 -left-16 h-72 w-72 rounded-full bg-ember-400/25 blur-3xl" />
-        <Sparkles className="absolute left-10 top-12 h-6 w-6 text-gold-300/50" />
-        <Sparkles className="absolute bottom-14 right-1/4 h-5 w-5 text-gold-200/40" />
+        <Sparkles className="absolute left-10 top-12 h-6 w-6 text-coral-400/60" />
+        <Sparkles className="absolute bottom-14 right-1/4 h-5 w-5 text-teal-400/50" />
       </div>
       <div className="relative mx-auto max-w-7xl px-4 py-24 text-center sm:py-28">
         <span className="inline-block rounded-full border border-gold-300/40 bg-gold-400/10 px-4 py-1 text-xs font-semibold uppercase tracking-widest text-gold-200">

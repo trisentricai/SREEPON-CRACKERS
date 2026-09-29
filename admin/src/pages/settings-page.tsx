@@ -1,22 +1,18 @@
-﻿import { useEffect, useState } from 'react';
+﻿import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/client';
 import type {
   ApiEnvelope,
-  DeliverySettings,
   SettingsView,
-  SocialSettings,
-  StoreSettings,
-  TaxSettings,
 } from '@/api/types';
 import { Button, Card, ErrorState, Field, Spinner, TextInput, Toggle } from '@/components/admin-ui';
 
 interface FormState {
-  store: StoreSettings;
-  delivery: DeliverySettings;
-  tax: TaxSettings;
-  social: SocialSettings;
+  store: StoreForm;
+  delivery: DeliveryForm;
+  tax: TaxForm;
+  social: SocialForm;
 }
 
 interface StoreForm {
@@ -50,15 +46,41 @@ interface SocialForm {
   whatsappNumber: string;
 }
 
+/** Snapshot the server settings into editable form values. */
+function hydrate(data: SettingsView): FormState {
+  return {
+    store: {
+      name: data.store.name,
+      tagline: data.store.tagline,
+      supportEmail: data.store.supportEmail,
+      supportPhone: data.store.supportPhone,
+      currency: data.store.currency,
+      maintenanceMode: data.store.maintenanceMode,
+    },
+    delivery: {
+      enabled: data.delivery.enabled,
+      deliveryFee: data.delivery.deliveryFee,
+      freeShippingAbove: data.delivery.freeShippingAbove ?? '',
+      deliveryNote: data.delivery.deliveryNote,
+    },
+    tax: {
+      enabled: data.tax.enabled,
+      rate: data.tax.rate.toString(),
+      gstin: data.tax.gstin,
+      taxInclusive: data.tax.taxInclusive,
+    },
+    social: {
+      facebookUrl: data.social.facebookUrl ?? '',
+      instagramUrl: data.social.instagramUrl ?? '',
+      youtubeUrl: data.social.youtubeUrl ?? '',
+      tiktokUrl: data.social.tiktokUrl ?? '',
+      whatsappNumber: data.social.whatsappNumber ?? '',
+    },
+  };
+}
+
 /** Settings — store, delivery, tax, and social configuration. */
 export function SettingsPage() {
-  const queryClient = useQueryClient();
-  const [store, setStore] = useState<StoreForm | null>(null);
-  const [delivery, setDelivery] = useState<DeliveryForm | null>(null);
-  const [tax, setTax] = useState<TaxForm | null>(null);
-  const [social, setSocial] = useState<SocialForm | null>(null);
-  const [saved, setSaved] = useState<string | null>(null);
-
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ['admin-settings'],
     queryFn: async () => {
@@ -67,36 +89,22 @@ export function SettingsPage() {
     },
   });
 
-  useEffect(() => {
-    if (!data) return;
-    setStore({
-      name: data.store.name,
-      tagline: data.store.tagline,
-      supportEmail: data.store.supportEmail,
-      supportPhone: data.store.supportPhone,
-      currency: data.store.currency,
-      maintenanceMode: data.store.maintenanceMode,
-    });
-    setDelivery({
-      enabled: data.delivery.enabled,
-      deliveryFee: data.delivery.deliveryFee,
-      freeShippingAbove: data.delivery.freeShippingAbove ?? '',
-      deliveryNote: data.delivery.deliveryNote,
-    });
-    setTax({
-      enabled: data.tax.enabled,
-      rate: data.tax.rate.toString(),
-      gstin: data.tax.gstin,
-      taxInclusive: data.tax.taxInclusive,
-    });
-    setSocial({
-      facebookUrl: data.social.facebookUrl ?? '',
-      instagramUrl: data.social.instagramUrl ?? '',
-      youtubeUrl: data.social.youtubeUrl ?? '',
-      tiktokUrl: data.social.tiktokUrl ?? '',
-      whatsappNumber: data.social.whatsappNumber ?? '',
-    });
-  }, [data]);
+  if (isLoading || !data) return <Spinner />;
+  if (isError) return <ErrorState message={error instanceof Error ? error.message : 'Failed to load settings'} />;
+
+  // Remount the form whenever a fresh payload arrives so its state hydrates
+  // from server data through lazy initializers instead of effect-driven setState.
+  return <SettingsForm key={JSON.stringify(data)} data={data} />;
+}
+
+function SettingsForm({ data }: { data: SettingsView }) {
+  const queryClient = useQueryClient();
+  const initial = hydrate(data);
+  const [store, setStore] = useState<StoreForm>(initial.store);
+  const [delivery, setDelivery] = useState<DeliveryForm>(initial.delivery);
+  const [tax, setTax] = useState<TaxForm>(initial.tax);
+  const [social, setSocial] = useState<SocialForm>(initial.social);
+  const [saved, setSaved] = useState<string | null>(null);
 
   const saveSettings = useMutation({
     mutationFn: async (payload: Partial<FormState>) => {
@@ -154,9 +162,6 @@ export function SettingsPage() {
       saveSettings.mutate({ [group]: true } as Partial<FormState>);
     };
   }
-
-  if (isLoading) return <Spinner />;
-  if (isError) return <ErrorState message={error instanceof Error ? error.message : 'Failed to load settings'} />;
 
   return (
     <div className="space-y-6">
