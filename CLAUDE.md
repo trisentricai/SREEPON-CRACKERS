@@ -13,8 +13,8 @@
 > work stays byte-identical across **web**, **admin**, **mobile**, and **backend** layers.
 >
 > Accent colors used throughout this document: **#ff6b5a (Coral)** · **#14b8a6 (Teal)**.
-> They appear below as *proposed accent tokens* (section 3) and as the reference palette
-> for Figma variables — the shipped product brand remains the **ember/gold** palette.
+> They appear below as the shipped **coral (primary action) + teal (secondary)** system built
+> on the warm **ember/gold/paper** baseline, and as the reference palette for Figma variables.
 
 ---
 
@@ -41,8 +41,8 @@ change all three.
 
 - **Web:** `web/src/index.css` — Tailwind v4 CSS-first `@theme` block (NO `tailwind.config.js`; Tailwind v4 is configured in CSS via `@import "tailwindcss"`).
 - **Mobile:** `mobile/lib/core/widgets/widgets.dart` → `abstract final class SriPonColors` (byte-identical hex values), consumed via `mobile/lib/core/theme/sripon_theme.dart`.
-- **Admin:** `admin/src/index.css` — a *separate, thinner* `brand`/orange palette (does NOT match web). Assume admin needs re-skinning toward the coral/teal direction when redesigning.
-- **No JS/TS token modules.** Tokens are CSS-first; components consume them as Tailwind utilities (`text-ember-700`, `bg-ember-100`).
+- **Admin:** `admin/src/index.css` — mirrors the web coral/teal tokens; layout uses a `bg-slate-900` sidebar with `bg-coral-600` active nav. When unifying designs, keep coral/teal actives + ember headings exactly in sync with web.
+- **No JS/TS token modules.** Tokens are CSS-first; components consume them as Tailwind utilities (`text-coral-600`, `bg-coral-100`).
 
 ### 2.2 The ember palette (`web/src/index.css`, `@theme`)
 
@@ -98,39 +98,42 @@ change all three.
 |---|---|---|---|
 | Page background | `bg-paper` / `bg-background` | `#fff8f0` | body, section shells |
 | Card / raised surface | `bg-paper-strong` | `#fffdf8` | product cards, banner cards |
-| Primary brand / CTAs | `bg-ember-600` | `#e65c00` | buttons, active links, signature |
-| Hover / deeper CTA | `bg-ember-700` | `#c2410c` | button hover (white text, 4.5:1) |
+| Primary brand / CTAs | `bg-coral-600` | `#e8513f` | buttons, active links, badges, signature */
+| Hover / deeper CTA | `bg-coral-700` | `#c93a29` | button hover (white text, 4.5:1) |
+| Secondary links/focus | `text-teal-600` | `#0d9488` | inline links, checklist/trust accents |
 | Headings / strong text | `text-ember-800/900` | `#9a3b05` / `#7a2d03` | titles inside warm surfaces |
 | Muted text | `text-ember-900/50..70` | alpha of `#7a2d03` | secondary labels, subtitles |
 | Body/ink text | `text-ink` / `text-foreground` | `#241b16` | default text color |
 | Hairlines / borders | `border-line` | `#e8ddd0` | card borders, dividers |
 | Accent / discount | `bg-gold-500`, `text-ink` | `#d9a021` | “% off” badges, festive sparkle |
-| Soft tint surfaces | `bg-ember-50` , `bg-ember-100`, `border-ember-100` | see palette | header band, empty states, chips |
+| Soft tint surfaces | `bg-ember-50`, `bg-coral-100`, `border-coral-200` | see palette | header band, empty states, chips, selected filters |
 | Error / success | `red-*` / `green-*` (Tailwind stock) | — | form + API errors, success |
 
-### 2.4 Admin palette (does NOT reuse web tokens — mismatch to be aware of)
+### 2.4 Color roles — moved into the coral/teal table (§2.3); no separate admin palette.
 
-`admin/src/index.css` defines `brand-*` (orange scale `#f97316 → #c2410c`) plus stock slate.
-Admin layout uses `bg-slate-900` sidebar + `bg-orange-600` active nav. When unifying designs,
-map admin `brand` → web `ember` and consider coral/teal accents below.
-
-### 2.5 Proposed accent tokens (coral + teal) — use for new/redesigned surfaces
+### 2.5 Coral + teal tokens (shipped) — primary/secondary actives
 
 ```css
-/* Suggested additions to @theme when the redesign lands */
+/* Primary/secondary actives across web + admin + mobile (deep variants keep text AA). */
 --color-coral-50:  #fff2f0;
+--color-coral-100: #ffe3df;
+--color-coral-200: #ffcfc8;
 --color-coral-300: #ff9d8f;
 --color-coral-400: #ff8169;
---color-coral-500: #ff6b5a;   /* hero Sparkles, price highlights, CTA attention */
---color-coral-600: #e8513f;   /* deep coral — preferred for white-text buttons (4.5:1) */
+--color-coral-500: #ff6b5a;   /* hero gradients, Sparkles, price highlights */
+--color-coral-600: #e8513f;   /* PRIMARY CTA fill + white text (4.5:1) */
+--color-coral-700: #c93a29;   /* PRIMARY CTA hover */
+--color-teal-100:  #ccfbf1;
 --color-teal-400:  #2dd4bf;
---color-teal-500:  #14b8a6;   /* trust/success accents, focus rings, info chips */
---color-teal-600:  #0d9488;
+--color-teal-500:  #14b8a6;   /* trust/success accents, focus rings */
+--color-teal-600:  #0d9488;   /* SECONDARY links/emphasis (AA on paper) */
+--color-teal-700:  #0f766e;
 ```
 
 Contrast guardrails: `#ff6b5a` on white ≈ 3.16:1 (headline/large only, never body text);
-`#14b8a6` on white ≈ 2.9:1 (large/icon only). Use deep variants `coral-600`/`teal-600` for text
-and button backgrounds to keep WCAG AA.
+`#14b8a6` on white ≈ 2.9:1 (large/icon only). Use deep variants `coral-600`/`coral-700` for
+white-text buttons and `teal-600` for text to keep WCAG AA. Gold `#d9a021` stays the festive
+discount accent; headings/strong text stay `ember-800/900` on warm surfaces.
 
 ### 2.6 Typography tokens
 
@@ -149,7 +152,7 @@ Flutter mirrors fonts via `GoogleFonts.nunitoSans` / `GoogleFonts.rubik`
 - **Layout grid:** 4px base; page gutter `px-4`, container `max-w-7xl`, vertical rhythm `py-8…py-24`.
 - **Radius:** cards/inputs `rounded-xl` (12px); pills/chips/CTAs `rounded-full`.
 - **Elevation:** subtle — `border border-line` + flat; hover adds `hover:-translate-y-0.5 hover:shadow-lg` on cards (see `ProductCard`).
-- **Focus:** global `:focus-visible { outline: 2px solid var(--color-ember-600) }` in `@layer base`.
+- **Focus:** global `:focus-visible { outline: 2px solid var(--color-coral-600) }` in `@layer base`.
 
 ---
 
@@ -159,7 +162,7 @@ Flutter mirrors fonts via `GoogleFonts.nunitoSans` / `GoogleFonts.rubik`
 
 ```tsx
 export function Badge({ children, tone = 'neutral' })           // neutral | green | red | amber | blue | orange | gold
-export function Spinner({ label = 'Loading…' })                  // ember spinner + label
+export function Spinner({ label = 'Loading…' })                  // coral spinner + label
 export function ErrorState({ error })                            // error card / phase-stub notice
 export function EmptyState({ title, children })                  // dashed ember-50 card
 export function SectionHeading({ title, subtitle, to })          // display font + "View all →"
@@ -172,14 +175,14 @@ Patterns to copy from `ProductCard` (`storefront-ui.tsx:110`):
 - Link card: `group flex flex-col overflow-hidden rounded-xl border border-line bg-paper-strong transition duration-300 hover:-translate-y-0.5 hover:shadow-lg`
 - Image well: `relative aspect-square overflow-hidden bg-ember-50` + `img` with `loading="lazy"`, `object-cover`, `group-hover:scale-105`
 - Discount badge: absolute `rounded-full bg-gold-500 px-2 py-0.5 text-xs font-bold text-ink`
-- Price pair: `text-ember-800 font-bold` + strikethrough MRP `text-ember-900/40 line-through`
+- Price pair: `text-coral-600 font-bold` + strikethrough MRP `text-ember-900/40 line-through`
 - Category/unit: `text-xs text-ember-900/50`, name `line-clamp-2 font-display text-sm font-semibold`
 
 ### 3.2 Admin — `admin/src/components/admin-ui.tsx`
 
 `Card`, `StatCard`, `Badge`, `Spinner`, `ErrorState`, `EmptyState`, `Button` (variants
-`primary | secondary | ghost | danger`; default `bg-orange-600`), table + form primitives.
-Admin styling uses slate/orange utilities directly.
+`primary | secondary | ghost | danger`; default `bg-coral-600`), table + form primitives.
+Admin styling uses slate/coral utilities.
 
 ### 3.3 Mobile — `mobile/lib/core/widgets/widgets.dart` + `storefront.dart`
 
@@ -269,9 +272,9 @@ resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } }
 ### 7.3 Common recipes (copy these, don’t reinvent)
 ```tsx
 // Pill CTA
-className="rounded-full bg-white px-7 py-3 font-semibold text-ember-800 shadow-lg transition duration-300 hover:-translate-y-0.5 hover:bg-ember-50"
+className="rounded-full bg-white px-7 py-3 font-semibold text-coral-600 shadow-lg transition duration-300 hover:-translate-y-0.5 hover:bg-coral-50"
 // Hero gradient
-className="relative overflow-hidden bg-gradient-to-br from-ember-600 via-ember-700 to-ember-900 text-white"
+className="relative overflow-hidden bg-gradient-to-br from-coral-500 via-coral-600 to-coral-700 text-white"
 // Section heading
 <SectionHeading title="Shop by category" subtitle="…" to="/products" />
 // Form / input styling (profile-page + checkout) uses `rounded-lg border border-line bg-paper-strong px-3 py-2`
@@ -332,8 +335,9 @@ When the user pastes a Figma URL or asks for design work, follow this order:
    exist (Button, Badge, Card, ProductCard, ember/gold tokens) before generating anything new.
 3. **Translate to tokens, never hard-code colors:**
    - Any fill/auto color in Figma → nearest `ember-*` / `gold-*` / `paper` / `ink` token (table in §2.3).
-   - Coral `#ff6b5a` / teal `#14b8a6` from new designs → the *proposed accent tokens* §2.5
-     (deep variants for text/buttons). If a Figma variable already carries these names, map 1:1.
+   - Coral `#ff6b5a` / teal `#14b8a6` from new designs → the *shipped tokens* §2.5: `coral-600`
+     (`#e8513f`) for primary CTA fills, `coral-700` hover, `teal-600` (`#0d9488`) for secondary
+     links — deep variants for text/buttons. If a Figma variable already carries these names, map 1:1.
    - Fonts → Nunito Sans (body) / Rubik (display). Fix Figma “SemiBold/ExtraBold” spellings to
      Tailwind `font-semibold/font-extrabold`.
    - Radius 12px → `rounded-xl`, pills → `rounded-full`, spacing multiples of 4.
@@ -347,8 +351,9 @@ When the user pastes a Figma URL or asks for design work, follow this order:
    `mobile/lib/core/widgets/widgets.dart`, and (if published) the Figma library. Never diverge.
 
 **Do / Don’t**
-- Do use the ember/paper warm palette as the baseline; coral + teal only as accents.
-- Do keep white text off `#ff6b5a`/`#14b8a6` (contrast) — use deep variants.
+- Do use `coral-600` as the primary action/accent color and `teal-600` for secondary links,
+  resting on the warm ember/paper baseline (headings `ember-800/900`, gold festive accents).
+- Do keep white text off `#ff6b5a`/`#14b8a6` (contrast) — use deep variants `coral-600/700`.
 - Do lazy-load images, preserve `alt`, honor `prefers-reduced-motion`.
 - Don’t introduce Tailwind colors not defined in `@theme`.
 - Don’t create new icon SVGs when lucide has the glyph.
