@@ -151,7 +151,7 @@ Flutter mirrors fonts via `GoogleFonts.nunitoSans` / `GoogleFonts.rubik`
 
 - **Layout grid:** 4px base; page gutter `px-4`, container `max-w-7xl`, vertical rhythm `py-8…py-24`.
 - **Radius:** cards/inputs `rounded-xl` (12px); pills/chips/CTAs `rounded-full`.
-- **Elevation:** subtle — `border border-line` + flat; hover adds `hover:-translate-y-0.5 hover:shadow-lg` on cards (see `ProductCard`).
+- **Elevation:** tiered shadow tokens in `@theme` — `shadow-card` (resting cards), `shadow-lifted` (hover cards), `shadow-pop` (sticky header, floating buttons), `shadow-cta` (primary CTAs). Hover cards: `hover:-translate-y-1 hover:shadow-lifted`; header shadows in on scroll.
 - **Focus:** global `:focus-visible { outline: 2px solid var(--color-coral-600) }` in `@layer base`.
 
 ---
@@ -165,11 +165,18 @@ export function Badge({ children, tone = 'neutral' })           // neutral | gre
 export function Spinner({ label = 'Loading…' })                  // coral spinner + label
 export function ErrorState({ error })                            // error card / phase-stub notice
 export function EmptyState({ title, children })                  // dashed ember-50 card
-export function SectionHeading({ title, subtitle, to })          // display font + "View all →"
-export function ProductCard({ product })                         // aspect-square image, discount badge, price
+export function SectionHeading({ title, subtitle, to, overline })// gold eyebrow (overline) + display font + teal "View all →" pill
+export function ProductCard({ product })                         // fancy card: discount badge, wishlist heart, hover quick-add, inStock dot
 export function ProductGrid({ children })                        // grid-cols-2 sm:grid-cols-3 lg:grid-cols-4
 export function AuthGate({ isAuthenticated, isLoading, children, title })
 ```
+
+**Motion & loading primitives** (no animation lib; all respect `prefers-reduced-motion`):
+- `Reveal({ children, className, delay })` — IntersectionObserver fade-up wrapper; initial state skips animation when reduced-motion is set or IO is missing. Do NOT call `setState` synchronously in effects (`react-hooks/set-state-in-effect`).
+- `Skeleton({ className })` — shimmer block (`.shimmer`); `ProductCardSkeleton` / `ProductGridSkeleton` for ready-made placeholder cards. Web uses skeletons instead of `Spinner` on home/products/detail/cart.
+- `BrandMark({ name, to, light })` — inline gem: coral gradient tile + gold `PartyPopper`/`Sparkles` + wordmark (`font-display`). Header, footer, mobile AppBar.
+- ProductCard quick actions: floating **wishlist heart** (top-right) + hover **quick-add** `+` (bottom-right) are *siblings* of the card `Link` (never nested interactive elements — React forbids it). Both call existing `/wishlist/items` and `/cart/items` mutations and redirect to `/profile` when signed out.
+- Header: announcement ribbon `.marquee` (`.marquee-track`, 26s loop, killed under reduced motion); press states use `active:scale-95`. Mobile parity in `home_screen.dart` + `SriPonShimmer` (`widgets.dart`).
 
 Patterns to copy from `ProductCard` (`storefront-ui.tsx:110`):
 - Link card: `group flex flex-col overflow-hidden rounded-xl border border-line bg-paper-strong transition duration-300 hover:-translate-y-0.5 hover:shadow-lg`
@@ -279,6 +286,9 @@ className="relative overflow-hidden bg-gradient-to-br from-coral-500 via-coral-6
 <SectionHeading title="Shop by category" subtitle="…" to="/products" />
 // Form / input styling (profile-page + checkout) uses `rounded-lg border border-line bg-paper-strong px-3 py-2`
 // Focus ring is handled globally (ember-600 outline)
+// Quantity stepper (product-details): rounded-full container, − / count / + with
+//   `disabled:opacity-40`, hover:bg-coral-50, active:scale-95, Minus/Plus lucide icons
+// Hero trust chips: `border-t border-white/15 pt-6` row of icon + label under the CTAs
 ```
 
 ---

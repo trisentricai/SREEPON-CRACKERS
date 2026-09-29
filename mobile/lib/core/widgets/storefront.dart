@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 import '../models/models.dart';
 import '../utils/format.dart';
+import 'widgets.dart';
 
 export 'widgets.dart' show SriPonEmptyState, SriPonSpinner, SriPonColors;
 
@@ -51,13 +52,7 @@ class SriponImage extends StatelessWidget {
         return SizedBox(
           width: width,
           height: height,
-          child: Center(
-            child: SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2, color: scheme.primary),
-            ),
-          ),
+          child: SriPonShimmer(borderRadius: 0),
         );
       },
     );
@@ -65,86 +60,101 @@ class SriponImage extends StatelessWidget {
 }
 
 /// Horizontal product card used in grids and carousels.
-class ProductCard extends StatelessWidget {
+class ProductCard extends StatefulWidget {
   const ProductCard({super.key, required this.product, this.onTap});
 
   final Product product;
   final VoidCallback? onTap;
 
   @override
+  State<ProductCard> createState() => _ProductCardState();
+}
+
+class _ProductCardState extends State<ProductCard> {
+  bool _pressed = false;
+
+  Product get product => widget.product;
+
+  @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final discount = discountPercent(product.basePrice, product.mrpPrice);
-    return Card(
-      clipBehavior: Clip.antiAlias,
-      elevation: 0,
-      shape: RoundedRectangleBorder(
+    return Container(
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
-        side: BorderSide(color: scheme.outlineVariant),
+        border: Border.all(color: scheme.outlineVariant),
       ),
-      color: scheme.surfaceContainerLow,
-      margin: EdgeInsets.zero,
-      child: InkWell(
-        onTap: onTap,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  SriponImage(url: product.coverUrl),
-                  if (discount != null)
-                    Positioned(
-                      top: 8,
-                      left: 8,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: scheme.tertiaryContainer,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          '$discount% off',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: scheme.onTertiaryContainer,
+      child: AnimatedPhysicalModel(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        elevation: _pressed ? 4 : 0,
+        borderRadius: BorderRadius.circular(14),
+        color: scheme.surfaceContainerLow,
+        shadowColor: Colors.black.withValues(alpha: 0.22),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: widget.onTap,
+          onHighlightChanged: (value) => setState(() => _pressed = value),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    SriponImage(url: product.coverUrl),
+                    if (discount != null)
+                      Positioned(
+                        top: 8,
+                        left: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: scheme.tertiaryContainer,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '$discount% off',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: scheme.onTertiaryContainer,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    product.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                  const SizedBox(height: 4),
-                  if (product.category != null)
+              Padding(
+                padding: const EdgeInsets.all(10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      product.category!.name,
-                      maxLines: 1,
+                      product.name,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.copyWith(color: scheme.onSurfaceVariant),
+                      style: Theme.of(context).textTheme.titleSmall,
                     ),
-                  const SizedBox(height: 6),
-                  PriceRow(basePrice: product.basePrice, mrpPrice: product.mrpPrice),
-                ],
+                    const SizedBox(height: 4),
+                    if (product.category != null)
+                      Text(
+                        product.category!.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(color: scheme.onSurfaceVariant),
+                      ),
+                    const SizedBox(height: 6),
+                    PriceRow(basePrice: product.basePrice, mrpPrice: product.mrpPrice),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -314,10 +324,11 @@ class ErrorView extends StatelessWidget {
 
 /// Section title used across the storefront (home rows, listings).
 class SectionHeading extends StatelessWidget {
-  const SectionHeading({super.key, required this.title, this.trailing});
+  const SectionHeading({super.key, required this.title, this.trailing, this.overline});
 
   final String title;
   final Widget? trailing;
+  final String? overline;
 
   @override
   Widget build(BuildContext context) {
@@ -326,7 +337,37 @@ class SectionHeading extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (overline != null) ...[
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 22,
+                        height: 3,
+                        decoration: BoxDecoration(
+                          color: SriPonColors.gold,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        overline!,
+                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                              color: SriPonColors.gold900,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 1.6,
+                            ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                ],
+                Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+              ],
+            ),
           ),
           if (trailing != null) trailing!,
         ],

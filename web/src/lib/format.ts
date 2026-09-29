@@ -4,7 +4,12 @@ export function formatMoney(value: string | number | null | undefined): string {
   if (value === null || value === undefined || value === '') return '—';
   const amount = Number(value);
   if (Number.isNaN(amount)) return '—';
-  return new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(amount);
+  return new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  }).format(amount);
 }
 
 export function formatDateTime(value: string | Date | null | undefined): string {

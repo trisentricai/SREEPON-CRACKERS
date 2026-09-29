@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/models/models.dart';
 import '../../../core/providers/api_providers.dart';
 import '../../../core/widgets/storefront.dart';
+import '../../../core/widgets/widgets.dart';
 import 'product_detail_screen.dart';
 
 /// Product catalogue screen. Used as both the Categories tab (category rail +
@@ -91,7 +92,19 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
 
   Widget _buildResults(WidgetRef ref, AsyncValue<ProductListResponse> products) {
     return products.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 0.72,
+        ),
+        itemCount: 6,
+        itemBuilder: (_, __) => const SriPonShimmer(borderRadius: 14),
+      ),
       error: (error, stack) => ErrorView(
         error: error,
         onRetry: () => ref.invalidate(productsProvider(ProductQuery(

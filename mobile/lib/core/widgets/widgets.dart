@@ -66,6 +66,65 @@ class SriPonSpinner extends StatelessWidget {
   }
 }
 
+/// Shimmering placeholder surface for skeletons (loading cards, image wells).
+/// A soft ember highlight sweeps left→right over [SriPonColors.paperStrong].
+class SriPonShimmer extends StatefulWidget {
+  const SriPonShimmer({super.key, this.borderRadius = 8});
+
+  final double borderRadius;
+
+  @override
+  State<SriPonShimmer> createState() => _SriPonShimmerState();
+}
+
+class _SriPonShimmerState extends State<SriPonShimmer> with SingleTickerProviderStateMixin {
+  late final AnimationController _controller =
+      AnimationController(vsync: this, duration: const Duration(milliseconds: 1300))..repeat();
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final base = SriPonColors.line.withValues(alpha: 0.55);
+    final glow = Colors.white.withValues(alpha: 0.85);
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        return ShaderMask(
+          blendMode: BlendMode.srcATop,
+          shaderCallback: (bounds) => LinearGradient(
+            colors: [base, glow, base],
+            stops: const [0.35, 0.5, 0.65],
+            transform: _SweepGradientTransform(index: _controller.value * 2),
+          ).createShader(bounds),
+          child: child,
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: base,
+          borderRadius: BorderRadius.circular(widget.borderRadius),
+        ),
+      ),
+    );
+  }
+}
+
+class _SweepGradientTransform extends GradientTransform {
+  const _SweepGradientTransform({required this.index});
+
+  final double index;
+
+  @override
+  Matrix4? transform(Rect bounds, {TextDirection? textDirection}) {
+    return Matrix4.translationValues(bounds.width * (index - 1), 0, 0);
+  }
+}
+
 /// Empty-state placeholder that keeps the shell usable before live data
 /// arrives (browsing continues, cart/wishlist show honest empty content).
 class SriPonEmptyState extends StatelessWidget {

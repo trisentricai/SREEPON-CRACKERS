@@ -9,13 +9,32 @@ const List<String> _months = [
   'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
 ];
 
-/// Format an amount (string "199.00", double, or int) as INR, e.g. ₹199.00.
+/// Format an amount (string "199.00", double, or int) as INR, e.g. ₹199
+/// (₹199.50 keeps paise). en-IN grouping: ₹1,25,000.
 String formatMoney(dynamic value) {
   if (value == null) return '—';
   final amount = double.tryParse(value.toString());
   if (amount == null) return '—';
-  final formatted = amount.toStringAsFixed(2);
-  return '₹$formatted';
+  final fixed = amount.toStringAsFixed(2);
+  final whole = fixed.endsWith('.00') ? fixed.substring(0, fixed.length - 3) : fixed.trimRight();
+  return '₹${_groupInr(whole)}';
+}
+
+/// en-IN thousands grouping: 125000 → "1,25,000".
+String _groupInr(String digits) {
+  final body = digits.split('.');
+  var intPart = body[0];
+  if (intPart.length <= 3) return digits;
+  final last3 = intPart.substring(intPart.length - 3);
+  var rest = intPart.substring(0, intPart.length - 3);
+  final groups = <String>[];
+  while (rest.length > 2) {
+    groups.insert(0, rest.substring(rest.length - 2));
+    rest = rest.substring(0, rest.length - 2);
+  }
+  if (rest.isNotEmpty) groups.insert(0, rest);
+  final joined = '${groups.join(',')},$last3';
+  return body.length > 1 ? '$joined.${body[1]}' : joined;
 }
 
 /// Format an ISO-8601 timestamp to `dd MMM yyyy, hh:mm a`.

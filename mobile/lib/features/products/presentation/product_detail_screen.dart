@@ -6,6 +6,7 @@ import '../../../core/network/api_client.dart';
 import '../../../core/providers/api_providers.dart';
 import '../../../core/utils/format.dart';
 import '../../../core/widgets/storefront.dart';
+import '../../../core/widgets/widgets.dart';
 import '../../auth/application/auth_controller.dart';
 
 /// Product detail: gallery, description, unit selector, stock, and the cart /
@@ -46,7 +47,18 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         ],
       ),
       body: product.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => ListView(
+          padding: const EdgeInsets.all(16),
+          children: const [
+            SizedBox(height: 320, child: SriPonShimmer(borderRadius: 16)),
+            SizedBox(height: 16),
+            SizedBox(width: 180, height: 18, child: SriPonShimmer(borderRadius: 8)),
+            SizedBox(height: 8),
+            SizedBox(width: 280, height: 14, child: SriPonShimmer(borderRadius: 7)),
+            SizedBox(height: 24),
+            SizedBox(width: 220, height: 24, child: SriPonShimmer(borderRadius: 10)),
+          ],
+        ),
         error: (error, stack) => ErrorView(
           error: error,
           onRetry: () => ref.invalidate(productBySlugProvider(widget.slug)),

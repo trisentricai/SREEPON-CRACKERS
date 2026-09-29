@@ -63,17 +63,88 @@
   /* Semantic aliases. */
   --color-background: #fff8f0;
   --color-foreground: #241b16;
+
+  /* Elevated surfaces — soft warm shadows for the card/shadow scale. */
+  --shadow-card: 0 1px 2px rgb(74 36 12 / 0.05), 0 5px 14px rgb(74 36 12 / 0.07);
+  --shadow-lifted: 0 2px 4px rgb(74 36 12 / 0.06), 0 18px 36px rgb(74 36 12 / 0.14);
+  --shadow-pop: 0 1px 2px rgb(74 36 12 / 0.08), 0 10px 24px rgb(74 36 12 / 0.18);
+  --shadow-cta: 0 8px 20px rgb(232 81 63 / 0.35);
+
+  /* Shape scale. */
+  --radius-card: 1rem;
+  --radius-lift: 1.25rem;
+
+  /* Typography details for display faces. */
+  --tracking-display: -0.015em;
+  --tracking-eyebrow: 0.14em;
+
+  /* Festive sparkle pattern (inline SVG, subtle gold on transparent). */
+  --background-image-sparkle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cpath d='M22 7l2.4 7.6L32 17l-7.6 2.4L22 27l-2.4-7.6L12 17l7.6-2.4z' fill='%23ffd98a' fill-opacity='0.22'/%3E%3Cpath d='M40 34l1.2 3.8L45 39l-3.8 1.2L40 44l-1.2-3.8L35 39l3.8-1.2z' fill='%23ffd98a' fill-opacity='0.18'/%3E%3C/svg%3E");
 }
 
 @layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
   body {
     background-color: var(--color-background);
+    color: var(--color-ink);
+  }
+
+  ::selection {
+    background-color: var(--color-coral-100);
     color: var(--color-ink);
   }
 
   :focus-visible {
     outline: 2px solid var(--color-coral-600);
     outline-offset: 2px;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    letter-spacing: var(--tracking-display);
+  }
+}
+
+@layer components {
+  /* Skeleton shimmer loader — respects prefers-reduced-motion via the global block. */
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--color-ember-100);
+  }
+  .shimmer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.6), transparent);
+    animation: shimmer-sweep 1.6s infinite;
+  }
+  @keyframes shimmer-sweep {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Announcement ribbon marquee. */
+  .marquee {
+    overflow: hidden;
+  }
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee-scroll 26s linear infinite;
+  }
+  @keyframes marquee-scroll {
+    to {
+      transform: translateX(-50%);
+    }
   }
 }
 
