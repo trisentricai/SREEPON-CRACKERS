@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { api } from '@/api/client';
 import type { ApiEnvelope, CategoryTreeNode, Product, ProductListResponse, ProductSort } from '@/api/types';
-import { EmptyState, ErrorState, ProductCard, ProductGrid, Spinner } from '@/components/storefront-ui';
+import { ErrorState, ProductGrid, ProductGridSkeleton } from '@/components/storefront-ui';
+import { ChunkyButton, Mascot, StickerCard, StickerProductCard } from '@/components/sticker-ui';
 
 const LIMIT = 24;
 
@@ -39,19 +40,24 @@ export function ProductsPage() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-8">
       <header>
-        <p className="text-sm text-ember-900/50">
-          <Link to="/products" className="hover:text-coral-700">Catalogue</Link>
-          {activeCategory && <span className="text-ember-900/40"> / {activeCategory.name}</span>}
+        <p className="text-sm font-bold">
+          <Link
+            to="/products"
+            className="inline-block rounded-full border-2 border-ink bg-white px-3 py-0.5 text-ink shadow-sticker-sm transition hover:bg-sunny-100"
+          >
+            Catalogue
+          </Link>
+          {activeCategory && <span className="ml-2 text-ink-muted">/ {activeCategory.name}</span>}
         </p>
-        <h1 className="mt-1 font-display text-2xl font-bold text-ember-800">
-          {activeCategory?.name ?? 'Shop crackers &amp; fireworks'}
+        <h1 className="mt-3 font-display text-3xl font-extrabold text-ink sm:text-4xl">
+          {activeCategory?.name ?? 'Shop the fun'}
         </h1>
-        <p className="mt-1 text-sm text-ember-900/50">All items are age-gated; shop responsibly.</p>
+        <p className="mt-1 font-medium text-ink-muted">All items are age-gated; shop responsibly.</p>
       </header>
 
       <div className="mt-6 grid gap-8 lg:grid-cols-[240px_1fr]">
         <aside className="hidden lg:block">
-          <p className="mb-3 text-sm font-semibold text-ember-800">Categories</p>
+          <p className="mb-3 font-display text-sm font-extrabold uppercase tracking-widest text-ink">Categories</p>
           <CategoryRail categories={categories.data ?? []} active={activeCategory?.slug} />
         </aside>
 
@@ -113,13 +119,13 @@ function ProductList({
             value={draftQ}
             onChange={(e) => setDraftQ(e.target.value)}
             placeholder="Search by name or SKU…"
-            className="w-full rounded-lg border border-ember-200 px-3 py-2 text-sm"
+            className="w-full rounded-full border-2 border-ink bg-white px-4 py-2 text-sm font-medium shadow-sticker-sm placeholder:text-ink-muted/70 focus:outline-none"
           />
-          <button type="submit" className="rounded-lg bg-coral-600 px-4 py-2 text-sm text-white hover:bg-coral-700">
+          <ChunkyButton type="submit" tone="sunny" className="shrink-0 px-5 py-2 text-sm">
             Search
-          </button>
+          </ChunkyButton>
         </form>
-        <label className="flex items-center gap-2 text-sm text-ember-900/70">
+        <label className="flex items-center gap-2 text-sm font-bold text-ink">
           Sort
           <select
             value={sort}
@@ -127,7 +133,7 @@ function ProductList({
               setSort(e.target.value as ProductSort);
               setPage(1);
             }}
-            className="rounded-lg border border-ember-200 px-3 py-2 text-sm"
+            className="rounded-full border-2 border-ink bg-white px-3 py-2 text-sm font-bold shadow-sticker-sm"
           >
             {SORTS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -140,20 +146,24 @@ function ProductList({
 
       <div className="mt-6">
         {products.isLoading ? (
-          <Spinner label="Loading products…" />
+          <ProductGridSkeleton />
         ) : items.length === 0 ? (
-          <EmptyState title="No products found">
-            <p>Try a different search or choose another category.</p>
-          </EmptyState>
+          <StickerCard className="flex flex-col items-center gap-3 p-10 text-center">
+            <Mascot className="h-20 w-auto" />
+            <p className="font-display text-xl font-extrabold text-ink">No pops found!</p>
+            <p className="-mt-1 font-medium text-ink-muted">Try a different search or choose another category.</p>
+          </StickerCard>
         ) : (
           <>
-            <p className="mb-4 text-sm text-ember-900/50">
-              {pagination?.total ?? 0} product{pagination?.total === 1 ? '' : 's'}
-              {initialQ && <> matching “{initialQ}”</>}
+            <p className="mb-4">
+              <span className="inline-block rounded-full border-2 border-ink bg-bubble-100 px-3 py-1 text-xs font-bold text-ink shadow-sticker-sm">
+                {pagination?.total ?? 0} pop{pagination?.total === 1 ? '' : 's'}
+                {initialQ && <> for “{initialQ}”</>}
+              </span>
             </p>
             <ProductGrid>
               {items.map((product: Product) => (
-                <ProductCard key={product.id} product={product} />
+                <StickerProductCard key={product.id} product={product} />
               ))}
             </ProductGrid>
             {pagination && pagination.pages > 1 && (
@@ -161,19 +171,19 @@ function ProductList({
                 <button
                   disabled={page <= 1}
                   onClick={() => setPage((p) => p - 1)}
-                  className="rounded-lg border border-ember-200 px-3 py-1.5 text-sm disabled:opacity-40"
+                  className="rounded-full border-2 border-ink bg-white px-4 py-1.5 text-sm font-bold shadow-sticker-sm transition hover:bg-sunny-100 active:translate-y-0.5 active:shadow-none disabled:opacity-40 disabled:shadow-none"
                 >
-                  Previous
+                  ← Prev
                 </button>
-                <span className="px-2 text-sm text-ember-900/60">
-                  Page {pagination.page} of {pagination.pages}
+                <span className="rounded-full border-2 border-ink bg-sunny-100 px-3 py-1 text-sm font-bold">
+                  {pagination.page} / {pagination.pages}
                 </span>
                 <button
                   disabled={page >= pagination.pages}
                   onClick={() => setPage((p) => p + 1)}
-                  className="rounded-lg border border-ember-200 px-3 py-1.5 text-sm disabled:opacity-40"
+                  className="rounded-full border-2 border-ink bg-white px-4 py-1.5 text-sm font-bold shadow-sticker-sm transition hover:bg-sunny-100 active:translate-y-0.5 active:shadow-none disabled:opacity-40 disabled:shadow-none"
                 >
-                  Next
+                  Next →
                 </button>
               </div>
             )}
@@ -195,11 +205,15 @@ function findCategory(tree: CategoryTreeNode[], slug: string): CategoryTreeNode 
 
 function CategoryRail({ categories, active }: { categories: CategoryTreeNode[]; active?: string }) {
   return (
-    <ul className="space-y-1 text-sm">
+    <ul className="space-y-2 text-sm font-bold">
       <li>
         <Link
           to="/products"
-          className={`block rounded-lg px-3 py-2 ${!active ? 'bg-coral-100 font-semibold text-coral-700' : 'text-ember-900/70 hover:bg-coral-50'}`}
+          className={`block rounded-full border-2 px-4 py-2 transition ${
+            !active
+              ? 'border-ink bg-sunny-400 text-ink shadow-sticker-sm'
+              : 'border-transparent text-ink/70 hover:border-ink hover:bg-sunny-100 hover:text-ink'
+          }`}
         >
           All products
         </Link>
@@ -226,8 +240,12 @@ function CategoryBranch({
       <li>
         <Link
           to={`/products/${category.slug}`}
-          style={{ paddingLeft: `${12 + depth * 12}px` }}
-          className={`block rounded-lg py-2 pr-3 ${active === category.slug ? 'bg-coral-100 font-semibold text-coral-700' : 'text-ember-900/70 hover:bg-coral-50'}`}
+          style={{ marginLeft: `${depth * 12}px` }}
+          className={`block rounded-full border-2 px-4 py-2 transition ${
+            active === category.slug
+              ? 'border-ink bg-sunny-400 text-ink shadow-sticker-sm'
+              : 'border-transparent text-ink/70 hover:border-ink hover:bg-sunny-100 hover:text-ink'
+          }`}
         >
           {category.name}
         </Link>

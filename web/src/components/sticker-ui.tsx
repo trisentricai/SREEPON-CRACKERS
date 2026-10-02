@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { Heart, Plus } from 'lucide-react';
+import { Heart, Plus, Rocket } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useState } from 'react';
 import type { ReactNode } from 'react';
@@ -225,6 +225,20 @@ export function FunHeading({
         </Link>
       )}
     </div>
+  );
+}
+
+/** Sticker brand mark — sunny rocket tile + Baloo wordmark. */
+export function StickerBrand({ name, to = '/', light = false }: { name: string; to?: string; light?: boolean }) {
+  return (
+    <Link to={to} className="group inline-flex items-center gap-2.5" aria-label={name}>
+      <span className="flex h-10 w-10 items-center justify-center rounded-2xl border-2 border-ink bg-sunny-400 shadow-sticker-sm transition duration-150 group-hover:rotate-6 group-hover:scale-105">
+        <Rocket className="h-5 w-5 text-ink" strokeWidth={2.5} />
+      </span>
+      <span className={cn('font-display text-2xl font-extrabold tracking-tight', light ? 'text-white' : 'text-ink')}>
+        {name}
+      </span>
+    </Link>
   );
 }
 

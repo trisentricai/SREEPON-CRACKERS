@@ -68,6 +68,14 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     );
   }
 
+  static const _specPastels = <Color>[
+    SriPonColors.sunny100,
+    SriPonColors.bubble100,
+    SriPonColors.grape100,
+    SriPonColors.mint100,
+    SriPonColors.candy100,
+  ];
+
   Widget _buildDetail(BuildContext context, Product product, AuthState auth) {
     final scheme = Theme.of(context).colorScheme;
     final images = product.images.isNotEmpty
@@ -78,57 +86,85 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     final outOfStock = available != null && available <= 0;
 
     return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       children: [
-        // Gallery
-        SizedBox(
-          height: 280,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              if (images.isNotEmpty)
-                SriponImage(url: images[_imageIndex.clamp(0, images.length - 1)].url)
-              else
-                Container(
-                  color: scheme.surfaceContainerHighest,
-                  child: Icon(Icons.local_fire_department, size: 64, color: scheme.primary.withValues(alpha: 0.4)),
-                ),
-              if (discount != null)
-                Positioned(
-                  top: 12,
-                  left: 12,
-                  child: StatusChip(label: '$discount% off'),
-                ),
-              if (images.length > 1)
-                Positioned(
-                  bottom: 12,
-                  left: 0,
-                  right: 0,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      for (var index = 0; index < images.length; index++)
-                        GestureDetector(
-                          onTap: () => setState(() => _imageIndex = index),
-                          child: Container(
-                            width: 10,
-                            height: 10,
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: _imageIndex == index
-                                  ? scheme.primary
-                                  : scheme.outlineVariant,
+        // Gallery inside a white sticker frame.
+        StickerCard(
+          padding: const EdgeInsets.all(8),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: SriPonColors.ink, width: 2),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: SizedBox(
+              height: 280,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  if (images.isNotEmpty)
+                    SriponImage(url: images[_imageIndex.clamp(0, images.length - 1)].url)
+                  else
+                    Container(
+                      color: scheme.surfaceContainerHighest,
+                      child: Icon(Icons.local_fire_department, size: 64, color: scheme.primary.withValues(alpha: 0.4)),
+                    ),
+                  if (discount != null)
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Starburst(label: '$discount%', sub: 'off', size: 72),
+                    ),
+                  if (images.length > 1)
+                    Positioned(
+                      bottom: 12,
+                      left: 0,
+                      right: 0,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          for (var index = 0; index < images.length; index++)
+                            GestureDetector(
+                              onTap: () => setState(() => _imageIndex = index),
+                              child: Container(
+                                width: 10,
+                                height: 10,
+                                margin: const EdgeInsets.symmetric(horizontal: 4),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: _imageIndex == index
+                                      ? scheme.primary
+                                      : scheme.outlineVariant,
+                                  border: Border.all(color: SriPonColors.ink, width: 1),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-            ],
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
           ),
         ),
+        const SizedBox(height: 12),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            if (product.isFeatured)
+              const FunChip(icon: Icons.star, label: 'Featured', color: SriPonColors.sunny100),
+            if (outOfStock)
+              const FunChip(icon: Icons.block, label: 'Out of stock', color: SriPonColors.candy100)
+            else if (available != null && available <= 10)
+              FunChip(icon: Icons.timer_outlined, label: 'Only $available left', color: SriPonColors.grape100)
+            else
+              const FunChip(icon: Icons.check_circle_outline, label: 'In stock', color: SriPonColors.mint100),
+          ],
+        ),
+        const SizedBox(height: 10),
         Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.symmetric(horizontal: 2),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -142,7 +178,34 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               const SizedBox(height: 6),
               Text('SKU ${product.sku}', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
               const SizedBox(height: 8),
-              PriceRow(basePrice: product.basePrice, mrpPrice: product.mrpPrice, size: 'large'),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          formatMoney(product.basePrice),
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                color: SriPonColors.coral600,
+                                fontWeight: FontWeight.w800,
+                              ),
+                        ),
+                        if (discount != null && product.mrpPrice != null)
+                          Text(
+                            formatMoney(product.mrpPrice),
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: scheme.onSurfaceVariant,
+                                  decoration: TextDecoration.lineThrough,
+                                ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  if (discount != null) Starburst(label: '$discount%', sub: 'off', size: 76),
+                ],
+              ),
               if (product.minimumAge != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
@@ -170,23 +233,84 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.tertiary),
                   ),
                 ),
-              const SizedBox(height: 16),
-              const Divider(),
+              const SizedBox(height: 12),
+              _buildSpecTiles(context, product, available),
+              const SizedBox(height: 12),
               _buildUnitSelector(context, product),
+              const SizedBox(height: 8),
               _buildQuantityRow(context, product),
               if (product.description != null) ...[
-                const SizedBox(height: 16),
-                const Divider(),
-                Text('Description', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-                const SizedBox(height: 6),
-                Text(product.description!, style: Theme.of(context).textTheme.bodyMedium),
+                const SizedBox(height: 12),
+                StickerCard(
+                  padding: const EdgeInsets.all(14),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Description', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                      const SizedBox(height: 6),
+                      Text(product.description!, style: Theme.of(context).textTheme.bodyMedium),
+                    ],
+                  ),
+                ),
               ],
-              const SizedBox(height: 24),
-              _buildCta(context, auth, outOfStock),
               const SizedBox(height: 16),
+              _buildCta(context, auth, outOfStock, product),
+              const SizedBox(height: 12),
+              const Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  FunChip(icon: Icons.local_shipping_outlined, label: 'Ships in 24–48h', color: SriPonColors.bubble100),
+                  FunChip(icon: Icons.security, label: 'Licensed stock', color: SriPonColors.mint100),
+                  FunChip(icon: Icons.receipt_long_outlined, label: 'GST invoice', color: SriPonColors.sunny100),
+                ],
+              ),
+              const SizedBox(height: 24),
             ],
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildSpecTiles(BuildContext context, Product product, int? available) {
+    final specs = <(String, String)>[
+      ('SKU', product.sku),
+      ('Unit', formatUnit(product.unit.wire)),
+      if (product.piecesPerBox != null) ('Pieces', '${product.piecesPerBox}'),
+      if (product.weightPerBox != null) ('Weight', product.weightPerBox!),
+      if (product.minimumAge != null) ('Age', '${product.minimumAge}+'),
+      if (product.category != null) ('Category', product.category!.name),
+      if (available != null) ('Stock', '$available'),
+    ];
+    if (specs.isEmpty) return const SizedBox.shrink();
+    return Column(
+      children: [
+        for (var i = 0; i < specs.length; i++)
+          Container(
+            margin: EdgeInsets.only(bottom: i == specs.length - 1 ? 0 : 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              color: _specPastels[i % _specPastels.length],
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: SriPonColors.ink, width: 2),
+              boxShadow: stickerShadow(dx: 2, dy: 2),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    specs[i].$1,
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.w800),
+                  ),
+                ),
+                Text(
+                  specs[i].$2,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
@@ -223,46 +347,75 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       children: [
         Text('Quantity', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700)),
         const Spacer(),
-        IconButton.outlined(
-          tooltip: 'Decrease',
-          icon: const Icon(Icons.remove),
-          onPressed: _quantity <= 1 ? null : () => setState(() => _quantity -= 1),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Text('$_quantity', style: Theme.of(context).textTheme.titleMedium),
-        ),
-        IconButton.outlined(
-          tooltip: 'Increase',
-          icon: const Icon(Icons.add),
-          onPressed: maxQty != null && _quantity >= maxQty
-              ? null
-              : () => setState(() => _quantity += 1),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(color: SriPonColors.ink, width: 2),
+            boxShadow: stickerShadow(dx: 2, dy: 2),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                tooltip: 'Decrease',
+                icon: const Icon(Icons.remove, size: 18),
+                visualDensity: VisualDensity.compact,
+                onPressed: _quantity <= 1 ? null : () => setState(() => _quantity -= 1),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text('$_quantity', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800)),
+              ),
+              IconButton(
+                tooltip: 'Increase',
+                icon: const Icon(Icons.add, size: 18),
+                visualDensity: VisualDensity.compact,
+                onPressed: maxQty != null && _quantity >= maxQty
+                    ? null
+                    : () => setState(() => _quantity += 1),
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildCta(BuildContext context, AuthState auth, bool outOfStock) {
+  Widget _buildCta(BuildContext context, AuthState auth, bool outOfStock, Product product) {
     if (!auth.isAuthenticated) {
       return SizedBox(
         width: double.infinity,
-        child: FilledButton.icon(
+        child: ChunkyButton(
+          label: 'Sign in to add to cart',
+          icon: Icons.lock_outline,
+          color: SriPonColors.sunny,
           onPressed: () => Navigator.of(context).pushNamed('/profile'),
-          icon: const Icon(Icons.lock_outline),
-          label: const Text('Sign in to add to cart'),
         ),
       );
     }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        FilledButton.icon(
-          onPressed: outOfStock || _savingCart ? null : _addToCart,
-          icon: _savingCart
-              ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-              : const Icon(Icons.add_shopping_cart),
-          label: Text(outOfStock ? 'Out of stock' : 'Add to cart'),
+        Row(
+          children: [
+            Expanded(
+              child: ChunkyButton(
+                label: outOfStock ? 'Out of stock' : 'Add to cart',
+                icon: Icons.add_shopping_cart,
+                color: SriPonColors.coral600,
+                foreground: Colors.white,
+                onPressed: outOfStock || _savingCart ? null : _addToCart,
+              ),
+            ),
+            const SizedBox(width: 10),
+            ChunkyButton(
+              label: _inWishlist ? 'Saved' : 'Wishlist',
+              icon: _inWishlist ? Icons.favorite : Icons.favorite_outline,
+              color: Colors.white,
+              onPressed: _savingWishlist ? null : () => _toggleWishlist(product),
+            ),
+          ],
         ),
         if (_savingCart)
           const SizedBox(

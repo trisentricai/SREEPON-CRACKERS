@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api } from '@/api/client';
 import type { ApiEnvelope, InvoiceData, Order, OrderItem } from '@/api/types';
-import { Badge, EmptyState, ErrorState, SectionHeading, Spinner } from '@/components/storefront-ui';
+import { AuthGate, ErrorState } from '@/components/storefront-ui';
+import { ChunkyButton, FunHeading, StickerCard } from '@/components/sticker-ui';
 import { useAuth } from '@/features/auth/context/auth-context';
 import { formatDateTime, formatMoney } from '@/lib/format';
 import { OrderStatusBadge, PaymentBadge } from './orders-page';
@@ -16,6 +17,14 @@ export function OrderDetailsPage() {
   const orderId = params.orderId!;
   const { isAuthenticated, isLoading } = useAuth();
 
+  return (
+    <AuthGate isAuthenticated={isAuthenticated} isLoading={isLoading} title="Sign in to view this order">
+      <OrderDetailsContent orderId={orderId} />
+    </AuthGate>
+  );
+}
+
+function OrderDetailsContent({ orderId }: { orderId: string }) {
   const [cancelReason, setCancelReason] = useState('');
   const [showCancel, setShowCancel] = useState(false);
   const [returnReason, setReturnReason] = useState('');
@@ -83,28 +92,14 @@ export function OrderDetailsPage() {
     onError,
   });
 
-  if (isLoading) {
-    return (
-      <section className="mx-auto max-w-7xl px-4 py-12">
-        <Spinner label="Checking your session…" />
-      </section>
-    );
-  }
-  if (!isAuthenticated) {
-    return (
-      <section className="mx-auto max-w-7xl px-4 py-16">
-        <EmptyState title="Sign in to view this order">
-          <p>
-            <Link to="/profile" className="font-medium text-coral-600 underline">Sign in</Link> to continue.
-          </p>
-        </EmptyState>
-      </section>
-    );
-  }
   if (orderQuery.isLoading) {
     return (
-      <section className="mx-auto max-w-7xl px-4 py-12">
-        <Spinner label="Loading order…" />
+      <section className="mx-auto max-w-7xl px-4 py-8">
+        <div className="h-10 w-64 animate-pulse rounded-full border-2 border-ink bg-ember-100" />
+        <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_320px]">
+          <div className="h-96 animate-pulse rounded-bubble border-2 border-ink bg-ember-100" />
+          <div className="h-64 animate-pulse rounded-bubble border-2 border-ink bg-ember-100" />
+        </div>
       </section>
     );
   }
@@ -122,90 +117,101 @@ export function OrderDetailsPage() {
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-8">
-      <nav className="text-sm text-ember-900/50">
-        <Link to="/orders" className="hover:text-coral-700">Orders</Link> /{' '}
-        <span className="text-ember-900/70">{order.orderNumber}</span>
+      <nav className="flex flex-wrap items-center gap-2 text-sm font-bold">
+        <Link
+          to="/orders"
+          className="rounded-full border-2 border-ink bg-white px-3 py-0.5 text-ink shadow-sticker-sm transition hover:bg-sunny-100"
+        >
+          Orders
+        </Link>
+        <span className="rounded-full border-2 border-ink bg-sunny-100 px-3 py-0.5 font-mono text-ink">
+          {order.orderNumber}
+        </span>
       </nav>
 
-      <header className="mt-3 flex flex-wrap items-center gap-3">
-        <h1 className="font-mono text-2xl font-bold text-ember-800">{order.orderNumber}</h1>
+      <header className="mt-4 flex flex-wrap items-center gap-2">
+        <h1 className="font-mono text-2xl font-extrabold text-ink">{order.orderNumber}</h1>
         <OrderStatusBadge status={order.status} />
         <PaymentBadge status={order.paymentStatus} />
-        <span className="text-sm text-ember-900/50">{formatDateTime(order.createdAt)}</span>
+        <span className="text-sm font-bold text-ink-muted">{formatDateTime(order.createdAt)}</span>
       </header>
-      {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+      {error && (
+        <StickerCard className="mt-4 border-ink bg-candy-100 p-3 text-sm font-bold text-ink">{error}</StickerCard>
+      )}
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[1fr_320px]">
         <div>
-          <SectionHeading title="Items" />
-          <ul className="space-y-3">
+          <FunHeading title="Items" overline="In this box" />
+          <ul className="mt-4 space-y-3">
             {order.items.map((item) => (
-              <li key={item.id} className="rounded-xl border border-ember-100 bg-white p-3">
-                <div className="flex items-center gap-4">
-                  <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-ember-50">
-                    {item.imageUrl ? (
-                      <img src={item.imageUrl} alt={item.productName} className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="flex h-full items-center justify-center text-xl" aria-hidden>
-                        🎆
-                      </div>
-                    )}
+              <li key={item.id}>
+                <StickerCard className="p-3">
+                  <div className="flex items-center gap-4">
+                    <div className="h-16 w-16 shrink-0 overflow-hidden rounded-2xl border-2 border-ink bg-sunny-100">
+                      {item.imageUrl ? (
+                        <img src={item.imageUrl} alt={item.productName} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center" aria-hidden>
+                          <span className="font-display text-xl font-extrabold text-ink/20">
+                            {item.productName.slice(0, 1)}
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate font-display font-bold text-ink">{item.productName}</p>
+                      <p className="text-xs font-bold text-ink-muted">{item.sku} · {item.unit} · ×{item.quantity}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-display font-extrabold text-ink">{formatMoney(item.lineTotal)}</p>
+                      {returnable && (
+                        <button
+                          onClick={() => {
+                            setReturnReason('');
+                            setShowReturn((v) => !v);
+                          }}
+                          className="text-xs font-bold text-ink-muted underline hover:text-coral-600"
+                        >
+                          Request return
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    <p className="font-semibold text-ember-900">{item.productName}</p>
-                    <p className="text-xs text-ember-900/50">{item.sku} · {item.unit} · ×{item.quantity}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-ember-800">{formatMoney(item.lineTotal)}</p>
-                    {returnable && (
-                      <button
-                        onClick={() => {
-                          setReturnReason('');
-                          setShowReturn((v) => !v);
-                        }}
-                        className="text-xs text-ember-900/50 underline hover:text-coral-700"
-                      >
-                        Request return
-                      </button>
-                    )}
-                  </div>
-                </div>
-                {showReturn && (
-                  <form
-                    className="mt-3 flex gap-2 border-t border-ember-100 pt-3"
-                    onSubmit={(e) => {
-                      e.preventDefault();
-                      requestReturn.mutate(item);
-                    }}
-                  >
-                    <input
-                      required
-                      placeholder="Reason for return"
-                      value={returnReason}
-                      onChange={(e) => setReturnReason(e.target.value)}
-                      className="flex-1 rounded-lg border border-ember-200 px-3 py-2 text-sm"
-                    />
-                    <button
-                      type="submit"
-                      disabled={requestReturn.isPending}
-                      className="rounded-lg bg-coral-600 px-4 py-2 text-sm font-semibold text-white hover:bg-coral-700 disabled:opacity-50"
+                  {showReturn && (
+                    <form
+                      className="mt-3 flex gap-2 border-t-2 border-ink/10 pt-3"
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        requestReturn.mutate(item);
+                      }}
                     >
-                      {requestReturn.isPending ? 'Sending…' : 'Submit'}
-                    </button>
-                  </form>
-                )}
+                      <input
+                        required
+                        placeholder="Reason for return"
+                        value={returnReason}
+                        onChange={(e) => setReturnReason(e.target.value)}
+                        className="flex-1 rounded-full border-2 border-ink bg-white px-4 py-2 text-sm font-medium shadow-sticker-sm placeholder:text-ink-muted/60 focus:outline-none"
+                      />
+                      <ChunkyButton type="submit" tone="sunny" disabled={requestReturn.isPending} className="px-4 py-2 text-sm">
+                        {requestReturn.isPending ? 'Sending…' : 'Submit'}
+                      </ChunkyButton>
+                    </form>
+                  )}
+                </StickerCard>
               </li>
             ))}
           </ul>
 
           {order.returnRequests.length > 0 && (
             <div className="mt-6">
-              <SectionHeading title="Return requests" />
-              <ul className="space-y-2 text-sm">
+              <FunHeading title="Return requests" overline="In progress" />
+              <ul className="mt-4 space-y-2 text-sm">
                 {order.returnRequests.map((request) => (
-                  <li key={request.id} className="rounded-lg border border-ember-100 bg-ember-50/50 p-3">
-                    <p className="font-medium text-ember-900">{request.status.replace(/_/g, ' ')}</p>
-                    <p className="mt-0.5 text-ember-900/60">{request.reason}</p>
+                  <li key={request.id}>
+                    <StickerCard className="bg-grape-100 p-3">
+                      <p className="font-display font-bold text-ink">{request.status.replace(/_/g, ' ')}</p>
+                      <p className="mt-0.5 font-medium text-ink-muted">{request.reason}</p>
+                    </StickerCard>
                   </li>
                 ))}
               </ul>
@@ -213,40 +219,40 @@ export function OrderDetailsPage() {
           )}
         </div>
 
-        <aside className="space-y-6">
-          <div className="rounded-xl border border-ember-100 bg-ember-50/50 p-5">
-            <SectionHeading title="Totals" />
-            <dl className="space-y-2 text-sm">
+        <aside className="space-y-4">
+          <StickerCard className="bg-sunny-100 p-5">
+            <MiniTitle>Totals</MiniTitle>
+            <dl className="mt-3 space-y-2 text-sm font-medium">
               <div className="flex justify-between">
-                <dt className="text-ember-900/60">Subtotal</dt>
-                <dd>{formatMoney(order.subtotal)}</dd>
+                <dt className="text-ink-muted">Subtotal</dt>
+                <dd className="font-bold">{formatMoney(order.subtotal)}</dd>
               </div>
               {order.discount !== '0.00' && (
                 <div className="flex justify-between">
-                  <dt className="text-ember-900/60">Discount{order.coupon ? ` (${order.coupon.code})` : ''}</dt>
-                  <dd className="text-green-700">−{formatMoney(order.discount)}</dd>
+                  <dt className="text-ink-muted">Discount{order.coupon ? ` (${order.coupon.code})` : ''}</dt>
+                  <dd className="font-bold text-mint-600">−{formatMoney(order.discount)}</dd>
                 </div>
               )}
               <div className="flex justify-between">
-                <dt className="text-ember-900/60">Delivery</dt>
-                <dd>{formatMoney(order.deliveryFee)}</dd>
+                <dt className="text-ink-muted">Delivery</dt>
+                <dd className="font-bold">{formatMoney(order.deliveryFee)}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-ember-900/60">Tax</dt>
-                <dd>{formatMoney(order.tax)}</dd>
+                <dt className="text-ink-muted">Tax</dt>
+                <dd className="font-bold">{formatMoney(order.tax)}</dd>
               </div>
-              <div className="flex justify-between border-t border-ember-100 pt-3 text-base">
-                <dt className="font-semibold text-ember-900">Grand total</dt>
-                <dd className="font-bold text-ember-800">{formatMoney(order.grandTotal)}</dd>
+              <div className="flex justify-between border-t-2 border-ink/15 pt-3 text-base">
+                <dt className="font-display font-extrabold">Grand total</dt>
+                <dd className="font-display font-extrabold text-coral-600">{formatMoney(order.grandTotal)}</dd>
               </div>
             </dl>
-          </div>
+          </StickerCard>
 
           {order.address && (
-            <div className="rounded-xl border border-ember-100 bg-white p-5 text-sm">
-              <SectionHeading title="Deliver to" />
-              <p className="font-medium text-ember-900">{order.address.fullName}</p>
-              <p className="mt-1 text-ember-900/70">
+            <StickerCard className="p-5 text-sm">
+              <MiniTitle>Deliver to</MiniTitle>
+              <p className="mt-2 font-display font-bold text-ink">{order.address.fullName}</p>
+              <p className="mt-1 font-medium text-ink-muted">
                 {order.address.line1}
                 {order.address.line2 ? `, ${order.address.line2}` : ''}
                 <br />
@@ -256,47 +262,46 @@ export function OrderDetailsPage() {
                 <br />
                 {order.address.phone}
               </p>
-            </div>
+            </StickerCard>
           )}
 
           {order.payments.length > 0 && (
-            <div className="rounded-xl border border-ember-100 bg-white p-5 text-sm">
-              <SectionHeading title="Payments" />
-              <ul className="space-y-2">
+            <StickerCard className="p-5 text-sm">
+              <MiniTitle>Payments</MiniTitle>
+              <ul className="mt-2 space-y-2">
                 {order.payments.map((payment) => (
-                  <li key={payment.id} className="flex items-center justify-between">
-                    <span className="text-ember-900/70">{payment.provider}</span>
+                  <li key={payment.id} className="flex items-center justify-between gap-2">
+                    <span className="font-medium text-ink-muted">{payment.provider}</span>
                     <span className="flex items-center gap-2">
-                      <span className="font-medium text-ember-900">{formatMoney(payment.amount)}</span>
-                      <Badge tone={payment.status === 'PAID' ? 'green' : payment.status === 'FAILED' ? 'red' : 'amber'}>
-                        {payment.status}
-                      </Badge>
+                      <span className="font-bold text-ink">{formatMoney(payment.amount)}</span>
+                      <OrderStatusPillShim status={payment.status} />
                     </span>
                   </li>
                 ))}
               </ul>
-            </div>
+            </StickerCard>
           )}
 
           {order.notes && (
-            <div className="rounded-xl border border-ember-100 bg-white p-5 text-sm">
-              <SectionHeading title="Notes" />
-              <p className="whitespace-pre-line text-ember-900/70">{order.notes}</p>
-            </div>
+            <StickerCard className="p-5 text-sm">
+              <MiniTitle>Notes</MiniTitle>
+              <p className="mt-2 whitespace-pre-line font-medium text-ink-muted">{order.notes}</p>
+            </StickerCard>
           )}
 
           <div className="space-y-2">
-            <button
+            <ChunkyButton
               onClick={() => downloadInvoice.mutate()}
+              tone="white"
               disabled={downloadInvoice.isPending}
-              className="w-full rounded-lg border border-coral-300 px-4 py-2 text-sm font-semibold text-coral-600 hover:bg-coral-50 disabled:opacity-50"
+              className="w-full text-sm"
             >
               {downloadInvoice.isPending ? 'Preparing…' : 'Download invoice'}
-            </button>
+            </ChunkyButton>
             {cancellable && (
               <button
                 onClick={() => setShowCancel((v) => !v)}
-                className="w-full rounded-lg border border-red-200 px-4 py-2 text-sm font-semibold text-red-700 hover:bg-red-50"
+                className="w-full rounded-full border-2 border-ink bg-white px-4 py-2.5 text-sm font-bold text-red-700 shadow-sticker-sm transition hover:bg-candy-100 active:translate-y-0.5 active:shadow-none"
               >
                 Cancel order
               </button>
@@ -304,29 +309,46 @@ export function OrderDetailsPage() {
           </div>
           {showCancel && cancellable && (
             <form
-              className="rounded-xl border border-red-100 bg-red-50 p-4"
               onSubmit={(e) => {
                 e.preventDefault();
                 cancelOrder.mutate();
               }}
             >
-              <input
-                placeholder="Reason (optional)"
-                value={cancelReason}
-                onChange={(e) => setCancelReason(e.target.value)}
-                className="w-full rounded-lg border border-red-200 px-3 py-2 text-sm"
-              />
-              <button
-                type="submit"
-                disabled={cancelOrder.isPending}
-                className="mt-2 w-full rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
-              >
-                {cancelOrder.isPending ? 'Cancelling…' : 'Confirm cancellation'}
-              </button>
+              <StickerCard className="bg-candy-100 p-4">
+                <input
+                  placeholder="Reason (optional)"
+                  value={cancelReason}
+                  onChange={(e) => setCancelReason(e.target.value)}
+                  className="w-full rounded-full border-2 border-ink bg-white px-4 py-2 text-sm font-medium shadow-sticker-sm placeholder:text-ink-muted/60 focus:outline-none"
+                />
+                <button
+                  type="submit"
+                  disabled={cancelOrder.isPending}
+                  className="mt-2 w-full rounded-full border-2 border-ink bg-red-600 px-4 py-2 text-sm font-bold text-white shadow-sticker-sm transition active:translate-y-0.5 active:shadow-none disabled:opacity-50"
+                >
+                  {cancelOrder.isPending ? 'Cancelling…' : 'Confirm cancellation'}
+                </button>
+              </StickerCard>
             </form>
           )}
         </aside>
       </div>
     </section>
+  );
+}
+
+function MiniTitle({ children }: { children: string }) {
+  return <h2 className="font-display text-base font-extrabold text-ink">{children}</h2>;
+}
+
+function OrderStatusPillShim({ status }: { status: string }) {
+  const tone =
+    status === 'PAID' ? 'bg-mint-100' : status === 'FAILED' ? 'bg-candy-100' : 'bg-sunny-100';
+  return (
+    <span
+      className={`inline-block whitespace-nowrap rounded-full border-2 border-ink px-2 py-px text-[11px] font-extrabold uppercase tracking-wide text-ink ${tone}`}
+    >
+      {status}
+    </span>
   );
 }

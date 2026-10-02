@@ -109,113 +109,163 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16),
         children: [
-          Text('Delivery address', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 8),
-          if (addresses.isEmpty)
-            const Text('Add an address below to check out.', style: TextStyle(color: SriPonColors.inkMuted))
-          else
-            for (final address in addresses)
-              Card(
-                elevation: 0,
-                margin: const EdgeInsets.only(bottom: 8),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(
-                    color: address == effectiveDefault
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.outlineVariant,
-                    width: address == effectiveDefault ? 2 : 1,
-                  ),
-                ),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () => setState(() => _selectedAddress = address),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
-                      children: [
-                        Icon(
-                          address == effectiveDefault
-                              ? Icons.radio_button_checked
-                              : Icons.radio_button_unchecked,
-                          color: address == effectiveDefault
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context).colorScheme.outline,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+          const FunHeading(
+            title: 'Checkout',
+            subtitle: 'Sealed boxes, GST bill included.',
+            overline: 'Almost boom time',
+          ),
+          const SizedBox(height: 12),
+          StickerCard(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Delivery address', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 8),
+                if (addresses.isEmpty)
+                  const Text('Add an address below to check out.', style: TextStyle(color: SriPonColors.inkMuted))
+                else
+                  for (final address in addresses)
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(
+                        color: address == effectiveDefault ? SriPonColors.sunny100 : Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: SriPonColors.ink, width: 2),
+                        boxShadow: stickerShadow(dx: 2, dy: 2),
+                      ),
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(14),
+                        onTap: () => setState(() => _selectedAddress = address),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Row(
                             children: [
-                              Text('${address.fullName} · ${address.label}'),
-                              const SizedBox(height: 2),
-                              Text(
-                                '${address.line1}${address.line2 != null ? ', ${address.line2}' : ''}, '
-                                '${address.city}, ${address.state} ${address.pincode}',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                    ),
+                              Icon(
+                                address == effectiveDefault
+                                    ? Icons.radio_button_checked
+                                    : Icons.radio_button_unchecked,
+                                color: SriPonColors.ink,
                               ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('${address.fullName} · ${address.label}'),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      '${address.line1}${address.line2 != null ? ', ${address.line2}' : ''}, '
+                                      '${address.city}, ${address.state} ${address.pincode}',
+                                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                          ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (address.isDefault) const Icon(Icons.star, size: 18),
                             ],
                           ),
                         ),
-                        if (address.isDefault) const Icon(Icons.star, size: 18),
+                      ),
+                    ),
+                const SizedBox(height: 8),
+                Text('New address', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 8),
+                ..._buildAddressForm(),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          StickerCard(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Payment', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 8),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: SriPonColors.mint100,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: SriPonColors.ink, width: 2),
+                    boxShadow: stickerShadow(dx: 2, dy: 2),
+                  ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.radio_button_checked, color: SriPonColors.ink),
+                      SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Mock payment (test mode)', style: TextStyle(fontWeight: FontWeight.w700)),
+                            SizedBox(height: 2),
+                            Text('Cash and mock gateways need no external SDK.', style: TextStyle(fontSize: 12)),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 12),
+          StickerCard(
+            padding: const EdgeInsets.all(14),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Coupon', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _coupon,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                          hintText: 'Enter coupon code',
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ChunkyButton(
+                      label: 'Apply',
+                      color: Colors.white,
+                      onPressed: _coupon.text.trim().isEmpty ? null : () => setState(() => _couponApplied = _coupon.text.trim()),
+                    ),
+                  ],
+                ),
+                if (_couponApplied != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.check_circle, size: 16, color: SriPonColors.success),
+                        const SizedBox(width: 6),
+                        Text('Coupon $_couponApplied applied', style: const TextStyle(color: SriPonColors.success)),
                       ],
                     ),
                   ),
-                ),
-              ),
-          const SizedBox(height: 8),
-          Text('New address', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 8),
-          ..._buildAddressForm(),
-          const SizedBox(height: 16),
-          Text('Coupon', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _coupon,
-                  decoration: InputDecoration(
-                    isDense: true,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                    hintText: 'Enter coupon code',
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              FilledButton.tonal(
-                onPressed: _coupon.text.trim().isEmpty ? null : () => setState(() => _couponApplied = _coupon.text.trim()),
-                child: const Text('Apply'),
-              ),
-            ],
-          ),
-          if (_couponApplied != null)
-            Padding(
-              padding: const EdgeInsets.only(top: 6),
-              child: Row(
-                children: [
-                  const Icon(Icons.check_circle, size: 16, color: SriPonColors.success),
-                  const SizedBox(width: 6),
-                  Text('Coupon $_couponApplied applied', style: const TextStyle(color: SriPonColors.success)),
-                ],
-              ),
+              ],
             ),
-          const SizedBox(height: 16),
-          Card(
-            elevation: 0,
-            color: Theme.of(context).colorScheme.surfaceContainerLow,
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  _row(context, 'Items', '${cart.itemCount}'),
-                  _row(context, 'Subtotal', formatMoney(cart.subtotal)),
-                  const Divider(height: 20),
-                  _row(context, 'Total', formatMoney(cart.subtotal), emphasize: true),
-                ],
-              ),
+          ),
+          const SizedBox(height: 12),
+          StickerCard(
+            padding: const EdgeInsets.all(16),
+            color: SriPonColors.sunny100,
+            child: Column(
+              children: [
+                _row(context, 'Items', '${cart.itemCount}'),
+                _row(context, 'Subtotal', formatMoney(cart.subtotal)),
+                const Divider(height: 20),
+                _row(context, 'Total', formatMoney(cart.subtotal), emphasize: true),
+              ],
             ),
           ),
           const SizedBox(height: 12),
@@ -224,17 +274,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               padding: const EdgeInsets.only(bottom: 8),
               child: Text(_error!, style: const TextStyle(color: SriPonColors.danger)),
             ),
-          Row(
-            children: [
-              Expanded(
-                child: FilledButton(
-                  onPressed: _placing || (effectiveDefault == null && _isInlineAddressEmpty) ? null : _placeOrder,
-                  child: _placing
-                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Text('Place order'),
-                ),
-              ),
-            ],
+          ChunkyButton(
+            label: _placing ? 'Placing…' : 'Place order',
+            icon: Icons.celebration_outlined,
+            color: SriPonColors.coral600,
+            foreground: Colors.white,
+            onPressed: _placing || (effectiveDefault == null && _isInlineAddressEmpty) ? null : _placeOrder,
           ),
           const SizedBox(height: 24),
         ],
@@ -322,6 +367,33 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       if (!mounted) return;
       setState(() => _placing = false);
       ref.invalidate(cartProvider);
+      await showDialog<void>(
+        context: context,
+        builder: (context) => AlertDialog(
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Mascot(size: 96),
+              const SizedBox(height: 12),
+              const Starburst(label: 'Yay!', sub: 'order placed', size: 88),
+              const SizedBox(height: 12),
+              Text(
+                'Order #${order.orderNumber} is packed!',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+              ),
+            ],
+          ),
+          actions: [
+            ChunkyButton(
+              label: 'View order',
+              icon: Icons.receipt_long_outlined,
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+          ],
+        ),
+      );
+      if (!mounted) return;
       await Navigator.of(context).push(
         MaterialPageRoute<void>(
           builder: (_) => OrderDetailScreen(orderId: order.id),

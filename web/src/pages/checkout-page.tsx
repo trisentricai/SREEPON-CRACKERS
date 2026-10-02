@@ -1,10 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { Banknote, MapPin, PartyPopper, ShoppingBag, Zap } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '@/api/client';
 import type { Address, ApiEnvelope, Cart, CreateOrderInput, Order, Payment, PaymentProvider } from '@/api/types';
 import { asArray } from '@/api/normalize';
-import { AuthGate, Badge, EmptyState, ErrorState, Spinner } from '@/components/storefront-ui';
+import { AuthGate, ErrorState } from '@/components/storefront-ui';
+import { ChunkyButton, FunHeading, Mascot, Starburst, StickerCard } from '@/components/sticker-ui';
 import { useAuth } from '@/features/auth/context/auth-context';
 import { formatMoney } from '@/lib/format';
 
@@ -12,6 +14,9 @@ const PROVIDERS: { value: PaymentProvider; label: string }[] = [
   { value: 'cash', label: 'Cash on delivery' },
   { value: 'mock', label: 'Test gateway' },
 ];
+
+const inputCls =
+  'rounded-2xl border-2 border-ink bg-white px-4 py-2.5 text-sm font-medium shadow-sticker-sm placeholder:text-ink-muted/60 focus:outline-none focus:bg-sunny-100/50';
 
 type CheckoutStep = 'review' | 'placing' | 'created';
 
@@ -23,6 +28,39 @@ export function CheckoutPage() {
     <AuthGate isAuthenticated={isAuthenticated} isLoading={isLoading} title="Sign in to check out">
       <CheckoutContent />
     </AuthGate>
+  );
+}
+
+function Stepper({ active }: { active: number }) {
+  const steps = [
+    { icon: ShoppingBag, label: 'Cart', to: '/cart' },
+    { icon: MapPin, label: 'Details', to: null },
+    { icon: PartyPopper, label: 'Done', to: null },
+  ];
+  return (
+    <ol className="flex items-center gap-2">
+      {steps.map((step, index) => {
+        const done = index < active;
+        const current = index === active;
+        const pill = done
+          ? 'border-ink bg-mint-100 text-ink'
+          : current
+            ? 'border-ink bg-sunny-400 text-ink shadow-sticker-sm'
+            : 'border-ink/20 bg-white text-ink-muted';
+        const content = (
+          <span className={`inline-flex items-center gap-1.5 rounded-full border-2 px-3 py-1 font-display text-xs font-bold ${pill}`}>
+            <step.icon className="h-3.5 w-3.5" strokeWidth={2.75} />
+            {index + 1}. {step.label}
+          </span>
+        );
+        return (
+          <li key={step.label} className="flex items-center gap-2">
+            {step.to && !current ? <Link to={step.to}>{content}</Link> : content}
+            {index < steps.length - 1 && <span className="h-0.5 w-4 rounded-full bg-ink/20" aria-hidden />}
+          </li>
+        );
+      })}
+    </ol>
   );
 }
 
@@ -138,8 +176,12 @@ function CheckoutContent() {
 
   if (cart.isLoading || addresses.isLoading) {
     return (
-      <section className="mx-auto max-w-7xl px-4 py-12">
-        <Spinner label="Preparing checkout…" />
+      <section className="mx-auto max-w-7xl px-4 py-8">
+        <div className="h-10 w-64 animate-pulse rounded-full border-2 border-ink bg-ember-100" />
+        <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_340px]">
+          <div className="h-96 animate-pulse rounded-bubble border-2 border-ink bg-ember-100" />
+          <div className="h-64 animate-pulse rounded-bubble border-2 border-ink bg-ember-100" />
+        </div>
       </section>
     );
   }
@@ -155,14 +197,12 @@ function CheckoutContent() {
   if (!cartData || cartData.items.length === 0) {
     return (
       <section className="mx-auto max-w-7xl px-4 py-12">
-        <h1 className="text-2xl font-bold text-ember-800">Checkout</h1>
-        <div className="mt-4">
-          <EmptyState title="Your cart is empty">
-            <p>
-              <Link to="/products" className="font-medium text-coral-600 underline">Browse the catalogue</Link> first.
-            </p>
-          </EmptyState>
-        </div>
+        <FunHeading title="Checkout" overline="Last step before boom" />
+        <StickerCard className="flex flex-col items-center gap-4 p-10 text-center">
+          <Mascot className="h-24 w-auto" />
+          <p className="font-display text-xl font-extrabold text-ink">Your cart is empty!</p>
+          <ChunkyButton to="/products">Browse the fun</ChunkyButton>
+        </StickerCard>
       </section>
     );
   }
@@ -175,44 +215,60 @@ function CheckoutContent() {
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-8">
-      <h1 className="text-2xl font-bold text-ember-800">Checkout</h1>
-      {error && step === 'review' && <p className="mt-3 text-sm text-red-600">{error}</p>}
+      <FunHeading title="Checkout" subtitle="Where's the party at?" overline="Last step before boom" />
+      <div className="mt-4">
+        <Stepper active={1} />
+      </div>
+      {error && step === 'review' && (
+        <StickerCard className="mt-4 border-ink bg-candy-100 p-3 text-sm font-bold text-ink">{error}</StickerCard>
+      )}
 
       <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_340px]">
-        <div className="space-y-8">
+        <div className="space-y-6">
           {/* Delivery address */}
-          <div>
-            <h2 className="mb-3 text-lg font-semibold text-ember-900">Delivery address</h2>
+          <StickerCard className="p-5">
+            <h2 className="flex items-center gap-2 font-display text-lg font-extrabold text-ink">
+              <MapPin className="h-5 w-5" strokeWidth={2.75} /> Delivery address
+            </h2>
             {(addresses.data?.length ?? 0) > 0 && (
-              <div className="mb-4">
-                <label className="flex items-center gap-2 text-sm">
+              <div className="mb-4 mt-3">
+                <label className="inline-flex cursor-pointer items-center gap-2 rounded-full border-2 border-ink bg-sunny-100 px-3 py-1 text-sm font-bold shadow-sticker-sm">
                   <input
                     type="checkbox"
                     checked={useSavedAddress}
                     onChange={(e) => setUseSavedAddress(e.target.checked)}
-                    className="h-4 w-4 accent-ember-600"
+                    className="h-4 w-4 accent-[#e8513f]"
                   />
                   Use a saved address
                 </label>
                 {useSavedAddress && (
                   <div className="mt-3 space-y-2">
                     {(addresses.data ?? []).map((saved) => (
-                      <label key={saved.id} className="flex items-start gap-3 rounded-lg border border-ember-100 p-3 text-sm">
+                      <label
+                        key={saved.id}
+                        className={`flex cursor-pointer items-start gap-3 rounded-2xl border-2 p-3 text-sm transition ${
+                          selectedAddressId === saved.id
+                            ? 'border-ink bg-sunny-100 shadow-sticker-sm'
+                            : 'border-ink/20 bg-white hover:border-ink'
+                        }`}
+                      >
                         <input
                           type="radio"
                           name="address"
                           checked={selectedAddressId === saved.id}
                           onChange={() => setSelectedAddressId(saved.id)}
-                          className="mt-0.5 h-4 w-4 accent-ember-600"
+                          className="mt-0.5 h-4 w-4 accent-[#e8513f]"
                         />
-                        <span>
-                          <span className="font-medium text-ember-900">{saved.fullName}</span>
-                          <span className="text-ember-900/60"> · {saved.label}</span>
+                        <span className="font-medium">
+                          <span className="font-bold text-ink">{saved.fullName}</span>
+                          <span className="text-ink-muted"> · {saved.label}</span>
                           <br />
-                          {saved.line1}
-                          {saved.line2 ? `, ${saved.line2}` : ''}, {saved.city}, {saved.state} {saved.pincode}
-                          <br />
-                          {saved.phone}
+                          <span className="text-ink-muted">
+                            {saved.line1}
+                            {saved.line2 ? `, ${saved.line2}` : ''}, {saved.city}, {saved.state} {saved.pincode}
+                            <br />
+                            {saved.phone}
+                          </span>
                         </span>
                       </label>
                     ))}
@@ -224,139 +280,113 @@ function CheckoutContent() {
               className={`grid grid-cols-1 gap-3 sm:grid-cols-2 ${useSavedAddress && selectedAddressId !== 'new' ? 'opacity-40' : ''}`}
               onSubmit={(e) => e.preventDefault()}
             >
-              <input
-                required
-                placeholder="Full name"
-                value={address.fullName}
-                onChange={(e) => setAddress({ ...address, fullName: e.target.value })}
-                className="rounded-lg border border-ember-200 px-3 py-2 text-sm"
-              />
-              <input
-                required
-                placeholder="Phone"
-                value={address.phone}
-                onChange={(e) => setAddress({ ...address, phone: e.target.value })}
-                className="rounded-lg border border-ember-200 px-3 py-2 text-sm"
-              />
-              <input
-                required
-                placeholder="Address line 1"
-                value={address.line1}
-                onChange={(e) => setAddress({ ...address, line1: e.target.value })}
-                className="rounded-lg border border-ember-200 px-3 py-2 text-sm sm:col-span-2"
-              />
-              <input
-                placeholder="Address line 2 (optional)"
-                value={address.line2}
-                onChange={(e) => setAddress({ ...address, line2: e.target.value })}
-                className="rounded-lg border border-ember-200 px-3 py-2 text-sm sm:col-span-2"
-              />
-              <input
-                required
-                placeholder="City"
-                value={address.city}
-                onChange={(e) => setAddress({ ...address, city: e.target.value })}
-                className="rounded-lg border border-ember-200 px-3 py-2 text-sm"
-              />
-              <input
-                required
-                placeholder="State"
-                value={address.state}
-                onChange={(e) => setAddress({ ...address, state: e.target.value })}
-                className="rounded-lg border border-ember-200 px-3 py-2 text-sm"
-              />
-              <input
-                required
-                placeholder="Pincode"
-                value={address.pincode}
-                onChange={(e) => setAddress({ ...address, pincode: e.target.value })}
-                className="rounded-lg border border-ember-200 px-3 py-2 text-sm"
-              />
-              <input
-                placeholder="Country"
-                value={address.country}
-                onChange={(e) => setAddress({ ...address, country: e.target.value })}
-                className="rounded-lg border border-ember-200 px-3 py-2 text-sm"
-              />
+              <input required placeholder="Full name" value={address.fullName} onChange={(e) => setAddress({ ...address, fullName: e.target.value })} className={inputCls} />
+              <input required placeholder="Phone" value={address.phone} onChange={(e) => setAddress({ ...address, phone: e.target.value })} className={inputCls} />
+              <input required placeholder="Address line 1" value={address.line1} onChange={(e) => setAddress({ ...address, line1: e.target.value })} className={`${inputCls} sm:col-span-2`} />
+              <input placeholder="Address line 2 (optional)" value={address.line2} onChange={(e) => setAddress({ ...address, line2: e.target.value })} className={`${inputCls} sm:col-span-2`} />
+              <input required placeholder="City" value={address.city} onChange={(e) => setAddress({ ...address, city: e.target.value })} className={inputCls} />
+              <input required placeholder="State" value={address.state} onChange={(e) => setAddress({ ...address, state: e.target.value })} className={inputCls} />
+              <input required placeholder="Pincode" value={address.pincode} onChange={(e) => setAddress({ ...address, pincode: e.target.value })} className={inputCls} />
+              <input placeholder="Country" value={address.country} onChange={(e) => setAddress({ ...address, country: e.target.value })} className={inputCls} />
             </form>
-          </div>
+          </StickerCard>
 
           {/* Payment */}
-          <div>
-            <h2 className="mb-3 text-lg font-semibold text-ember-900">Payment</h2>
-            <fieldset className="space-y-2">
+          <StickerCard className="p-5">
+            <h2 className="flex items-center gap-2 font-display text-lg font-extrabold text-ink">
+              <Banknote className="h-5 w-5" strokeWidth={2.75} /> Payment
+            </h2>
+            <fieldset className="mt-3 space-y-2">
               {PROVIDERS.map((option) => (
-                <label key={option.value} className="flex items-center gap-3 rounded-lg border border-ember-100 p-3 text-sm">
+                <label
+                  key={option.value}
+                  className={`flex cursor-pointer items-center gap-3 rounded-2xl border-2 p-3 text-sm font-bold transition ${
+                    provider === option.value
+                      ? 'border-ink bg-mint-100 shadow-sticker-sm'
+                      : 'border-ink/20 bg-white hover:border-ink'
+                  }`}
+                >
                   <input
                     type="radio"
                     name="provider"
                     value={option.value}
                     checked={provider === option.value}
                     onChange={() => setProvider(option.value)}
-                    className="h-4 w-4 accent-ember-600"
+                    className="h-4 w-4 accent-[#e8513f]"
                   />
-                  <span className="text-ember-900">{option.label}</span>
+                  {option.value === 'cash' ? (
+                    <Banknote className="h-4 w-4" />
+                  ) : (
+                    <Zap className="h-4 w-4" />
+                  )}
+                  <span className="text-ink">{option.label}</span>
                 </label>
               ))}
             </fieldset>
-          </div>
+          </StickerCard>
 
           {/* Coupon */}
-          <div>
-            <h2 className="mb-3 text-lg font-semibold text-ember-900">Coupon</h2>
-            <div className="flex gap-2">
+          <StickerCard className="bg-grape-100 p-5">
+            <h2 className="font-display text-lg font-extrabold text-ink">Got a coupon?</h2>
+            <div className="mt-3 flex gap-2">
               <input
                 placeholder="Coupon code (optional)"
                 value={couponCode}
                 onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                className="flex-1 rounded-lg border border-ember-200 px-3 py-2 text-sm"
+                className={`${inputCls} flex-1 uppercase`}
               />
             </div>
-          </div>
+          </StickerCard>
         </div>
 
         {/* Summary */}
-        <aside className="h-fit rounded-xl border border-ember-100 bg-ember-50/50 p-5">
-          <h2 className="text-lg font-semibold text-ember-900">Order summary</h2>
-          <ul className="mt-4 space-y-3 text-sm">
-            {cartData.items.map((item) => (
-              <li key={item.id} className="flex items-center justify-between gap-3">
-                <span className="flex-1 text-ember-900/80">
-                  {item.product.name} <Badge tone={item.isOutOfStock ? 'red' : 'neutral'}>×{item.quantity}</Badge>
-                </span>
-                <span className="font-medium text-ember-900">{formatMoney(item.lineTotal)}</span>
-              </li>
-            ))}
-          </ul>
-          {cartData.outOfStockCount > 0 && (
-            <p className="mt-3 rounded-lg bg-amber-50 px-3 py-2 text-xs text-amber-800">
-              Remove out-of-stock items before ordering.
-            </p>
-          )}
-          <dl className="mt-4 space-y-2 border-t border-ember-100 pt-4 text-sm">
-            <div className="flex justify-between">
-              <dt className="text-ember-900/60">Subtotal</dt>
-              <dd className="font-medium text-ember-900">{formatMoney(cartData.subtotal)}</dd>
-            </div>
-            {couponCode.trim() && (
-              <div className="flex justify-between">
-                <dt className="text-ember-900/60">Coupon {couponCode}</dt>
-                <dd className="text-ember-900/60">Applied at order</dd>
-              </div>
+        <aside>
+          <StickerCard className="h-fit bg-sunny-100 p-5">
+            <h2 className="font-display text-lg font-extrabold text-ink">Order summary</h2>
+            <ul className="mt-4 max-h-64 space-y-3 overflow-y-auto text-sm font-medium">
+              {cartData.items.map((item) => (
+                <li key={item.id} className="flex items-center justify-between gap-3">
+                  <span className="flex-1 text-ink">
+                    {item.product.name}{' '}
+                    <span className="inline-block rounded-full border border-ink bg-white px-1.5 text-[11px] font-bold">
+                      ×{item.quantity}
+                    </span>
+                  </span>
+                  <span className="font-bold text-ink">{formatMoney(item.lineTotal)}</span>
+                </li>
+              ))}
+            </ul>
+            {cartData.outOfStockCount > 0 && (
+              <p className="mt-3 rounded-2xl border-2 border-ink bg-candy-100 px-3 py-2 text-xs font-bold">
+                Remove out-of-stock items before ordering.
+              </p>
             )}
-            <div className="flex justify-between border-t border-ember-100 pt-3 text-base">
-              <dt className="font-semibold text-ember-900">Total</dt>
-              <dd className="font-bold text-ember-800">{formatMoney(cartData.subtotal)}</dd>
-            </div>
-            <p className="text-xs text-ember-900/50">Delivery, tax, and discounts are applied by the server when the order is placed.</p>
-          </dl>
-          <button
-            onClick={() => placeOrder.mutate()}
-            disabled={busy || cartData.outOfStockCount > 0}
-            className="mt-5 w-full rounded-lg bg-coral-600 px-4 py-2.5 font-semibold text-white hover:bg-coral-700 disabled:opacity-50"
-          >
-            {busy ? 'Placing order…' : 'Place order'}
-          </button>
+            <dl className="mt-4 space-y-2 border-t-2 border-ink/15 pt-4 text-sm font-medium">
+              <div className="flex justify-between">
+                <dt className="text-ink-muted">Subtotal</dt>
+                <dd className="font-bold text-ink">{formatMoney(cartData.subtotal)}</dd>
+              </div>
+              {couponCode.trim() && (
+                <div className="flex justify-between">
+                  <dt className="text-ink-muted">Coupon {couponCode}</dt>
+                  <dd className="text-ink-muted">Applied at order</dd>
+                </div>
+              )}
+              <div className="flex justify-between border-t-2 border-ink/15 pt-3 text-base">
+                <dt className="font-display font-extrabold text-ink">Total</dt>
+                <dd className="font-display font-extrabold text-coral-600">{formatMoney(cartData.subtotal)}</dd>
+              </div>
+              <p className="text-xs text-ink-muted">Delivery, tax, and discounts are applied by the server when the order is placed.</p>
+            </dl>
+            <ChunkyButton
+              onClick={() => placeOrder.mutate()}
+              tone="coral"
+              disabled={busy || cartData.outOfStockCount > 0}
+              className="mt-5 w-full"
+            >
+              {busy ? 'Placing order…' : 'Place order'}
+            </ChunkyButton>
+          </StickerCard>
         </aside>
       </div>
     </section>
@@ -367,33 +397,38 @@ function OrderCreated({ order, payment, notice }: { order: Order; payment: Payme
   const detailsUrl = `/orders/${order.id}`;
   return (
     <section className="mx-auto max-w-2xl px-4 py-16 text-center">
-      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl" aria-hidden>
-        ✓
+      <div className="relative mx-auto w-fit">
+        <Mascot className="mx-auto h-36 w-auto" />
+        <Starburst label="Yay!" className="absolute -right-8 -top-4 h-20 w-20 animate-wiggle" />
       </div>
-      <h1 className="mt-4 text-2xl font-bold text-ember-800">Order placed</h1>
-      <p className="mt-2 text-ember-900/70">
-        Order <span className="font-mono font-semibold">{order.orderNumber}</span> totalling{' '}
-        <span className="font-bold">{formatMoney(order.grandTotal)}</span>.
+      <h1 className="mt-6 font-display text-4xl font-extrabold text-ink">Boom! Order placed.</h1>
+      <p className="mt-2 font-medium text-ink-muted">
+        Order <span className="rounded-lg border-2 border-ink bg-sunny-100 px-2 py-0.5 font-mono font-bold text-ink">{order.orderNumber}</span>{' '}
+        totalling <span className="font-display font-extrabold text-coral-600">{formatMoney(order.grandTotal)}</span>.
       </p>
-      {notice && <p className="mt-3 text-sm text-amber-700">{notice}</p>}
+      {notice && (
+        <StickerCard className="mx-auto mt-4 max-w-lg border-ink bg-candy-100 p-3 text-sm font-bold text-ink">
+          {notice}
+        </StickerCard>
+      )}
       {payment?.clientPayload && (
-        <div className="mt-6 rounded-xl border border-ember-100 bg-ember-50/60 p-5 text-left text-sm">
-          <p className="font-semibold text-ember-800">Payment details</p>
-          <pre className="mt-2 whitespace-pre-wrap font-mono text-xs text-ember-900/70">
+        <StickerCard className="mx-auto mt-6 max-w-lg p-5 text-left text-sm">
+          <p className="font-display font-extrabold text-ink">Payment details</p>
+          <pre className="mt-2 whitespace-pre-wrap rounded-2xl border-2 border-ink bg-paper p-3 font-mono text-xs text-ink-muted">
             {JSON.stringify(payment.clientPayload, null, 2)}
           </pre>
-          <p className="mt-2 text-xs text-ember-900/50">
+          <p className="mt-2 text-xs font-medium text-ink-muted">
             Payment is settled by the provider webhook; its status updates appear on your order.
           </p>
-        </div>
+        </StickerCard>
       )}
-      <div className="mt-8 flex justify-center gap-3">
-        <Link to={detailsUrl} className="rounded-lg bg-coral-600 px-5 py-2.5 font-semibold text-white hover:bg-coral-700">
+      <div className="mt-8 flex flex-wrap justify-center gap-3">
+        <ChunkyButton to={detailsUrl} tone="coral">
           View order
-        </Link>
-        <Link to="/products" className="rounded-lg border border-coral-300 px-5 py-2.5 font-semibold text-coral-600 hover:bg-coral-50">
+        </ChunkyButton>
+        <ChunkyButton to="/products" tone="white">
           Continue shopping
-        </Link>
+        </ChunkyButton>
       </div>
     </section>
   );

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { api } from '@/api/client';
 import type { ApiEnvelope, Cart } from '@/api/types';
-import { BrandMark } from '@/components/storefront-ui';
+import { ChunkyButton, FunChip, Mascot, StickerBrand, WaveDivider } from '@/components/sticker-ui';
 import { SITE } from '@/config/env';
 import { useAuth } from '@/features/auth/context/auth-context';
 
@@ -15,7 +15,14 @@ const USPS = [
   'Fresh stock, sealed boxes',
 ];
 
-/** Public shell: announcement ribbon, header, main outlet, footer. */
+const NAV = [
+  { label: 'Shop', to: '/products' },
+  { label: 'Deals', to: '/deals', hot: true },
+  { label: 'Track Order', to: '/orders' },
+  { label: 'Wishlist', to: '/wishlist' },
+];
+
+/** Public shell: sticker announcement ribbon, header, main outlet, footer. */
 export function AppShell() {
   return (
     <div className="flex min-h-screen flex-col">
@@ -32,15 +39,12 @@ export function AppShell() {
 function USPRibbon() {
   const items = [...USPS, ...USPS];
   return (
-    <div
-      className="marquee bg-gradient-to-r from-ember-700 via-coral-600 to-ember-700 text-white"
-      role="note"
-    >
-      <div className="marquee-track items-center py-1.5 text-xs font-semibold">
+    <div className="marquee border-b-2 border-ink bg-sunny-400 text-ink" role="note">
+      <div className="marquee-track items-center py-1.5 font-display text-xs font-bold uppercase tracking-widest">
         {items.map((text, index) => (
           <span key={index} className="flex items-center gap-2 px-6" aria-hidden={index >= USPS.length}>
-            <Sparkles className="h-3 w-3 text-gold-300" />
-            <span className="tracking-wide">{text}</span>
+            <Sparkles className="h-3 w-3" strokeWidth={3} />
+            <span>{text}</span>
           </span>
         ))}
       </div>
@@ -67,99 +71,106 @@ function SiteHeader() {
     },
     enabled: isAuthenticated,
   });
+  const count = cartCount.data?.totalQuantity ?? 0;
 
-  const navLink = ({ isActive }: { isActive: boolean }) =>
-    `relative py-1.5 transition-colors duration-200 hover:text-coral-600 ${isActive ? 'text-coral-600' : 'text-ember-900/80'}`;
+  const navPill = ({ isActive }: { isActive: boolean }) =>
+    `rounded-full border-2 px-4 py-1.5 font-display text-sm font-bold transition duration-150 ${
+      isActive
+        ? 'border-ink bg-sunny-400 text-ink shadow-sticker-sm'
+        : 'border-transparent text-ink/70 hover:border-ink hover:bg-sunny-100 hover:text-ink'
+    }`;
+
+  const iconBtn =
+    'relative flex h-10 w-10 items-center justify-center rounded-full border-2 border-transparent text-ink transition duration-150 hover:border-ink hover:bg-sunny-100 hover:shadow-sticker-sm active:translate-y-0.5 active:shadow-none';
+
+  const badge = count > 0 && (
+    <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-ink bg-coral-500 px-1 font-display text-[10px] font-extrabold text-white">
+      {count}
+    </span>
+  );
 
   return (
     <header
-      className={`sticky top-0 z-40 transition-all duration-300 ${
-        scrolled ? 'border-b border-line bg-paper-strong/95 shadow-pop backdrop-blur' : 'border-b border-ember-100 bg-ember-50/90 backdrop-blur'
+      className={`sticky top-0 z-40 border-b-2 border-ink bg-white/95 backdrop-blur transition-shadow duration-200 ${
+        scrolled ? 'shadow-[0_4px_0_0_rgb(36_27_22/0.08)]' : ''
       }`}
     >
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
-        <BrandMark name={SITE.name} />
+      <div className="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-3 px-4">
+        <StickerBrand name={SITE.name} />
 
-        <nav className="hidden items-center gap-7 text-sm font-medium md:flex">
-          <NavLink to="/products" className={navLink} end={false}>
-            Shop
-          </NavLink>
-          <NavLink to="/wishlist" className={navLink}>
-            Wishlist
-          </NavLink>
-          <NavLink to="/orders" className={navLink}>
-            Orders
-          </NavLink>
+        <nav className="hidden items-center gap-1.5 lg:flex">
+          {NAV.map((item) => (
+            <NavLink key={item.to} to={item.to} className={navPill}>
+              <span className="inline-flex items-center gap-1.5">
+                {item.label}
+                {item.hot && (
+                  <span className="rounded-full border border-ink bg-coral-500 px-1.5 py-px font-display text-[10px] font-extrabold uppercase text-white">
+                    Hot
+                  </span>
+                )}
+              </span>
+            </NavLink>
+          ))}
         </nav>
 
-        <div className="flex items-center gap-2 text-sm md:gap-3">
-          <Link
-            to="/cart"
-            className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-coral-50 hover:text-coral-600 md:hidden"
-            aria-label="Cart"
-          >
-            <ShoppingBag className="h-5 w-5" />
-            {!isLoading && isAuthenticated && (cartCount.data?.totalQuantity ?? 0) > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-coral-600 px-1 text-[10px] font-bold text-white shadow-sm">
-                {cartCount.data?.totalQuantity ?? 0}
-              </span>
-            )}
-          </Link>
-
-          <Link
-            to="/wishlist"
-            className="hidden h-10 w-10 items-center justify-center rounded-full hover:bg-coral-50 hover:text-coral-600 md:flex"
-            aria-label="Wishlist"
-          >
+        <div className="flex items-center gap-1 sm:gap-2">
+          <Link to="/wishlist" className={iconBtn} aria-label="Wishlist">
             <Heart className="h-5 w-5" />
           </Link>
-          <Link
-            to="/cart"
-            className="relative hidden h-10 w-10 items-center justify-center rounded-full hover:bg-coral-50 hover:text-coral-600 md:flex"
-            aria-label="Cart"
-          >
+          <Link to="/cart" className={iconBtn} aria-label="Cart">
             <ShoppingBag className="h-5 w-5" />
-            {!isLoading && isAuthenticated && (cartCount.data?.totalQuantity ?? 0) > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-coral-600 px-1 text-[10px] font-bold text-white shadow-sm">
-                {cartCount.data?.totalQuantity ?? 0}
-              </span>
-            )}
+            {!isLoading && isAuthenticated && badge}
           </Link>
-
-          <div className="mx-1 hidden h-6 w-px bg-ember-200 md:block" aria-hidden />
 
           {isLoading ? null : isAuthenticated ? (
             <>
-              <Link to="/profile" className="hidden h-10 items-center gap-2 rounded-full px-3 font-medium hover:text-coral-600 sm:inline-flex">
-                <User className="h-4 w-4" />
-                Profile
+              <Link to="/profile" className={`${iconBtn} hidden sm:flex`} aria-label="Profile">
+                <User className="h-5 w-5" />
               </Link>
               <button
                 onClick={() => void logout()}
-                className="inline-flex h-10 items-center gap-2 rounded-full px-3 font-medium text-ember-700 hover:bg-coral-50 hover:text-coral-600"
+                className="hidden h-10 items-center gap-2 rounded-full border-2 border-transparent px-3 font-display text-sm font-bold text-ink/70 transition hover:border-ink hover:bg-candy-100 hover:text-ink sm:inline-flex"
               >
                 <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Log out</span>
+                Log out
               </button>
             </>
           ) : (
-            <Link
-              to="/profile"
-              className="rounded-full bg-coral-600 px-5 py-2 font-semibold text-white shadow-cta transition duration-200 hover:-translate-y-0.5 hover:bg-coral-700 active:scale-95"
-            >
+            <ChunkyButton to="/profile" tone="sunny" className="px-5 py-2 text-sm">
               Sign in
-            </Link>
+            </ChunkyButton>
           )}
         </div>
       </div>
+
+      {/* Mobile chip nav — horizontal scroll pills below the bar. */}
+      <nav className="border-t-2 border-ink/10 lg:hidden" aria-label="Sections">
+        <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-4 py-2">
+          <NavLink to="/" end className={navPill}>
+            Home
+          </NavLink>
+          {NAV.map((item) => (
+            <NavLink key={item.to} to={item.to} className={navPill}>
+              <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+                {item.label}
+                {item.hot && (
+                  <span className="rounded-full border border-ink bg-coral-500 px-1.5 py-px font-display text-[10px] font-extrabold uppercase text-white">
+                    Hot
+                  </span>
+                )}
+              </span>
+            </NavLink>
+          ))}
+        </div>
+      </nav>
     </header>
   );
 }
 
 function SiteFooter() {
   const shopLinks = [
-    { label: 'Shop crackers', to: '/products' },
-    { label: 'New arrivals', to: '/products' },
+    { label: 'Shop all crackers', to: '/products' },
+    { label: "Today's deals", to: '/deals' },
     { label: 'Gift boxes', to: '/products' },
   ];
   const helpLinks = [
@@ -176,42 +187,40 @@ function SiteFooter() {
   const scrollTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
-    <footer className="mt-16 border-t border-ember-100 bg-gradient-to-b from-ember-50 to-ember-100/60">
-      <div className="mx-auto max-w-7xl px-4 py-12">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
-            <BrandMark name={SITE.name} />
-            <p className="mt-3 max-w-xs text-sm text-ember-900/70">{SITE.tagline}</p>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {USPS.slice(0, 2).map((usp) => (
-                <span
-                  key={usp}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-ember-200 bg-paper-strong px-3 py-1 text-xs font-medium text-ember-800"
-                >
-                  <Sparkles className="h-3 w-3 text-gold-600" />
-                  {usp}
-                </span>
-              ))}
+    <footer className="mt-16">
+      <WaveDivider fill="var(--color-ink)" className="mb-[-1px] bg-transparent" />
+      <div className="bg-ink text-white">
+        <div className="mx-auto max-w-7xl px-4 py-12">
+          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-[1.3fr_1fr_1fr_1fr]">
+            <div>
+              <StickerBrand name={SITE.name} light />
+              <p className="mt-3 max-w-xs font-medium text-white/70">{SITE.tagline} — sparklers, fountains and sky shots for the whole family.</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {USPS.slice(0, 2).map((usp) => (
+                  <FunChip key={usp} icon={Sparkles} label={usp} tone="white" />
+                ))}
+              </div>
             </div>
+
+            <FooterCol title="Shop" links={shopLinks} />
+            <FooterCol title="Help" links={helpLinks} />
+            <FooterCol title="Safety & legal" links={legalLinks} />
           </div>
 
-          <FooterCol title="Shop" links={shopLinks} />
-          <FooterCol title="Help" links={helpLinks} />
-          <FooterCol title="Safety & legal" links={legalLinks} />
-        </div>
-
-        <div className="mt-10 border-t border-ember-200/70 pt-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-ember-900/60">
-              © {new Date().getFullYear()} {SITE.name}. CE &amp; ISI-compliant stock. Fireworks are age-gated —
-              adults must supervise use.
-            </p>
+          <div className="mt-10 flex flex-col gap-4 border-t-2 border-white/15 pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <Mascot className="h-12 w-auto" />
+              <p className="max-w-md text-xs font-medium text-white/60">
+                © {new Date().getFullYear()} {SITE.name}. CE &amp; ISI-compliant stock. Fireworks are age-gated —
+                adults must supervise use.
+              </p>
+            </div>
             <button
               onClick={scrollTop}
-              className="inline-flex w-fit items-center gap-2 rounded-full border border-ember-300 bg-paper-strong px-4 py-2 text-sm font-semibold text-coral-600 transition duration-200 hover:bg-coral-50 active:scale-95"
+              className="inline-flex w-fit items-center gap-2 rounded-full border-2 border-sunny-400 bg-sunny-400 px-4 py-2 font-display text-sm font-bold text-ink transition duration-150 hover:-translate-y-0.5 active:translate-y-0"
             >
               Back to top
-              <ArrowUp className="h-4 w-4" />
+              <ArrowUp className="h-4 w-4" strokeWidth={3} />
             </button>
           </div>
         </div>
@@ -223,11 +232,11 @@ function SiteFooter() {
 function FooterCol({ title, links }: { title: string; links: Array<{ label: string; to: string }> }) {
   return (
     <div>
-      <p className="font-display text-sm font-bold uppercase tracking-eyebrow text-ember-800">{title}</p>
-      <ul className="mt-3 space-y-2 text-sm">
+      <p className="font-display text-sm font-extrabold uppercase tracking-widest text-sunny-400">{title}</p>
+      <ul className="mt-3 space-y-2 text-sm font-medium">
         {links.map((link) => (
           <li key={link.label}>
-            <Link to={link.to} className="text-ember-900/70 transition-colors hover:text-coral-600">
+            <Link to={link.to} className="text-white/70 transition-colors hover:text-sunny-400">
               {link.label}
             </Link>
           </li>
