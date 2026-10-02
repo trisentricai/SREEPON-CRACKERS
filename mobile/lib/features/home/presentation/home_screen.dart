@@ -112,29 +112,49 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-/// Slim scrolling strip of sticker trust chips (parity with the web ribbon).
+/// Slim scrolling strip of trust chips (parity with the web USP ribbon).
 class _TrustChips extends StatelessWidget {
   const _TrustChips();
 
-  static const _items = <(IconData, String, Color)>[
-    (Icons.security, 'Licensed stock', SriPonColors.mint100),
-    (Icons.local_shipping_outlined, '24–48h dispatch', SriPonColors.bubble100),
-    (Icons.receipt_long_outlined, 'GST invoice', SriPonColors.grape100),
-    (Icons.verified_outlined, 'CE / ISI', SriPonColors.candy100),
+  static const _items = <(IconData, String)>[
+    (Icons.security, 'Licensed stock'),
+    (Icons.local_shipping_outlined, '24–48h dispatch'),
+    (Icons.receipt_long_outlined, 'GST invoice'),
+    (Icons.verified_outlined, 'CE / ISI'),
   ];
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 44,
+      height: 38,
       child: ListView.separated(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
         scrollDirection: Axis.horizontal,
         itemCount: _items.length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (context, index) {
-          final (icon, label, color) = _items[index];
-          return FunChip(icon: icon, label: label, color: color);
+          final (icon, label) = _items[index];
+          return Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color: SriPonColors.teal100.withValues(alpha: 0.6),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, size: 14, color: SriPonColors.teal700),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: SriPonColors.teal700,
+                        fontWeight: FontWeight.w600,
+                      ),
+                ),
+              ],
+            ),
+          );
         },
       ),
     );
@@ -250,12 +270,12 @@ class _HeroSlide extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: SriPonColors.ink, width: 2),
-        boxShadow: const [
-          BoxShadow(color: SriPonColors.ink, offset: Offset(4, 4)),
-        ],
+        borderRadius: BorderRadius.circular(16),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [SriPonColors.coral600, SriPonColors.coral700],
+        ),
       ),
       clipBehavior: Clip.antiAlias,
       child: Stack(
@@ -266,13 +286,6 @@ class _HeroSlide extends StatelessWidget {
           else
             Container(
               padding: const EdgeInsets.all(20),
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [SriPonColors.coral500, SriPonColors.coral700],
-                ),
-              ),
               alignment: Alignment.centerLeft,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -300,12 +313,12 @@ class _HeroSlide extends StatelessWidget {
           const Positioned(
             right: 22,
             top: 18,
-            child: Icon(Icons.auto_awesome, size: 18, color: SriPonColors.sunny),
+            child: Icon(Icons.auto_awesome, size: 18, color: Colors.white),
           ),
           const Positioned(
             right: 40,
             bottom: 16,
-            child: Icon(Icons.auto_awesome, size: 14, color: Colors.white),
+            child: Icon(Icons.auto_awesome, size: 14, color: Colors.white70),
           ),
         ],
       ),
@@ -323,14 +336,7 @@ class _HomeFallback extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const _FallbackHero(),
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: FunHeading(
-            title: 'Shop by fun',
-            subtitle: 'Pick your kind of boom.',
-            overline: 'Curated for you',
-          ),
-        ),
+        const SectionHeading(title: 'Shop by category', overline: 'Curated for you'),
         categories.when(
           loading: () => const SizedBox(
             height: 96,
@@ -404,41 +410,35 @@ class _FallbackHero extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-      child: StickerCard(
-        padding: const EdgeInsets.all(20),
-        child: Row(
-          children: [
-            const Mascot(size: 96),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Let’s light up the fun!',
-                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'Sparklers, fountains & sky shots — packed safe.',
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyMedium
-                        ?.copyWith(color: SriPonColors.inkMuted, fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 12),
-                  ChunkyButton(
-                    label: 'Shop the fun',
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(builder: (_) => const ProductListScreen()),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+      padding: const EdgeInsets.all(20),
+      height: 150,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [SriPonColors.coral600, SriPonColors.coral700],
         ),
+      ),
+      child: Stack(
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Fresh from the factory',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.w800),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Diwali crackers, sparklers & gift boxes — straight to your door.',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white.withValues(alpha: 0.85)),
+              ),
+            ],
+          ),
+          const Positioned(right: 14, top: 14, child: Icon(Icons.auto_awesome, size: 18, color: Colors.white)),
+        ],
       ),
     );
   }
@@ -455,14 +455,7 @@ class _CategoryGridSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: FunHeading(
-            title: section.title ?? 'Shop by fun',
-            subtitle: 'Pick your kind of boom.',
-            overline: 'Browse the range',
-          ),
-        ),
+        SectionHeading(title: section.title ?? 'Shop by category', overline: 'Browse the range'),
         SizedBox(
           height: 100,
           child: ListView.separated(
@@ -501,16 +494,9 @@ class _ProductCarouselSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: FunHeading(
-            title: section.title ?? 'Fresh pops',
-            subtitle: 'Sealed boxes, genuine stock.',
-            overline: 'Handpicked for you',
-          ),
-        ),
+        SectionHeading(title: section.title ?? 'Featured', overline: 'Handpicked for you'),
         SizedBox(
-          height: 264,
+          height: 230,
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             scrollDirection: Axis.horizontal,
@@ -578,14 +564,7 @@ class _ProductListSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: FunHeading(
-            title: section.title ?? 'Fresh pops',
-            subtitle: 'Sealed boxes, genuine stock.',
-            overline: 'Handpicked for you',
-          ),
-        ),
+        SectionHeading(title: section.title ?? 'Collection', overline: 'Handpicked for you'),
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
@@ -594,7 +573,7 @@ class _ProductListSection extends ConsumerWidget {
             crossAxisCount: 2,
             mainAxisSpacing: 12,
             crossAxisSpacing: 12,
-            childAspectRatio: 0.66,
+            childAspectRatio: 0.72,
           ),
           itemCount: products.length > 8 ? 8 : products.length,
           itemBuilder: (context, index) {

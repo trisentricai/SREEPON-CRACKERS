@@ -74,7 +74,7 @@ abstract final class SriPonTheme {
     );
 
     final body = GoogleFonts.nunitoSans;
-    final display = GoogleFonts.baloo2;
+    final display = GoogleFonts.rubik;
 
     final baseText = ThemeData(useMaterial3: true, colorScheme: seeded).textTheme;
     final textTheme = baseText.copyWith(

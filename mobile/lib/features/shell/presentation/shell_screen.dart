@@ -4,7 +4,6 @@ import '../../../core/theme/sripon_theme.dart';
 import '../../auth/presentation/profile_screen.dart';
 import '../../cart/presentation/cart_screen.dart';
 import '../../cart/presentation/checkout_screen.dart';
-import '../../deals/presentation/deals_screen.dart';
 import '../../home/presentation/home_screen.dart';
 import '../../orders/presentation/orders_screen.dart';
 import '../../products/presentation/product_list_screen.dart';
@@ -35,8 +34,6 @@ class ShellScreen extends StatelessWidget {
         screen = const WishlistScreen();
       case '/checkout':
         screen = const CheckoutScreen();
-      case '/cart':
-        screen = const CartScreen();
       case '/orders':
         screen = const OrdersScreen();
       case '/products':
@@ -66,8 +63,8 @@ class _MainTabsState extends State<MainTabs> {
   static const _screens = <Widget>[
     HomeScreen(),
     CategoriesScreen(),
-    DealsScreen(),
     CartScreen(),
+    OrdersScreen(),
     ProfileScreen(),
   ];
 
@@ -92,14 +89,14 @@ class _MainTabsState extends State<MainTabs> {
             label: 'Shop',
           ),
           NavigationDestination(
-            icon: Icon(Icons.star_outline),
-            selectedIcon: Icon(Icons.star),
-            label: 'Deals',
-          ),
-          NavigationDestination(
             icon: Icon(Icons.shopping_cart_outlined),
             selectedIcon: Icon(Icons.shopping_cart),
             label: 'Cart',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.receipt_long_outlined),
+            selectedIcon: Icon(Icons.receipt_long),
+            label: 'Orders',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),

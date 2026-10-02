@@ -6,10 +6,8 @@ import 'package:flutter/material.dart';
 
 import '../models/models.dart';
 import '../utils/format.dart';
-import 'sticker.dart';
 import 'widgets.dart';
 
-export 'sticker.dart';
 export 'widgets.dart' show SriPonEmptyState, SriPonSpinner, SriPonColors;
 
 /// Image with a graceful fallback when [url] is null or fails to load.
@@ -79,57 +77,55 @@ class _ProductCardState extends State<ProductCard> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final discount = discountPercent(product.basePrice, product.mrpPrice);
-    return AnimatedContainer(
-      duration: const Duration(milliseconds: 150),
-      curve: Curves.easeOut,
-      transform: Matrix4.translationValues(_pressed ? 2 : 0, _pressed ? 2 : 0, 0),
+    return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: SriPonColors.ink, width: 2),
-        boxShadow: [
-          BoxShadow(
-            color: SriPonColors.ink,
-            offset: Offset(_pressed ? 1 : 4, _pressed ? 1 : 4),
-          ),
-        ],
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: scheme.outlineVariant),
       ),
-      clipBehavior: Clip.antiAlias,
-      child: Material(
-        color: Colors.transparent,
+      child: AnimatedPhysicalModel(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        elevation: _pressed ? 4 : 0,
+        borderRadius: BorderRadius.circular(14),
+        color: scheme.surfaceContainerLow,
+        shadowColor: Colors.black.withValues(alpha: 0.22),
+        clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: widget.onTap,
           onHighlightChanged: (value) => setState(() => _pressed = value),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: SriPonColors.sunny100,
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: SriPonColors.ink, width: 2),
-                ),
-                clipBehavior: Clip.antiAlias,
-                child: AspectRatio(
-                  aspectRatio: 1,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      SriponImage(url: product.coverUrl),
-                      if (discount != null)
-                        Positioned(
-                          top: 4,
-                          right: 4,
-                          child: Starburst(label: '$discount%', sub: 'off', size: 60),
+              Expanded(
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    SriponImage(url: product.coverUrl),
+                    if (discount != null)
+                      Positioned(
+                        top: 8,
+                        left: 8,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: scheme.tertiaryContainer,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            '$discount% off',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: scheme.onTertiaryContainer,
+                            ),
+                          ),
                         ),
-                    ],
-                  ),
+                      ),
+                  ],
                 ),
               ),
-            ),
               Padding(
                 padding: const EdgeInsets.all(10),
                 child: Column(
@@ -143,22 +139,14 @@ class _ProductCardState extends State<ProductCard> {
                     ),
                     const SizedBox(height: 4),
                     if (product.category != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: SriPonColors.bubble100,
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(color: SriPonColors.ink, width: 1.5),
-                        ),
-                        child: Text(
-                          product.category!.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                color: SriPonColors.ink,
-                                fontWeight: FontWeight.w800,
-                              ),
-                        ),
+                      Text(
+                        product.category!.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(color: scheme.onSurfaceVariant),
                       ),
                     const SizedBox(height: 6),
                     PriceRow(basePrice: product.basePrice, mrpPrice: product.mrpPrice),

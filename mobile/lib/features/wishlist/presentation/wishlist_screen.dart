@@ -42,56 +42,30 @@ class WishlistScreen extends ConsumerWidget {
         ),
         data: (items) {
           if (items.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(32),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Mascot(size: 120),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Wishlist is empty',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Tap the heart on a product to save it here.',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: SriPonColors.inkMuted),
-                    ),
-                  ],
-                ),
-              ),
+            return const SriPonEmptyState(
+              icon: Icons.favorite_outline,
+              title: 'Wishlist is empty',
+              message: 'Tap the heart on a product to save it here.',
             );
           }
           return RefreshIndicator(
             onRefresh: () async => ref.invalidate(wishlistProvider),
-            child: ListView(
+            child: ListView.separated(
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(16),
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 12),
-                  child: FunHeading(
-                    title: 'Wishlist',
-                    subtitle: 'Saved pops for later.',
-                    overline: 'Saved fun',
-                  ),
-                ),
-                for (var i = 0; i < items.length; i++) ...[
-                  _WishlistTile(
-                    item: items[i],
-                    onOpen: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => ProductDetailScreen(slug: items[i].product.slug),
-                      ),
+              itemCount: items.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                final item = items[index];
+                return _WishlistTile(
+                  item: item,
+                  onOpen: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => ProductDetailScreen(slug: item.product.slug),
                     ),
                   ),
-                  if (i < items.length - 1) const SizedBox(height: 12),
-                ],
-                const SizedBox(height: 24),
-              ],
+                );
+              },
             ),
           );
         },
@@ -108,78 +82,81 @@ class _WishlistTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return StickerCard(
-      padding: const EdgeInsets.all(12),
+    return Card(
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: InkWell(
         onTap: onOpen,
         borderRadius: BorderRadius.circular(14),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              decoration: BoxDecoration(
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipRRect(
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: SriPonColors.ink, width: 2),
+                child: SizedBox(
+                  width: 64,
+                  height: 64,
+                  child: SriponImage(url: item.product.imageUrl),
+                ),
               ),
-              clipBehavior: Clip.antiAlias,
-              child: SizedBox(
-                width: 64,
-                height: 64,
-                child: SriponImage(url: item.product.imageUrl),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    item.product.name,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-                  ),
-                  const SizedBox(height: 4),
-                  PriceRow(basePrice: item.product.basePrice, mrpPrice: item.product.mrpPrice),
-                  if (item.isAvailable) ...[
-                    const SizedBox(height: 4),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      formatUnit(item.product.unit.wire),
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      item.product.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 4),
+                    PriceRow(basePrice: item.product.basePrice, mrpPrice: item.product.mrpPrice),
+                    if (item.isAvailable) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        formatUnit(item.product.unit.wire),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                      ),
+                    ] else
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Text(
+                          'Currently unavailable',
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: SriPonColors.danger),
+                        ),
+                      ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        FilledButton.tonal(
+                          style: FilledButton.styleFrom(
+                            visualDensity: VisualDensity.compact,
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
                           ),
+                          onPressed: item.availableStock <= 0
+                              ? null
+                              : () => _moveToCart(ref),
+                          child: const Text('Move to cart'),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          tooltip: 'Remove',
+                          icon: const Icon(Icons.delete_outline),
+                          onPressed: () => _remove(ref),
+                        ),
+                      ],
                     ),
-                  ] else
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Text(
-                        'Currently unavailable',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: SriPonColors.danger),
-                      ),
-                    ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      ChunkyButton(
-                        label: 'Move to cart',
-                        icon: Icons.shopping_cart_outlined,
-                        color: SriPonColors.sunny,
-                        onPressed: item.availableStock <= 0
-                            ? null
-                            : () => _moveToCart(ref),
-                      ),
-                      const Spacer(),
-                      IconButton(
-                        tooltip: 'Remove',
-                        icon: const Icon(Icons.delete_outline),
-                        onPressed: () => _remove(ref),
-                      ),
-                    ],
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

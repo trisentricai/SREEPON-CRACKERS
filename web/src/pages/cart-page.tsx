@@ -1,11 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { Minus, Plus, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '@/api/client';
 import type { ApiEnvelope, Cart } from '@/api/types';
-import { AuthGate, ErrorState } from '@/components/storefront-ui';
-import { ChunkyButton, FunHeading, Mascot, StickerCard } from '@/components/sticker-ui';
+import { AuthGate, EmptyState, ErrorState, Spinner } from '@/components/storefront-ui';
 import { useAuth } from '@/features/auth/context/auth-context';
 import { formatMoney, formatUnit } from '@/lib/format';
 
@@ -63,16 +61,8 @@ function CartContent() {
 
   if (cartQuery.isLoading) {
     return (
-      <section className="mx-auto max-w-7xl px-4 py-8">
-        <div className="h-10 w-64 animate-pulse rounded-full border-2 border-ink bg-ember-100" />
-        <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_320px]">
-          <div className="space-y-4">
-            {[0, 1].map((i) => (
-              <div key={i} className="h-32 animate-pulse rounded-bubble border-2 border-ink bg-ember-100" />
-            ))}
-          </div>
-          <div className="h-64 animate-pulse rounded-bubble border-2 border-ink bg-ember-100" />
-        </div>
+      <section className="mx-auto max-w-7xl px-4 py-12">
+        <Spinner label="Loading your cart…" />
       </section>
     );
   }
@@ -88,132 +78,106 @@ function CartContent() {
   if (!cart || cart.items.length === 0) {
     return (
       <section className="mx-auto max-w-7xl px-4 py-12">
-        <FunHeading title="Your cart" overline="Almost boom time" />
-        <StickerCard className="flex flex-col items-center gap-4 p-10 text-center">
-          <Mascot className="h-24 w-auto" />
-          <p className="font-display text-xl font-extrabold text-ink">Your cart is empty!</p>
-          <p className="-mt-2 font-medium text-ink-muted">Let&apos;s fix that with something that sparkles.</p>
-          <ChunkyButton to="/products">Browse the fun</ChunkyButton>
-        </StickerCard>
+        <h1 className="text-2xl font-bold text-ember-800">Shopping cart</h1>
+        <div className="mt-4">
+          <EmptyState title="Your cart is empty">
+            <p>
+              <Link to="/products" className="font-medium text-coral-600 underline">Browse the catalogue</Link>{' '}
+              and add your favourites.
+            </p>
+          </EmptyState>
+        </div>
       </section>
     );
   }
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-8">
-      <FunHeading
-        title="Your cart"
-        subtitle={`${cart.totalQuantity} pop${cart.totalQuantity === 1 ? '' : 's'} ready to boom.`}
-        overline="Almost boom time"
-      />
+      <h1 className="text-2xl font-bold text-ember-800">Shopping cart</h1>
       {cart.outOfStockCount > 0 && (
-        <StickerCard className="mb-6 border-ink bg-candy-100 p-4 text-sm font-bold text-ink">
-          One or more items are out of stock and can&apos;t be ordered. Remove them or adjust quantities below.
-        </StickerCard>
+        <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
+          One or more items are out of stock and can't be ordered. Remove them or adjust quantities below.
+        </p>
       )}
 
       <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_320px]">
         <ul className="space-y-4">
           {cart.items.map((item) => (
-            <li key={item.id}>
-              <StickerCard className="flex gap-4 p-3">
-                <Link
-                  to={`/products/slug/${item.product.slug}`}
-                  className="h-24 w-24 shrink-0 overflow-hidden rounded-2xl border-2 border-ink bg-sunny-100"
-                >
-                  {item.product.imageUrl ? (
-                    <img src={item.product.imageUrl} alt={item.product.name} className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center" aria-hidden>
-                      <span className="font-display text-3xl font-extrabold text-ink/20">
-                        {item.product.name.slice(0, 1)}
-                      </span>
-                    </div>
-                  )}
+            <li key={item.id} className="flex gap-4 rounded-xl border border-ember-100 bg-white p-4">
+              <Link to={`/products/slug/${item.product.slug}`} className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-ember-50">
+                {item.product.imageUrl ? (
+                  <img src={item.product.imageUrl} alt={item.product.name} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full items-center justify-center text-2xl" aria-hidden>
+                    🎆
+                  </div>
+                )}
+              </Link>
+              <div className="flex flex-1 flex-col">
+                <Link to={`/products/slug/${item.product.slug}`} className="font-semibold text-ember-900 hover:text-coral-600">
+                  {item.product.name}
                 </Link>
-                <div className="flex min-w-0 flex-1 flex-col">
-                  <Link
-                    to={`/products/slug/${item.product.slug}`}
-                    className="truncate font-display font-bold text-ink hover:text-coral-600"
-                  >
-                    {item.product.name}
-                  </Link>
-                  <p className="text-xs font-bold text-ink-muted">
-                    {formatUnit(item.product.unit)} · {formatMoney(item.product.basePrice)} each
-                  </p>
-                  <div className="mt-auto flex items-center justify-between gap-2 pt-2">
-                    <div className="flex items-center rounded-full border-2 border-ink bg-white shadow-sticker-sm">
-                      <button
-                        type="button"
-                        aria-label="Decrease quantity"
-                        disabled={updateQuantity.isPending || item.quantity <= 1}
-                        onClick={() => updateQuantity.mutate({ itemId: item.id, quantity: item.quantity - 1 })}
-                        className="flex h-8 w-8 items-center justify-center rounded-l-full transition hover:bg-sunny-100 active:scale-95 disabled:opacity-40"
-                      >
-                        <Minus className="h-3.5 w-3.5" strokeWidth={3} />
-                      </button>
-                      <span className="w-7 text-center font-display text-sm font-extrabold tabular-nums">
-                        {item.quantity}
-                      </span>
-                      <button
-                        type="button"
-                        aria-label="Increase quantity"
-                        disabled={updateQuantity.isPending || item.quantity >= item.availableStock}
-                        onClick={() => updateQuantity.mutate({ itemId: item.id, quantity: item.quantity + 1 })}
-                        className="flex h-8 w-8 items-center justify-center rounded-r-full transition hover:bg-sunny-100 active:scale-95 disabled:opacity-40"
-                      >
-                        <Plus className="h-3.5 w-3.5" strokeWidth={3} />
-                      </button>
-                    </div>
-                    <div className="text-right">
-                      <p className="font-display font-extrabold text-ink">{formatMoney(item.lineTotal)}</p>
-                      <button
-                        onClick={() => removeItem.mutate(item.id)}
-                        disabled={removeItem.isPending}
-                        className="inline-flex items-center gap-1 text-xs font-bold text-ink-muted underline hover:text-red-600"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                        Remove
-                      </button>
-                    </div>
+                <p className="text-xs text-ember-900/50">{formatUnit(item.product.unit)} · {formatMoney(item.product.basePrice)} each</p>
+                <div className="mt-auto flex items-center justify-between pt-2">
+                  <label className="flex items-center gap-2 text-sm text-ember-900/70">
+                    Qty
+                    <select
+                      value={item.quantity}
+                      disabled={updateQuantity.isPending}
+                      onChange={(e) => updateQuantity.mutate({ itemId: item.id, quantity: Number(e.target.value) })}
+                      className="rounded-lg border border-coral-200 px-2 py-1 text-sm disabled:opacity-50"
+                    >
+                      {Array.from({ length: item.availableStock + 1 }, (_, i) => i + 1).map((n) => (
+                        <option key={n} value={n}>{n}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <div className="text-right">
+                    <p className="font-bold text-ember-800">{formatMoney(item.lineTotal)}</p>
+                    <button
+                      onClick={() => removeItem.mutate(item.id)}
+                      disabled={removeItem.isPending}
+                      className="text-xs text-ember-900/50 underline hover:text-red-600"
+                    >
+                      Remove
+                    </button>
                   </div>
                 </div>
-              </StickerCard>
+              </div>
             </li>
           ))}
         </ul>
 
-        <aside>
-          <StickerCard className="h-fit bg-sunny-100 p-5">
-            <h2 className="font-display text-lg font-extrabold text-ink">Order summary</h2>
-            <dl className="mt-4 space-y-2 text-sm font-medium">
-              <div className="flex justify-between">
-                <dt className="text-ink-muted">
-                  Subtotal ({cart.totalQuantity} item{cart.totalQuantity === 1 ? '' : 's'})
-                </dt>
-                <dd className="font-bold text-ink">{formatMoney(cart.subtotal)}</dd>
-              </div>
-              <div className="flex justify-between">
-                <dt className="text-ink-muted">Delivery</dt>
-                <dd className="text-ink-muted">Calculated at checkout</dd>
-              </div>
-              <div className="flex justify-between border-t-2 border-ink/15 pt-3 text-base">
-                <dt className="font-display font-extrabold text-ink">Total</dt>
-                <dd className="font-display font-extrabold text-coral-600">{formatMoney(cart.subtotal)}</dd>
-              </div>
-            </dl>
-            <ChunkyButton to="/checkout" tone="coral" className="mt-5 w-full">
-              Proceed to checkout
-            </ChunkyButton>
-            <button
-              onClick={() => clearCart.mutate()}
-              disabled={clearCart.isPending}
-              className="mt-2 w-full rounded-full border-2 border-ink bg-white px-4 py-2 text-sm font-bold text-ink transition hover:bg-candy-100 active:translate-y-0.5 disabled:opacity-50"
-            >
-              Clear cart
-            </button>
-            {error && <p className="mt-3 text-sm font-bold text-red-600">{error}</p>}
-          </StickerCard>
+        <aside className="h-fit rounded-xl border border-ember-100 bg-ember-50/50 p-5">
+          <h2 className="text-lg font-semibold text-ember-900">Order summary</h2>
+          <dl className="mt-4 space-y-2 text-sm">
+            <div className="flex justify-between">
+              <dt className="text-ember-900/60">Subtotal ({cart.totalQuantity} item{cart.totalQuantity === 1 ? '' : 's'})</dt>
+              <dd className="font-medium text-ember-900">{formatMoney(cart.subtotal)}</dd>
+            </div>
+            <div className="flex justify-between">
+              <dt className="text-ember-900/60">Delivery</dt>
+              <dd className="text-ember-900/60">Calculated at checkout</dd>
+            </div>
+            <div className="flex justify-between border-t border-ember-100 pt-3 text-base">
+              <dt className="font-semibold text-ember-900">Total</dt>
+              <dd className="font-bold text-ember-800">{formatMoney(cart.subtotal)}</dd>
+            </div>
+          </dl>
+          <Link
+            to="/checkout"
+            className="mt-5 block rounded-lg bg-coral-600 px-4 py-2.5 text-center font-semibold text-white hover:bg-coral-700"
+          >
+            Proceed to checkout
+          </Link>
+          <button
+            onClick={() => clearCart.mutate()}
+            disabled={clearCart.isPending}
+            className="mt-2 w-full rounded-lg border border-coral-200 px-4 py-2 text-sm text-coral-600 hover:bg-coral-50 disabled:opacity-50"
+          >
+            Clear cart
+          </button>
+          {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
         </aside>
       </div>
     </section>

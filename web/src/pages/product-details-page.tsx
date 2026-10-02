@@ -1,17 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { BadgeCheck, Minus, Plus, ShieldCheck, ShoppingBag, Sparkles, Truck } from 'lucide-react';
+import { BadgeCheck, Minus, PartyPopper, Plus, ShieldCheck, Truck } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api } from '@/api/client';
 import type { ApiEnvelope, Cart, Product } from '@/api/types';
-import { ErrorState, Reveal, Skeleton } from '@/components/storefront-ui';
-import { ChunkyButton, FunChip, Mascot, Starburst, StickerCard } from '@/components/sticker-ui';
+import { Badge, ErrorState, Reveal, Skeleton } from '@/components/storefront-ui';
 import { useAuth } from '@/features/auth/context/auth-context';
 import { discountPercent, formatMoney, formatUnit } from '@/lib/format';
 
-const SPEC_TONES = ['bg-sunny-100', 'bg-bubble-100', 'bg-grape-100', 'bg-mint-100', 'bg-candy-100'];
-
-/** Product detail with sticker gallery, stepper, and chunky actions. */
+/** Product detail with gallery, add-to-cart, and wishlist actions. */
 export function ProductDetailsPage() {
   const params = useParams();
   const productSlug = params.productSlug!;
@@ -67,21 +64,21 @@ export function ProductDetailsPage() {
   if (productQuery.isLoading) {
     return (
       <section className="mx-auto max-w-7xl px-4 py-12">
-        <Skeleton className="h-6 w-64 rounded-full border-2 border-ink" />
+        <Skeleton className="h-4 w-64 rounded-lg" />
         <div className="mt-8 grid gap-10 lg:grid-cols-2">
           <div>
-            <Skeleton className="aspect-square rounded-bubble border-2 border-ink" />
+            <Skeleton className="aspect-square rounded-xl" />
             <div className="mt-3 flex gap-2">
-              <Skeleton className="h-20 w-20 rounded-2xl border-2 border-ink" />
-              <Skeleton className="h-20 w-20 rounded-2xl border-2 border-ink" />
+              <Skeleton className="h-20 w-20 rounded-lg" />
+              <Skeleton className="h-20 w-20 rounded-lg" />
             </div>
           </div>
           <div className="space-y-4">
-            <Skeleton className="h-7 w-44 rounded-full border-2 border-ink" />
-            <Skeleton className="h-10 w-3/4 rounded-2xl border-2 border-ink" />
-            <Skeleton className="h-5 w-2/3 rounded-full border-2 border-ink" />
-            <Skeleton className="h-28 w-full rounded-bubble border-2 border-ink" />
-            <Skeleton className="h-12 w-56 rounded-full border-2 border-ink" />
+            <Skeleton className="h-6 w-40 rounded-lg" />
+            <Skeleton className="h-9 w-3/4 rounded-xl" />
+            <Skeleton className="h-5 w-2/3 rounded-lg" />
+            <Skeleton className="h-16 w-full rounded-xl" />
+            <Skeleton className="h-11 w-52 rounded-full" />
           </div>
         </div>
       </section>
@@ -101,66 +98,45 @@ export function ProductDetailsPage() {
   const discount = discountPercent(product.basePrice, product.mrpPrice);
   const inStock = (product.inventory?.quantity ?? 0) > 0;
 
-  const specs: Array<{ label: string; value: string }> = [
-    { label: 'SKU', value: product.sku },
-    { label: 'Unit', value: formatUnit(product.unit) },
-    ...(product.piecesPerBox !== null ? [{ label: 'Pieces per box', value: String(product.piecesPerBox) }] : []),
-    ...(product.minimumAge !== null ? [{ label: 'Minimum age', value: `${product.minimumAge}+` }] : []),
-    ...(product.weightPerBox ? [{ label: 'Weight per box', value: `${product.weightPerBox} kg` }] : []),
-  ];
-
   return (
     <section className="mx-auto max-w-7xl px-4 py-8">
-      <nav className="flex flex-wrap items-center gap-2 text-sm font-bold">
-        <Link
-          to="/products"
-          className="rounded-full border-2 border-ink bg-white px-3 py-0.5 text-ink shadow-sticker-sm transition hover:bg-sunny-100"
-        >
-          Catalogue
-        </Link>
+      <nav className="text-sm text-ember-900/50">
+        <Link to="/products" className="hover:text-coral-700">Catalogue</Link>
         {product.category && (
-          <Link
-            to={`/products/${product.category.slug}`}
-            className="rounded-full border-2 border-ink bg-white px-3 py-0.5 text-ink shadow-sticker-sm transition hover:bg-sunny-100"
-          >
-            {product.category.name}
-          </Link>
+          <>
+            {' / '}
+            <Link to={`/products/${product.category.slug}`} className="hover:text-coral-700">
+              {product.category.name}
+            </Link>
+          </>
         )}
-        <span className="max-w-full truncate rounded-full border-2 border-ink bg-sunny-100 px-3 py-0.5 text-ink">
-          {product.name}
-        </span>
+        {' / '}
+        <span className="text-ember-900/70">{product.name}</span>
       </nav>
 
       <div className="mt-6 grid gap-10 lg:grid-cols-2">
         {/* Gallery */}
         <Reveal>
-          <StickerCard className="p-2">
-            <div className="overflow-hidden rounded-3xl border-2 border-ink bg-sunny-100">
-              {images ? (
-                <img
-                  src={images[activeImage]?.url}
-                  alt={images[activeImage]?.altText ?? product.name}
-                  className="aspect-square w-full object-cover"
-                />
-              ) : (
-                <div className="flex aspect-square w-full items-center justify-center" aria-hidden>
-                  <Mascot className="h-32 w-auto opacity-80" />
-                </div>
-              )}
-            </div>
-          </StickerCard>
+          <div className="aspect-square overflow-hidden rounded-xl border border-line bg-ember-50 shadow-card">
+            {images ? (
+              <img
+                src={images[activeImage]?.url}
+                alt={images[activeImage]?.altText ?? product.name}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-full items-center justify-center" aria-hidden>
+                <PartyPopper className="h-16 w-16 text-ember-300" />
+              </div>
+            )}
+          </div>
           {images && images.length > 1 && (
             <div className="mt-3 flex gap-2">
               {images.map((image, index) => (
                 <button
                   key={image.id}
                   onClick={() => setActiveImage(index)}
-                  aria-label={`View image ${index + 1}`}
-                  className={`h-20 w-20 overflow-hidden rounded-2xl border-2 transition duration-150 ${
-                    index === activeImage
-                      ? 'border-ink shadow-sticker-sm'
-                      : 'border-ink/20 hover:border-ink'
-                  }`}
+                  className={`h-20 w-20 overflow-hidden rounded-lg border-2 transition ${index === activeImage ? 'border-coral-600 shadow-sm' : 'border-transparent hover:border-coral-200'}`}
                 >
                   <img src={image.url} alt={image.altText ?? ''} className="h-full w-full object-cover" />
                 </button>
@@ -171,62 +147,77 @@ export function ProductDetailsPage() {
 
         {/* Details */}
         <Reveal delay={80}>
-          <div className="flex flex-wrap items-center gap-2">
-            {product.isFeatured && <FunChip icon={Sparkles} label="Featured" tone="sunny" />}
-            <FunChip
-              icon={BadgeCheck}
-              label={inStock ? 'In stock' : 'Sold out'}
-              tone={inStock ? 'mint' : 'candy'}
-            />
+          <div className="flex items-center gap-2">
+            {product.isFeatured && <Badge tone="orange">Featured</Badge>}
+            <Badge tone={inStock ? 'green' : 'red'}>{inStock ? 'In stock' : 'Out of stock'}</Badge>
           </div>
-          <h1 className="mt-3 font-display text-3xl font-extrabold text-ink sm:text-4xl">{product.name}</h1>
-          {product.shortDescription && <p className="mt-2 font-medium text-ink-muted">{product.shortDescription}</p>}
+          <h1 className="mt-3 font-display text-3xl font-bold text-ember-900">{product.name}</h1>
+          {product.shortDescription && <p className="mt-2 text-ember-900/70">{product.shortDescription}</p>}
 
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <span className="font-display text-4xl font-extrabold text-coral-600">{formatMoney(product.basePrice)}</span>
+          <div className="mt-4 flex items-baseline gap-3">
+            <span className="text-3xl font-extrabold text-coral-600">{formatMoney(product.basePrice)}</span>
             {product.mrpPrice && (
-              <span className="text-lg font-semibold text-ink-muted line-through">{formatMoney(product.mrpPrice)}</span>
+              <span className="text-lg text-ember-900/40 line-through">{formatMoney(product.mrpPrice)}</span>
             )}
-            {discount !== null && <Starburst label={`${discount}%`} sub="off" className="h-16 w-16" />}
+            {discount !== null && <Badge tone="red">{discount}% off</Badge>}
           </div>
-          <p className="mt-1 text-sm font-bold text-ink-muted">per {formatUnit(product.unit).toLowerCase()}</p>
+          <p className="mt-1 text-sm text-ember-900/50">per {formatUnit(product.unit).toLowerCase()}</p>
 
-          <div className="mt-6 grid grid-cols-2 gap-3">
-            {specs.map((spec, index) => (
-              <div
-                key={spec.label}
-                className={`rounded-2xl border-2 border-ink p-3 shadow-sticker-sm ${SPEC_TONES[index % SPEC_TONES.length]}`}
-              >
-                <dt className="text-xs font-bold uppercase tracking-wider text-ink/60">{spec.label}</dt>
-                <dd className="font-display text-base font-bold text-ink">{spec.value}</dd>
+          <dl className="mt-6 grid grid-cols-2 gap-4 rounded-xl border border-line bg-paper-strong p-5 text-sm shadow-card">
+            <div className="relative">
+              <dt className="text-ember-900/50">SKU</dt>
+              <dd className="font-medium text-ember-900">{product.sku}</dd>
+              <span className="absolute -left-2 top-0 h-full w-0.5 rounded-full bg-coral-200" aria-hidden />
+            </div>
+            <div>
+              <dt className="text-ember-900/50">Unit</dt>
+              <dd className="font-medium text-ember-900">{formatUnit(product.unit)}</dd>
+            </div>
+            {product.piecesPerBox !== null && (
+              <div>
+                <dt className="text-ember-900/50">Pieces per box</dt>
+                <dd className="font-medium text-ember-900">{product.piecesPerBox}</dd>
               </div>
-            ))}
-          </div>
+            )}
+            {product.minimumAge !== null && (
+              <div>
+                <dt className="text-ember-900/50">Minimum age</dt>
+                <dd className="font-medium text-ember-900">{product.minimumAge}+</dd>
+              </div>
+            )}
+            {product.weightPerBox && (
+              <div>
+                <dt className="text-ember-900/50">Weight per box</dt>
+                <dd className="font-medium text-ember-900">{product.weightPerBox} kg</dd>
+              </div>
+            )}
+          </dl>
 
           {product.description && (
             <div className="mt-6">
-              <span className="inline-block -rotate-1 rounded-lg border-2 border-ink bg-bubble-100 px-2.5 py-0.5 font-display text-xs font-bold uppercase tracking-widest text-ink shadow-sticker-sm">
-                The fun details
-              </span>
-              <p className="mt-2 whitespace-pre-line text-sm font-medium text-ink-muted">{product.description}</p>
+              <h2 className="mb-2 flex items-center gap-2 text-lg font-semibold text-ember-900">
+                <span className="h-4 w-1 rounded-full bg-coral-500" aria-hidden />
+                Description
+              </h2>
+              <p className="whitespace-pre-line text-sm text-ember-900/70">{product.description}</p>
             </div>
           )}
 
           {/* Actions */}
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-3">
-              <span className="font-display text-sm font-bold text-ink">Qty</span>
-              <div className="flex items-center rounded-full border-2 border-ink bg-white shadow-sticker-sm">
+              <span className="text-sm text-ember-900/70">Qty</span>
+              <div className="flex items-center rounded-full border border-ember-200 bg-paper-strong shadow-sm">
                 <button
                   type="button"
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                   disabled={!isAuthenticated || !inStock || quantity <= 1}
                   aria-label="Decrease quantity"
-                  className="flex h-10 w-10 items-center justify-center rounded-l-full text-ink transition hover:bg-sunny-100 active:scale-95 disabled:opacity-40"
+                  className="flex h-9 w-9 items-center justify-center rounded-l-full text-ember-800 transition hover:bg-coral-50 active:scale-95 disabled:opacity-40"
                 >
-                  <Minus className="h-4 w-4" strokeWidth={3} />
+                  <Minus className="h-4 w-4" />
                 </button>
-                <span className="w-9 text-center font-display text-base font-extrabold tabular-nums text-ink" aria-live="polite">
+                <span className="w-9 text-center text-sm font-bold tabular-nums text-ember-900" aria-live="polite">
                   {quantity}
                 </span>
                 <button
@@ -234,46 +225,49 @@ export function ProductDetailsPage() {
                   onClick={() => setQuantity((q) => Math.min(10, q + 1))}
                   disabled={!isAuthenticated || !inStock || quantity >= 10}
                   aria-label="Increase quantity"
-                  className="flex h-10 w-10 items-center justify-center rounded-r-full text-ink transition hover:bg-sunny-100 active:scale-95 disabled:opacity-40"
+                  className="flex h-9 w-9 items-center justify-center rounded-r-full text-ember-800 transition hover:bg-coral-50 active:scale-95 disabled:opacity-40"
                 >
-                  <Plus className="h-4 w-4" strokeWidth={3} />
+                  <Plus className="h-4 w-4" />
                 </button>
               </div>
             </div>
-            <ChunkyButton
+            <button
               onClick={() => addToCart.mutate()}
-              tone="coral"
               disabled={!isAuthenticated || !inStock || addToCart.isPending}
-              className="px-7"
+              className="rounded-full bg-coral-600 px-7 py-2.5 font-semibold text-white shadow-cta transition duration-200 hover:-translate-y-0.5 hover:bg-coral-700 active:scale-95 disabled:translate-y-0 disabled:opacity-50"
             >
-              <ShoppingBag className="h-5 w-5" />
               {addToCart.isPending ? 'Adding…' : 'Add to cart'}
-            </ChunkyButton>
-            <ChunkyButton
+            </button>
+            <button
               onClick={() => addToWishlist.mutate()}
-              tone="white"
               disabled={!isAuthenticated || addToWishlist.isPending}
-              className="px-6"
+              className="rounded-full border border-coral-300 px-6 py-2.5 font-semibold text-coral-600 transition duration-200 hover:bg-coral-50 active:scale-95 disabled:opacity-50"
             >
-              {addToWishlist.isPending ? 'Saving…' : 'Wishlist it'}
-            </ChunkyButton>
+              {addToWishlist.isPending ? 'Saving…' : 'Add to wishlist'}
+            </button>
           </div>
 
-          <div className="mt-6 flex flex-wrap gap-2">
-            <FunChip icon={Truck} label="Ships in 24–48h" tone="mint" />
-            <FunChip icon={ShieldCheck} label="Licensed & insured" tone="bubble" />
-            <FunChip icon={BadgeCheck} label="GST invoice included" tone="grape" />
+          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-line bg-paper-strong p-4 text-sm text-ember-900/70 shadow-card">
+            <span className="inline-flex items-center gap-1.5">
+              <Truck className="h-4 w-4 text-teal-600" /> Ships in 24–48h
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <ShieldCheck className="h-4 w-4 text-teal-600" /> Licensed &amp; insured
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <BadgeCheck className="h-4 w-4 text-teal-600" /> GST invoice included
+            </span>
           </div>
 
           {!isAuthenticated && (
-            <p className="mt-4 text-sm font-medium text-ink-muted">
-              <Link to="/profile" className="font-bold text-coral-600 underline">
+            <p className="mt-4 text-sm text-ember-900/60">
+              <Link to="/profile" className="font-medium text-coral-600 underline">
                 Sign in
               </Link>{' '}
               to add items to your cart or wishlist.
             </p>
           )}
-          {error && <p className="mt-4 text-sm font-bold text-red-600">{error}</p>}
+          {error && <p className="mt-4 text-sm text-red-600">{error}</p>}
         </Reveal>
       </div>
     </section>

@@ -4,7 +4,6 @@ import { AuthProvider } from '../features/auth/context/auth-context';
 import { AppShell } from '../layout/app-shell';
 import { CartPage } from '../pages/cart-page';
 import { CheckoutPage } from '../pages/checkout-page';
-import { DealsPage } from '../pages/deals-page';
 import { HomePage } from '../pages/home-page';
 import { NotFoundPage } from '../pages/not-found-page';
 import { OrderDetailsPage } from '../pages/order-details-page';
@@ -25,7 +24,6 @@ export const router = createBrowserRouter([
       { path: 'products/:categorySlug', element: <ProductsPage /> },
       { path: 'products/slug/:productSlug', element: <ProductDetailsPage /> },
       { path: 'products/:categorySlug/:productSlug', element: <ProductDetailsPage /> },
-      { path: 'deals', element: <DealsPage /> },
       { path: 'cart', element: <CartPage /> },
       { path: 'checkout', element: <CheckoutPage /> },
       { path: 'wishlist', element: <WishlistPage /> },

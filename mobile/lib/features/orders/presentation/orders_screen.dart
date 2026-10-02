@@ -67,44 +67,35 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
               ref.invalidate(ordersProvider(_page));
               await ref.read(ordersProvider(_page).future);
             },
-            child: ListView(
+            child: ListView.separated(
               controller: _scroll,
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(16),
-              children: [
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 12),
-                  child: FunHeading(
-                    title: 'Your orders',
-                    subtitle: 'Track every boom box.',
-                    overline: 'Order history',
-                  ),
-                ),
-                for (var i = 0; i < response.items.length; i++) ...[
-                  _OrderTile(
-                    order: response.items[i],
-                    onTap: () => Navigator.of(context).push(
-                      MaterialPageRoute<void>(
-                        builder: (_) => OrderDetailScreen(orderId: response.items[i].id),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                ],
-                if (_page < response.pagination.pages)
-                  Padding(
+              itemCount: response.items.length + 1,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                if (index == response.items.length) {
+                  if (_page >= response.pagination.pages) return const SizedBox.shrink();
+                  return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Center(
-                      child: ChunkyButton(
-                        label: 'Load more',
-                        icon: Icons.expand_more,
-                        color: Colors.white,
+                      child: OutlinedButton(
                         onPressed: () => setState(() => _page += 1),
+                        child: const Text('Load more'),
                       ),
                     ),
+                  );
+                }
+                final order = response.items[index];
+                return _OrderTile(
+                  order: order,
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => OrderDetailScreen(orderId: order.id),
+                    ),
                   ),
-                const SizedBox(height: 24),
-              ],
+                );
+              },
             ),
           );
         },
@@ -121,56 +112,61 @@ class _OrderTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StickerCard(
-      padding: const EdgeInsets.all(12),
+    return Card(
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '#${order.orderNumber}',
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '#${order.orderNumber}',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                    ),
                   ),
-                ),
-                StatusChip(label: order.status.wire),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    '${order.items.length} item${order.items.length == 1 ? '' : 's'} · ${formatDateTime(order.createdAt)}',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  StatusChip(label: order.status.wire),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '${order.items.length} item${order.items.length == 1 ? '' : 's'} · ${formatDateTime(order.createdAt)}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    formatMoney(order.grandTotal),
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.w700,
                         ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  formatMoney(order.grandTotal),
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.w700,
-                      ),
-                ),
-                Text(
-                  formatUnit(order.paymentStatus.wire),
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-              ],
-            ),
-          ],
+                  Text(
+                    formatUnit(order.paymentStatus.wire),
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

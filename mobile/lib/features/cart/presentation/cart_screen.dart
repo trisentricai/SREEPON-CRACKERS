@@ -42,46 +42,40 @@ class CartScreen extends ConsumerWidget {
               physics: const AlwaysScrollableScrollPhysics(),
               padding: const EdgeInsets.all(16),
               children: [
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: FunHeading(
-                    title: 'Your cart',
-                    subtitle: '${value.totalQuantity} item${value.totalQuantity == 1 ? '' : 's'} packed safe.',
-                    overline: 'Packed safe',
-                  ),
-                ),
                 for (final item in value.items) _CartItemTile(item: item, cartId: value.id),
-                const SizedBox(height: 4),
-                StickerCard(
-                  padding: const EdgeInsets.all(16),
-                  color: SriPonColors.sunny100,
-                  child: Column(
-                    children: [
-                      _summaryRow(context, 'Subtotal', formatMoney(value.subtotal)),
-                      _summaryRow(context, 'Items', '${value.totalQuantity}'),
-                      const Divider(height: 24),
-                      _summaryRow(context, 'Total', formatMoney(value.subtotal), emphasize: true),
-                    ],
+                const SizedBox(height: 16),
+                Card(
+                  elevation: 0,
+                  color: Theme.of(context).colorScheme.surfaceContainerLow,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        _summaryRow(context, 'Subtotal', formatMoney(value.subtotal)),
+                        _summaryRow(context, 'Items', '${value.totalQuantity}'),
+                        const Divider(height: 24),
+                        _summaryRow(context, 'Total', formatMoney(value.subtotal), emphasize: true),
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(height: 14),
-                ChunkyButton(
-                  label: value.outOfStockCount > 0
-                      ? 'Remove out-of-stock items to continue'
-                      : 'Checkout',
-                  icon: Icons.lock_outline,
-                  color: SriPonColors.coral600,
-                  foreground: Colors.white,
+                const SizedBox(height: 12),
+                FilledButton.icon(
                   onPressed: value.outOfStockCount > 0
                       ? null
                       : () => Navigator.of(context).pushNamed('/checkout'),
+                  icon: const Icon(Icons.lock_outline),
+                  label: Text(
+                    value.outOfStockCount > 0
+                        ? 'Remove out-of-stock items to continue'
+                        : 'Checkout',
+                  ),
                 ),
-                const SizedBox(height: 10),
-                ChunkyButton(
-                  label: 'Clear cart',
-                  icon: Icons.delete_outline,
-                  color: Colors.white,
+                const SizedBox(height: 8),
+                OutlinedButton.icon(
                   onPressed: () => _clearCart(context, ref),
+                  icon: const Icon(Icons.delete_outline),
+                  label: const Text('Clear cart'),
                 ),
                 const SizedBox(height: 24),
               ],
@@ -126,19 +120,17 @@ class _CartItemTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: StickerCard(
+    return Card(
+      elevation: 0,
+      margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: SriPonColors.ink, width: 2),
-              ),
-              clipBehavior: Clip.antiAlias,
+            ClipRRect(
+              borderRadius: BorderRadius.circular(10),
               child: SizedBox(
                 width: 72,
                 height: 72,
@@ -176,36 +168,23 @@ class _CartItemTile extends ConsumerWidget {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(color: SriPonColors.ink, width: 2),
-                          boxShadow: stickerShadow(dx: 2, dy: 2),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              visualDensity: VisualDensity.compact,
-                              icon: const Icon(Icons.remove, size: 18),
-                              onPressed: item.quantity <= 1 || item.isOutOfStock
-                                  ? null
-                                  : () => _updateQuantity(ref, item.quantity - 1),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
-                              child: Text('${item.quantity}', style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
-                            ),
-                            IconButton(
-                              visualDensity: VisualDensity.compact,
-                              icon: const Icon(Icons.add, size: 18),
-                              onPressed: item.quantity >= item.availableStock
-                                  ? null
-                                  : () => _updateQuantity(ref, item.quantity + 1),
-                            ),
-                          ],
-                        ),
+                      IconButton.outlined(
+                        visualDensity: VisualDensity.compact,
+                        icon: const Icon(Icons.remove, size: 18),
+                        onPressed: item.quantity <= 1 || item.isOutOfStock
+                            ? null
+                            : () => _updateQuantity(ref, item.quantity - 1),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: Text('${item.quantity}', style: Theme.of(context).textTheme.titleSmall),
+                      ),
+                      IconButton.outlined(
+                        visualDensity: VisualDensity.compact,
+                        icon: const Icon(Icons.add, size: 18),
+                        onPressed: item.quantity >= item.availableStock
+                            ? null
+                            : () => _updateQuantity(ref, item.quantity + 1),
                       ),
                       const Spacer(),
                       IconButton(
@@ -256,27 +235,10 @@ class _EmptyCart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Mascot(size: 120),
-            const SizedBox(height: 16),
-            Text(
-              'Your cart is empty',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Browse the catalogue and add some crackers to get started.',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: SriPonColors.inkMuted),
-            ),
-          ],
-        ),
-      ),
+    return const SriPonEmptyState(
+      icon: Icons.shopping_cart_outlined,
+      title: 'Your cart is empty',
+      message: 'Browse the catalogue and add some crackers to get started.',
     );
   }
 }
@@ -288,29 +250,11 @@ class _SignInPrompt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Mascot(size: 120),
-            const SizedBox(height: 16),
-            Text(
-              'Sign in required',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Sign in to view your cart and check out.',
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: SriPonColors.inkMuted),
-            ),
-            const SizedBox(height: 20),
-            ChunkyButton(label: 'Sign in', icon: Icons.lock_outline, onPressed: onPressed),
-          ],
-        ),
-      ),
+    return SriPonEmptyState(
+      icon: Icons.lock_outline,
+      title: 'Sign in required',
+      message: 'Sign in to view your cart and check out.',
+      action: FilledButton(onPressed: onPressed, child: const Text('Sign in')),
     );
   }
 }

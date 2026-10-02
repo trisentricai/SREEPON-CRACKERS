@@ -135,34 +135,12 @@ Contrast guardrails: `#ff6b5a` on white ≈ 3.16:1 (headline/large only, never b
 white-text buttons and `teal-600` for text to keep WCAG AA. Gold `#d9a021` stays the festive
 discount accent; headings/strong text stay `ember-800/900` on warm surfaces.
 
-### 2.6 Candy tokens (sticker-book palette) — playful secondaries
-
-```css
-/* Sticker style pairs pastel fills with ink text + 2px ink borders. */
---color-sunny-100: #fff3d1;  --color-sunny-400: #ffd23e;  --color-sunny-500: #ffc531;  --color-sunny-600: #e8a800;
---color-bubble-100: #ddf0ff; --color-bubble-400: #6fbeff; --color-bubble-500: #4aa8ff; --color-bubble-600: #2b7fd4;
---color-grape-100: #eae2ff;  --color-grape-400: #b48cf7;  --color-grape-500: #9b6bf3;  --color-grape-600: #7c4fd0;
---color-mint-100: #d9f5e7;   --color-mint-400: #5ed598;   --color-mint-500: #2fbf71;   --color-mint-600: #1f9a59;
---color-candy-100: #ffe3ee;  --color-candy-400: #ff8fb8;  --color-candy-500: #ff7bac;  --color-candy-600: #e85a92;
-
-/* Sticker-book elevation — hard offset shadows, zero blur. */
---shadow-sticker-sm: 2px 2px 0 0 var(--color-ink);
---shadow-sticker: 4px 4px 0 0 var(--color-ink);
---shadow-sticker-lg: 6px 6px 0 0 var(--color-ink);
-
-/* Shape + motion. */
---radius-bubble: 1.5rem;
---ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
-```
-Byte-mirrored in `mobile/lib/core/widgets/widgets.dart` (`SriPonColors.sunny/bubble/grape/mint/candy` +
-`…100` pastels). Text on candy fills is always `ink` (never white on pastels).
-
 ### 2.6 Typography tokens
 
 | Token | Font | Usage |
 |---|---|---|
 | `font-sans` (`--font-sans`) | **Nunito Sans** (300–700) | body, labels, inputs, buttons |
-| `font-display` (`--font-display`) | **Baloo 2** (500–800, extrabold headings) | `font-display` headings, prices, nav brand, sticker chips |
+| `font-display` (`--font-display`) | **Rubik** (300–700, weights 600–800 on headings) | `font-display` headings, prices, nav brand |
 
 Headline recipe: `font-display text-xl font-bold … sm:text-2xl` (section) …
 `text-4xl font-extrabold sm:text-6xl` (hero). Solid-color text only — no gradient text in the codebase.
@@ -172,8 +150,8 @@ Flutter mirrors fonts via `GoogleFonts.nunitoSans` / `GoogleFonts.rubik`
 ### 2.7 Spacing, radius, shape
 
 - **Layout grid:** 4px base; page gutter `px-4`, container `max-w-7xl`, vertical rhythm `py-8…py-24`.
-- **Radius:** cards/inputs `rounded-xl` (12px); pills/chips/CTAs `rounded-full`; sticker surfaces `rounded-bubble` (24px).
-- **Elevation:** sticker-book default — 2px `border-ink` + tiered hard shadows `shadow-sticker-sm` / `shadow-sticker` / `shadow-sticker-lg`. Hover cards: `hover:-translate-y-1 hover:shadow-sticker-lg`; press: `active:translate-x/y + active:shadow-none` (squish). Legacy soft shadows (`shadow-card/lifted/pop/cta`) retained for older surfaces.
+- **Radius:** cards/inputs `rounded-xl` (12px); pills/chips/CTAs `rounded-full`.
+- **Elevation:** tiered shadow tokens in `@theme` — `shadow-card` (resting cards), `shadow-lifted` (hover cards), `shadow-pop` (sticky header, floating buttons), `shadow-cta` (primary CTAs). Hover cards: `hover:-translate-y-1 hover:shadow-lifted`; header shadows in on scroll.
 - **Focus:** global `:focus-visible { outline: 2px solid var(--color-coral-600) }` in `@layer base`.
 
 ---
@@ -207,52 +185,16 @@ Patterns to copy from `ProductCard` (`storefront-ui.tsx:110`):
 - Price pair: `text-coral-600 font-bold` + strikethrough MRP `text-ember-900/40 line-through`
 - Category/unit: `text-xs text-ember-900/50`, name `line-clamp-2 font-display text-sm font-semibold`
 
-> NOTE: the active storefront skin is the sticker system below. Legacy `ProductCard` /
-> `SectionHeading` / `BrandMark` / soft-shadow recipes in this doc are superseded but kept
-> for reference — new work uses `sticker-ui.tsx` only.
-
-### 3.1b Web — `web/src/components/sticker-ui.tsx` (the active design system)
-
-```tsx
-export function ChunkyButton({ to?, onClick?, type?, tone = 'sunny', disabled?, className?, children })
-// tones: sunny | coral | white | grape | ink — pill, 2px ink border, hard shadow, squish press
-export function StickerCard({ className?, children })   // white, ink border, hard shadow, bubble radius
-export function StickerBrand({ name, to?, light? })     // sunny rocket tile + Baloo wordmark (header/footer)
-export function Starburst({ label, sub?, className? })  // 12-point SVG badge for discounts/callouts
-export function WaveDivider({ fill?, flip?, className? }) // wavy section divider (SVG)
-export function Mascot({ className? })                   // Poppy the rocket, inline SVG (heroes/empty states)
-export function FunChip({ icon, label, tone?, className? }) // pastel sticker chip (tones: sunny/bubble/grape/mint/candy/white)
-export function FunHeading({ title, subtitle?, overline?, to?, actionLabel? }) // rotated sticker overline + Baloo title
-export function StickerProductCard({ product })         // sticker card: image well, starburst, pastel unit pill, price + Add row, heart overlay
-```
-- `StickerProductCard` keeps the old card's behaviour (same `/wishlist/items` + `/cart/items`
-  mutations, `/profile` redirect when signed out). Title/image link; price + Add live in normal
-  flow (no nested interactives); wishlist heart is the single absolute overlay.
-- Header (`app-shell.tsx`): sunny marquee ribbon, white bar with `border-b-2 border-ink`,
-  pill nav (active = sunny chip), sticker icon buttons, coral badge with ink border,
-  mobile scrollable chip nav, ink footer with wave transition + mini mascot.
-- Mascot/brand are inline SVG + lucide (`Rocket`) — the no-binaries rule (§5.1) still holds.
-
 ### 3.2 Admin — `admin/src/components/admin-ui.tsx`
 
 `Card`, `StatCard`, `Badge`, `Spinner`, `ErrorState`, `EmptyState`, `Button` (variants
 `primary | secondary | ghost | danger`; default `bg-coral-600`), table + form primitives.
 Admin styling uses slate/coral utilities.
 
-### 3.3 Mobile — `mobile/lib/core/widgets/widgets.dart` + `storefront.dart` + `sticker.dart`
+### 3.3 Mobile — `mobile/lib/core/widgets/widgets.dart` + `storefront.dart`
 
-`SriPonColors` (tokens, incl. candy pastels), `SriPonSpinner`, `SriPonShimmer`, `SriPonEmptyState`;
-Material 3 theme in `sripon_theme.dart` (Baloo 2 display via `GoogleFonts.baloo2`). Feature screens
-live in `mobile/lib/features/<feature>/presentation/`. Sticker mirrors of the web system live in
-`mobile/lib/core/widgets/sticker.dart`: `StickerCard`, `ChunkyButton`, `Starburst`
-(`CustomPainter` 12-point star), `WaveDivider`, `Mascot` (widget-composed rocket), `FunChip`,
-`FunHeading`, `stickerShadow()` — re-exported through `storefront.dart`.
-
-Mobile IA: bottom tabs are **Home · Shop · Deals · Cart · Account** (`shell_screen.dart`);
-Orders lives under Account + the `/orders` route. Named routes include `/cart` (CartScreen),
-`/checkout`, `/wishlist`, `/orders`, `/products`, `/profile`. Deals screen
-(`features/deals/presentation/deals_screen.dart`) fetches 60 products and filters
-`discountPercent > 0` client-side, biggest saving first — same approach as web `/deals`.
+`SriPonColors` (tokens), `SriPonSpinner`, `SriPonEmptyState`; Material 3 theme in
+`sripon_theme.dart`. Feature screens live in `mobile/lib/features/<feature>/presentation/`.
 
 ### 3.4 Component governance for Figma integration
 
@@ -336,18 +278,17 @@ resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } }
 
 ### 7.3 Common recipes (copy these, don’t reinvent)
 ```tsx
-// Chunky CTA (sticker system — use for all new buttons)
-// <ChunkyButton to="/products" tone="sunny">Shop the fun</ChunkyButton>
-// <ChunkyButton tone="coral" onClick={...}>Add to cart</ChunkyButton>
-// Sticker card shell
-// <StickerCard className="p-5">…</StickerCard>
+// Pill CTA
+className="rounded-full bg-white px-7 py-3 font-semibold text-coral-600 shadow-lg transition duration-300 hover:-translate-y-0.5 hover:bg-coral-50"
+// Hero gradient
+className="relative overflow-hidden bg-gradient-to-br from-coral-500 via-coral-600 to-coral-700 text-white"
 // Section heading
-// <FunHeading title="Shop by fun" subtitle="…" overline="…" to="/products" />
-// Form / input styling uses `rounded-2xl border-2 border-ink bg-white px-4 py-2.5 shadow-sticker-sm`
+<SectionHeading title="Shop by category" subtitle="…" to="/products" />
+// Form / input styling (profile-page + checkout) uses `rounded-lg border border-line bg-paper-strong px-3 py-2`
 // Focus ring is handled globally (ember-600 outline)
-// Quantity stepper (product-details): bordered pill, − / count / + with
-//   `disabled:opacity-40`, hover:bg-sunny-100, active:scale-95, Minus/Plus lucide icons
-// Hero trust chips: FunChip row under the CTAs; mascot scene in a StickerCard
+// Quantity stepper (product-details): rounded-full container, − / count / + with
+//   `disabled:opacity-40`, hover:bg-coral-50, active:scale-95, Minus/Plus lucide icons
+// Hero trust chips: `border-t border-white/15 pt-6` row of icon + label under the CTAs
 ```
 
 ---
@@ -370,18 +311,17 @@ web/src/
   app/router.tsx            # createBrowserRouter + providers (MDScope → Auth)
   api/{types,normalize,http,client}.ts
   components/storefront-ui.tsx
-  components/sticker-ui.tsx # ACTIVE design system (ChunkyButton, StickerCard, Starburst, Mascot, …)
   config/{env,env-schema}.ts
   context/md-scope.tsx
   features/auth/context/auth-context.tsx
   layout/app-shell.tsx
   lib/{format,utils}.ts
-  pages/*.tsx               # one file per route (home, products, deals, cart, checkout, profile, …)
+  pages/*.tsx               # one file per route (home, products, cart, checkout, profile, …)
   services/firebase/*.ts
 admin/src/                  # same shape as web: app/, api/, components/, features/, layout/, pages/, config/, lib/
 mobile/lib/
   core/{models,widgets,theme,network,utils,providers}/
-  features/<feature>/{presentation,data,application}/   # clean-ish architecture (`deals/` = deals screen)
+  features/<feature>/{presentation,data,application}/   # clean-ish architecture
 backend/src/
   modules/<name>/{index,controller,service,schema}.ts   # module pattern
   infrastructure/{prisma,supabase,firebase,redis,cloudinary}.ts

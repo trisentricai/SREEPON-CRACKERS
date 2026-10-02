@@ -56,53 +56,40 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
           ),
-          const SizedBox(height: 16),
-          StickerCard(
-            padding: const EdgeInsets.all(16),
-            color: SriPonColors.sunny100,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                TextField(
-                  controller: _email,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder(), isDense: true, filled: true, fillColor: Colors.white),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: _password,
-                  obscureText: true,
-                  decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder(), isDense: true, filled: true, fillColor: Colors.white),
-                ),
-                if (_authError != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: Text(_authError!, style: const TextStyle(color: SriPonColors.danger)),
-                  ),
-                const SizedBox(height: 16),
-                ChunkyButton(
-                  label: 'Sign in',
-                  icon: Icons.login,
-                  color: SriPonColors.coral600,
-                  foreground: Colors.white,
-                  onPressed: _busy ? null : () => _authenticate(_signIn),
-                ),
-                const SizedBox(height: 10),
-                ChunkyButton(
-                  label: 'Create account',
-                  icon: Icons.person_add_outlined,
-                  color: Colors.white,
-                  onPressed: _busy ? null : () => _authenticate(_register),
-                ),
-                const SizedBox(height: 10),
-                ChunkyButton(
-                  label: 'Continue with Google',
-                  icon: Icons.g_mobiledata,
-                  color: Colors.white,
-                  onPressed: _busy ? null : () => _authenticate(_google),
-                ),
-              ],
+          const SizedBox(height: 24),
+          TextField(
+            controller: _email,
+            keyboardType: TextInputType.emailAddress,
+            decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder(), isDense: true),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _password,
+            obscureText: true,
+            decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder(), isDense: true),
+          ),
+          if (_authError != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: Text(_authError!, style: const TextStyle(color: SriPonColors.danger)),
             ),
+          const SizedBox(height: 16),
+          FilledButton(
+            onPressed: _busy ? null : () => _authenticate(_signIn),
+            child: _busy
+                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                : const Text('Sign in'),
+          ),
+          const SizedBox(height: 8),
+          OutlinedButton(
+            onPressed: _busy ? null : () => _authenticate(_register),
+            child: const Text('Create account'),
+          ),
+          const SizedBox(height: 8),
+          TextButton.icon(
+            onPressed: _busy ? null : () => _authenticate(_google),
+            icon: const Icon(Icons.g_mobiledata),
+            label: const Text('Continue with Google'),
           ),
         ],
       ),
@@ -202,94 +189,58 @@ class _ProfileViewState extends ConsumerState<_ProfileView> {
         data: (data) => ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            StickerCard(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 28,
+                  backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+                  foregroundImage: data.avatarUrl != null ? NetworkImage(data.avatarUrl!) : null,
+                  child: Text(
+                    (data.name ?? data.email).substring(0, 1).toUpperCase(),
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(color: SriPonColors.ink, width: 2),
-                          boxShadow: stickerShadow(dx: 2, dy: 2),
-                        ),
-                        child: CircleAvatar(
-                          radius: 28,
-                          backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-                          foregroundImage: data.avatarUrl != null ? NetworkImage(data.avatarUrl!) : null,
-                          child: Text(
-                            (data.name ?? data.email).substring(0, 1).toUpperCase(),
-                            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-                          ),
-                        ),
+                      Text(
+                        data.name ?? 'No name yet',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              data.name ?? 'No name yet',
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                      Text(
+                        data.email,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
                             ),
-                            Text(
-                              data.email,
-                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                  ),
-                            ),
-                          ],
-                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      InkWell(
-                        borderRadius: BorderRadius.circular(999),
-                        onTap: () => Navigator.of(context).pushNamed('/orders'),
-                        child: const FunChip(icon: Icons.receipt_long_outlined, label: 'Orders', color: SriPonColors.sunny100),
-                      ),
-                      InkWell(
-                        borderRadius: BorderRadius.circular(999),
-                        onTap: () => Navigator.of(context).pushNamed('/wishlist'),
-                        child: const FunChip(icon: Icons.favorite_outline, label: 'Wishlist', color: SriPonColors.candy100),
-                      ),
-                      InkWell(
-                        borderRadius: BorderRadius.circular(999),
-                        onTap: () => Navigator.of(context).pushNamed('/cart'),
-                        child: const FunChip(icon: Icons.shopping_cart_outlined, label: 'Cart', color: SriPonColors.bubble100),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 16),
             _section(context, 'Edit profile', Column(
               children: [
                 TextField(
                   controller: _name..text = data.name ?? '',
-                  decoration: const InputDecoration(labelText: 'Name', border: OutlineInputBorder(), isDense: true, filled: true, fillColor: Colors.white),
+                  decoration: const InputDecoration(labelText: 'Name', border: OutlineInputBorder(), isDense: true),
                 ),
                 const SizedBox(height: 10),
                 TextField(
                   controller: _phone..text = data.phone ?? '',
                   keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(labelText: 'Phone', border: OutlineInputBorder(), isDense: true, filled: true, fillColor: Colors.white),
+                  decoration: const InputDecoration(labelText: 'Phone', border: OutlineInputBorder(), isDense: true),
                 ),
                 const SizedBox(height: 12),
                 Align(
                   alignment: Alignment.centerLeft,
-                  child: ChunkyButton(
-                    label: 'Save changes',
-                    icon: Icons.check,
+                  child: FilledButton.tonal(
                     onPressed: _saving ? null : () => _saveProfile(data),
+                    child: _saving
+                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                        : const Text('Save changes'),
                   ),
                 ),
               ],
@@ -312,7 +263,7 @@ class _ProfileViewState extends ConsumerState<_ProfileView> {
                   leading: const Icon(Icons.shopping_cart_outlined),
                   title: const Text('Cart'),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () => Navigator.of(context).pushNamed('/cart'),
+                  onTap: () => Navigator.of(context).pop(),
                 ),
               ],
             )),
@@ -332,11 +283,10 @@ class _ProfileViewState extends ConsumerState<_ProfileView> {
                 if (_addressEditorOpen) ..._buildAddressEditor(context) else
                   Align(
                     alignment: Alignment.centerLeft,
-                    child: ChunkyButton(
-                      label: 'Add address',
-                      icon: Icons.add,
-                      color: Colors.white,
+                    child: TextButton.icon(
                       onPressed: () => setState(() => _addressEditorOpen = true),
+                      icon: const Icon(Icons.add),
+                      label: const Text('Add address'),
                     ),
                   ),
               ],
@@ -349,14 +299,10 @@ class _ProfileViewState extends ConsumerState<_ProfileView> {
   }
 
   Widget _addressTile(BuildContext context, Address address) {
-    return Container(
+    return Card(
+      elevation: 0,
       margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: SriPonColors.ink, width: 2),
-        boxShadow: stickerShadow(dx: 2, dy: 2),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
         dense: true,
         title: Text('${address.fullName} · ${address.label}'),
@@ -395,25 +341,20 @@ class _ProfileViewState extends ConsumerState<_ProfileView> {
             decoration: InputDecoration(
               labelText: entry.value,
               isDense: true,
-              filled: true,
-              fillColor: Colors.white,
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             ),
           ),
         ),
-      Wrap(
-        spacing: 8,
-        runSpacing: 8,
+      Row(
         children: [
-          ChunkyButton(
-            label: 'Save address',
-            icon: Icons.check,
+          FilledButton(
             onPressed: () => _saveAddress(),
+            child: const Text('Save address'),
           ),
-          ChunkyButton(
-            label: 'Cancel',
-            color: Colors.white,
+          const SizedBox(width: 8),
+          OutlinedButton(
             onPressed: () => setState(() => _addressEditorOpen = false),
+            child: const Text('Cancel'),
           ),
         ],
       ),
@@ -485,20 +426,17 @@ class _ProfileViewState extends ConsumerState<_ProfileView> {
 
   Widget _section(BuildContext context, String title, Widget child) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: StickerCard(
-        padding: const EdgeInsets.all(14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 10),
-            child,
-          ],
-        ),
+      padding: const EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 10),
+          child,
+        ],
       ),
     );
   }

@@ -1,18 +1,15 @@
-import { ChunkyButton, Mascot, StickerCard } from '@/components/sticker-ui';
+import { Link } from 'react-router-dom';
 
-/** 404 route — playful dead end with a way home. */
+/** 404 route — honest, self-contained. */
 export function NotFoundPage() {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16">
-      <StickerCard className="mx-auto max-w-md p-10 text-center">
-        <Mascot className="mx-auto h-28 w-auto" />
-        <p className="mt-4 font-display text-6xl font-extrabold text-ink">404</p>
-        <h1 className="mt-2 font-display text-2xl font-extrabold text-ink">Lost in the smoke!</h1>
-        <p className="mt-1 font-medium text-ink-muted">This rocket fizzled out — the page doesn&apos;t exist.</p>
-        <ChunkyButton to="/" tone="sunny" className="mt-6">
-          Back to home
-        </ChunkyButton>
-      </StickerCard>
+    <section className="mx-auto max-w-7xl px-4 py-16 text-center">
+      <p className="text-6xl font-bold text-ember-300">404</p>
+      <h1 className="mt-4 text-2xl font-bold text-ember-800">Page not found</h1>
+      <p className="mt-2 text-ember-900/60">The page you're looking for doesn't exist.</p>
+      <Link to="/" className="mt-6 inline-block rounded-lg bg-coral-600 px-5 py-2 text-white hover:bg-coral-700">
+        Back to home
+      </Link>
     </section>
   );
 }

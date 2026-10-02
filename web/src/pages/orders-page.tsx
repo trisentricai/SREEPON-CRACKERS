@@ -3,33 +3,11 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '@/api/client';
 import type { ApiEnvelope, OrderListResponse, OrderStatus, PaymentStatusValue } from '@/api/types';
-import { AuthGate, ErrorState } from '@/components/storefront-ui';
-import { ChunkyButton, FunHeading, Mascot, StickerCard } from '@/components/sticker-ui';
+import { AuthGate, Badge, EmptyState, ErrorState, Spinner } from '@/components/storefront-ui';
 import { useAuth } from '@/features/auth/context/auth-context';
 import { formatDateTime, formatMoney } from '@/lib/format';
 
 const LIMIT = 15;
-
-type PillTone = 'white' | 'sunny' | 'bubble' | 'grape' | 'mint' | 'candy';
-
-const PILL_TONES: Record<PillTone, string> = {
-  white: 'bg-white',
-  sunny: 'bg-sunny-100',
-  bubble: 'bg-bubble-100',
-  grape: 'bg-grape-100',
-  mint: 'bg-mint-100',
-  candy: 'bg-candy-100',
-};
-
-export function StatusPill({ label, tone = 'white' }: { label: string; tone?: PillTone }) {
-  return (
-    <span
-      className={`inline-block whitespace-nowrap rounded-full border-2 border-ink px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wide text-ink shadow-sticker-sm ${PILL_TONES[tone]}`}
-    >
-      {label}
-    </span>
-  );
-}
 
 /** The signed-in customer's order history. */
 export function OrdersPage() {
@@ -57,13 +35,8 @@ function OrdersContent() {
 
   if (ordersQuery.isLoading) {
     return (
-      <section className="mx-auto max-w-7xl px-4 py-8">
-        <div className="h-10 w-64 animate-pulse rounded-full border-2 border-ink bg-ember-100" />
-        <div className="mt-6 space-y-4">
-          {[0, 1, 2].map((i) => (
-            <div key={i} className="h-24 animate-pulse rounded-bubble border-2 border-ink bg-ember-100" />
-          ))}
-        </div>
+      <section className="mx-auto max-w-7xl px-4 py-12">
+        <Spinner label="Loading your orders…" />
       </section>
     );
   }
@@ -80,41 +53,42 @@ function OrdersContent() {
   if (items.length === 0) {
     return (
       <section className="mx-auto max-w-7xl px-4 py-12">
-        <FunHeading title="Orders" overline="Where's my boom?" />
-        <StickerCard className="flex flex-col items-center gap-4 p-10 text-center">
-          <Mascot className="h-24 w-auto" />
-          <p className="font-display text-xl font-extrabold text-ink">No orders yet!</p>
-          <p className="-mt-2 font-medium text-ink-muted">Your fireworks-to-be will line up here.</p>
-          <ChunkyButton to="/products">Place your first order</ChunkyButton>
-        </StickerCard>
+        <h1 className="text-2xl font-bold text-ember-800">Orders</h1>
+        <div className="mt-4">
+          <EmptyState title="No orders yet">
+            <p>
+              <Link to="/products" className="font-medium text-coral-600 underline">Browse the catalogue</Link> and
+              place your first order.
+            </p>
+          </EmptyState>
+        </div>
       </section>
     );
   }
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-8">
-      <FunHeading title="Your orders" subtitle="Follow every box to your door." overline="Where's my boom?" />
+      <h1 className="text-2xl font-bold text-ember-800">Orders</h1>
       <ul className="mt-6 space-y-4">
         {items.map((order) => (
           <li key={order.id}>
-            <Link to={`/orders/${order.id}`}>
-              <StickerCard className="flex flex-col gap-3 p-4 transition duration-150 hover:-translate-y-0.5 hover:shadow-sticker-lg sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0">
-                  <p className="inline-block rounded-lg border-2 border-ink bg-sunny-100 px-2 py-0.5 font-mono text-sm font-bold text-ink">
-                    {order.orderNumber}
-                  </p>
-                  <p className="mt-1 text-xs font-bold text-ink-muted">{formatDateTime(order.createdAt)}</p>
-                  <p className="mt-1 truncate text-sm font-medium text-ink-muted">
-                    {order.items.length} item{order.items.length === 1 ? '' : 's'} · {order.items[0]?.productName}
-                    {order.items.length > 1 ? ' +' : ''}
-                  </p>
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <p className="font-display text-lg font-extrabold text-ink">{formatMoney(order.grandTotal)}</p>
-                  <OrderStatusBadge status={order.status} />
-                  <PaymentBadge status={order.paymentStatus} />
-                </div>
-              </StickerCard>
+            <Link
+              to={`/orders/${order.id}`}
+              className="flex flex-col gap-3 rounded-xl border border-ember-100 bg-white p-4 transition hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
+            >
+              <div>
+                <p className="font-mono text-sm font-semibold text-ember-900">{order.orderNumber}</p>
+                <p className="mt-0.5 text-xs text-ember-900/50">{formatDateTime(order.createdAt)}</p>
+                <p className="mt-1 text-sm text-ember-900/70">
+                  {order.items.length} item{order.items.length === 1 ? '' : 's'} · {order.items[0]?.productName}
+                  {order.items.length > 1 ? ' +' : ''}
+                </p>
+              </div>
+              <div className="flex items-center gap-4">
+                <p className="font-bold text-ember-800">{formatMoney(order.grandTotal)}</p>
+                <OrderStatusBadge status={order.status} />
+                <PaymentBadge status={order.paymentStatus} />
+              </div>
             </Link>
           </li>
         ))}
@@ -125,19 +99,19 @@ function OrdersContent() {
           <button
             disabled={page <= 1}
             onClick={() => setPage((p) => p - 1)}
-            className="rounded-full border-2 border-ink bg-white px-4 py-1.5 text-sm font-bold shadow-sticker-sm transition hover:bg-sunny-100 active:translate-y-0.5 active:shadow-none disabled:opacity-40 disabled:shadow-none"
+            className="rounded-lg border border-ember-200 px-3 py-1.5 text-sm disabled:opacity-40"
           >
-            ← Prev
+            Previous
           </button>
-          <span className="rounded-full border-2 border-ink bg-sunny-100 px-3 py-1 text-sm font-bold">
-            {pagination.page} / {pagination.pages}
+          <span className="px-2 text-sm text-ember-900/60">
+            Page {pagination.page} of {pagination.pages}
           </span>
           <button
             disabled={page >= pagination.pages}
             onClick={() => setPage((p) => p + 1)}
-            className="rounded-full border-2 border-ink bg-white px-4 py-1.5 text-sm font-bold shadow-sticker-sm transition hover:bg-sunny-100 active:translate-y-0.5 active:shadow-none disabled:opacity-40 disabled:shadow-none"
+            className="rounded-lg border border-ember-200 px-3 py-1.5 text-sm disabled:opacity-40"
           >
-            Next →
+            Next
           </button>
         </div>
       )}
@@ -146,28 +120,28 @@ function OrdersContent() {
 }
 
 export function OrderStatusBadge({ status }: { status: OrderStatus }) {
-  const toneMap: Record<OrderStatus, PillTone> = {
-    PENDING: 'sunny',
-    CONFIRMED: 'bubble',
-    PROCESSING: 'bubble',
-    PACKED: 'bubble',
-    SHIPPED: 'grape',
-    OUT_FOR_DELIVERY: 'grape',
-    DELIVERED: 'mint',
-    CANCELLED: 'candy',
-    RETURN_REQUESTED: 'sunny',
-    RETURNED: 'candy',
+  const toneMap: Record<OrderStatus, 'orange' | 'blue' | 'green' | 'red' | 'neutral'> = {
+    PENDING: 'neutral',
+    CONFIRMED: 'blue',
+    PROCESSING: 'blue',
+    PACKED: 'blue',
+    SHIPPED: 'blue',
+    OUT_FOR_DELIVERY: 'blue',
+    DELIVERED: 'green',
+    CANCELLED: 'red',
+    RETURN_REQUESTED: 'neutral',
+    RETURNED: 'red',
   };
-  return <StatusPill label={status.replace(/_/g, ' ')} tone={toneMap[status] ?? 'white'} />;
+  return <Badge tone={toneMap[status] ?? 'neutral'}>{status.replace(/_/g, ' ')}</Badge>;
 }
 
 export function PaymentBadge({ status }: { status: PaymentStatusValue }) {
-  const toneMap: Record<PaymentStatusValue, PillTone> = {
-    PENDING: 'sunny',
-    PAID: 'mint',
-    FAILED: 'candy',
-    REFUNDED: 'white',
-    PARTIALLY_REFUNDED: 'white',
+  const toneMap: Record<PaymentStatusValue, 'orange' | 'green' | 'red' | 'amber' | 'neutral'> = {
+    PENDING: 'amber',
+    PAID: 'green',
+    FAILED: 'red',
+    REFUNDED: 'neutral',
+    PARTIALLY_REFUNDED: 'neutral',
   };
-  return <StatusPill label={`Payment ${status.replace(/_/g, ' ')}`} tone={toneMap[status] ?? 'white'} />;
+  return <Badge tone={toneMap[status] ?? 'neutral'}>Payment {status.replace(/_/g, ' ')}</Badge>;
 }

@@ -51,60 +51,39 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
             child: Row(
               children: [
                 Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(color: SriPonColors.ink, width: 2),
-                      boxShadow: stickerShadow(dx: 2, dy: 2),
+                  child: TextField(
+                    controller: _search,
+                    textInputAction: TextInputAction.search,
+                    decoration: InputDecoration(
+                      hintText: 'Search products…',
+                      prefixIcon: const Icon(Icons.search),
+                      isDense: true,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
-                    child: TextField(
-                      controller: _search,
-                      textInputAction: TextInputAction.search,
-                      decoration: const InputDecoration(
-                        hintText: 'Search products…',
-                        prefixIcon: Icon(Icons.search, color: SriPonColors.ink),
-                        isDense: true,
-                        border: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        contentPadding: EdgeInsets.symmetric(vertical: 12),
-                      ),
-                      onSubmitted: (value) {
-                        setState(() {
-                          _q = value.trim().isEmpty ? null : value.trim();
-                          _page = 1;
-                        });
-                      },
-                    ),
+                    onSubmitted: (value) {
+                      setState(() {
+                        _q = value.trim().isEmpty ? null : value.trim();
+                        _page = 1;
+                      });
+                    },
                   ),
                 ),
                 const SizedBox(width: 8),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: SriPonColors.ink, width: 2),
-                    boxShadow: stickerShadow(dx: 2, dy: 2),
-                  ),
-                  child: PopupMenuButton<ProductSort>(
-                    icon: const Icon(Icons.sort, color: SriPonColors.ink),
-                    tooltip: 'Sort',
-                    initialValue: _sort,
-                    onSelected: (value) => setState(() {
-                      _sort = value;
-                      _page = 1;
-                    }),
-                    itemBuilder: (context) => _sortOptions.map((option) {
-                      return PopupMenuItem(value: option.value, child: Text(option.label));
-                    }).toList(),
-                  ),
+                PopupMenuButton<ProductSort>(
+                  icon: const Icon(Icons.sort),
+                  tooltip: 'Sort',
+                  initialValue: _sort,
+                  onSelected: (value) => setState(() {
+                    _sort = value;
+                    _page = 1;
+                  }),
+                  itemBuilder: (context) => _sortOptions.map((option) {
+                    return PopupMenuItem(value: option.value, child: Text(option.label));
+                  }).toList(),
                 ),
               ],
             ),
           ),
-          if (widget.title != null)
-            const SizedBox(height: 4),
           Expanded(child: _buildResults(ref, products)),
         ],
       ),
@@ -121,7 +100,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
           crossAxisCount: 2,
           mainAxisSpacing: 12,
           crossAxisSpacing: 12,
-          childAspectRatio: 0.66,
+          childAspectRatio: 0.72,
         ),
         itemCount: 6,
         itemBuilder: (_, __) => const SriPonShimmer(borderRadius: 14),
@@ -158,28 +137,13 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
           child: CustomScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
-              if (widget.title != null)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                    child: FunHeading(
-                      title: widget.title!,
-                      overline: 'Browse the range',
-                    ),
-                  ),
-                ),
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                 sliver: SliverToBoxAdapter(
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: FunChip(
-                      icon: Icons.inventory_2_outlined,
-                      label:
-                          '${response.pagination.total} product${response.pagination.total == 1 ? '' : 's'}'
-                          '${_q != null ? ' matching “$_q”' : ''}',
-                      color: SriPonColors.bubble100,
-                    ),
+                  child: Text(
+                    '${response.pagination.total} product${response.pagination.total == 1 ? '' : 's'}'
+                    '${_q != null ? ' matching “$_q”' : ''}',
+                    style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ),
               ),
@@ -190,7 +154,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
                     crossAxisCount: 2,
                     mainAxisSpacing: 12,
                     crossAxisSpacing: 12,
-                    childAspectRatio: 0.66,
+                    childAspectRatio: 0.72,
                   ),
                   delegate: SliverChildBuilderDelegate(
                     (context, index) {

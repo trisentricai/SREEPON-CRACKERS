@@ -40,20 +40,6 @@ abstract final class SriPonColors {
   static const teal600 = Color(0xFF0D9488);
   static const teal700 = Color(0xFF0F766E);
 
-  /// Candy — playful sticker-book secondaries, byte-mirrored from
-  /// web/src/index.css. Sticker style pairs pastel fills with ink
-  /// text + ink borders.
-  static const sunny100 = Color(0xFFFFF3D1);
-  static const sunny = Color(0xFFFFC531);
-  static const bubble100 = Color(0xFFDDF0FF);
-  static const bubble = Color(0xFF4AA8FF);
-  static const grape100 = Color(0xFFEAE2FF);
-  static const grape = Color(0xFF9B6BF3);
-  static const mint100 = Color(0xFFD9F5E7);
-  static const mint = Color(0xFF2FBF71);
-  static const candy100 = Color(0xFFFFE3EE);
-  static const candy = Color(0xFFFF7BAC);
-
   /// Semantic status.
   static const success = Color(0xFF1B7A33);
   static const danger = Color(0xFFB3261E);

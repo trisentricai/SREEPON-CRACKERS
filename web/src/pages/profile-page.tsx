@@ -4,8 +4,7 @@ import { Link } from 'react-router-dom';
 import { api } from '@/api/client';
 import type { Address, ApiEnvelope, PublicProfile, UpdateProfileInput } from '@/api/types';
 import { asArray } from '@/api/normalize';
-import { ErrorState } from '@/components/storefront-ui';
-import { ChunkyButton, FunHeading, Mascot, StickerCard } from '@/components/sticker-ui';
+import { Badge, EmptyState, ErrorState, Spinner } from '@/components/storefront-ui';
 import { useAuth } from '@/features/auth/context/auth-context';
 import { loginWithGoogle, resetPassword } from '@/services/firebase/auth';
 import { formatDate } from '@/lib/format';
@@ -26,9 +25,6 @@ function friendlyAuthError(err: unknown): string {
   if (code && AUTH_ERROR_MESSAGES[code]) return AUTH_ERROR_MESSAGES[code];
   return err instanceof Error && err.message ? err.message : 'Authentication failed';
 }
-
-const inputCls =
-  'rounded-2xl border-2 border-ink bg-white px-4 py-2.5 text-sm font-medium shadow-sticker-sm placeholder:text-ink-muted/60 focus:outline-none focus:bg-sunny-100/50';
 
 /**
  * Profile / sign-in / address book.
@@ -64,7 +60,7 @@ export function ProfilePage() {
   if (isLoading) {
     return (
       <section className="mx-auto max-w-7xl px-4 py-12">
-        <div className="mx-auto h-64 max-w-sm animate-pulse rounded-bubble border-2 border-ink bg-ember-100" />
+        <Spinner label="Checking your session…" />
       </section>
     );
   }
@@ -73,18 +69,14 @@ export function ProfilePage() {
     if (profile.isLoading || addresses.isLoading) {
       return (
         <section className="mx-auto max-w-7xl px-4 py-12">
-          <div className="h-10 w-64 animate-pulse rounded-full border-2 border-ink bg-ember-100" />
-          <div className="mt-6 grid gap-8 lg:grid-cols-2">
-            <div className="h-72 animate-pulse rounded-bubble border-2 border-ink bg-ember-100" />
-            <div className="h-72 animate-pulse rounded-bubble border-2 border-ink bg-ember-100" />
-          </div>
+          <Spinner label="Loading your profile…" />
         </section>
       );
     }
     if (profile.isError || !profile.data) {
       return (
         <section className="mx-auto max-w-7xl px-4 py-12">
-          {profile.isError ? <ErrorState error={profile.error} /> : null}
+          {profile.isError ? <ErrorState error={profile.error} /> : <Spinner label="Loading your profile…" />}
         </section>
       );
     }
@@ -111,63 +103,67 @@ export function ProfilePage() {
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-12">
-      <StickerCard className="mx-auto max-w-sm bg-sunny-100 p-8 text-center">
-        <Mascot className="mx-auto h-24 w-auto" />
-        <h1 className="mt-3 font-display text-3xl font-extrabold text-ink">Join the fun!</h1>
-        <p className="mt-1 text-sm font-medium text-ink-muted">Sign in to pop, track and save.</p>
-        <form
-          className="mt-6 flex flex-col gap-3"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void handleAuth('login');
-          }}
+      <h1 className="text-2xl font-bold text-ember-800">Sign in to SriPon</h1>
+      <form
+        className="mx-auto mt-6 flex max-w-sm flex-col gap-3"
+        onSubmit={(e) => {
+          e.preventDefault();
+          void handleAuth('login');
+        }}
+      >
+        <input
+          type="email"
+          required
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          className="rounded-lg border border-ember-200 px-3 py-2 text-sm"
+        />
+        <input
+          type="password"
+          required
+          minLength={6}
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="rounded-lg border border-ember-200 px-3 py-2 text-sm"
+        />
+        <button type="submit" className="rounded-lg bg-coral-600 px-4 py-2 text-white hover:bg-coral-700">
+          Sign in
+        </button>
+        <button
+          type="button"
+          onClick={() => void handleAuth('register')}
+          className="rounded-lg border border-coral-300 px-4 py-2 text-coral-600 hover:bg-coral-50"
         >
-          <input
-            type="email"
-            required
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className={inputCls}
-          />
-          <input
-            type="password"
-            required
-            minLength={6}
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className={inputCls}
-          />
-          <ChunkyButton type="submit" tone="coral" className="w-full">
-            Sign in
-          </ChunkyButton>
-          <ChunkyButton type="button" onClick={() => void handleAuth('register')} tone="white" className="w-full">
-            Create account
-          </ChunkyButton>
-          <ChunkyButton type="button" onClick={handleGoogle} tone="white" className="w-full">
-            Continue with Google
-          </ChunkyButton>
-          <button
-            type="button"
-            onClick={() => {
-              if (!email) {
-                setError('Enter your email above first');
-                return;
-              }
-              void resetPassword(email)
-                .then(() => setInfo('Password reset email sent.'))
-                .catch((e) => setError(friendlyAuthError(e)));
-            }}
-            className="text-sm font-bold text-coral-600 underline"
-          >
-            Forgot password?
-          </button>
-          {redirectError && <p className="text-sm font-bold text-red-600">{redirectError}</p>}
-          {error && <p className="text-sm font-bold text-red-600">{error}</p>}
-          {info && <p className="text-sm font-bold text-mint-600">{info}</p>}
-        </form>
-      </StickerCard>
+          Create account
+        </button>
+        <button
+          type="button"
+          onClick={handleGoogle}
+          className="rounded-lg border border-coral-300 px-4 py-2 text-coral-600 hover:bg-coral-50"
+        >
+          Continue with Google
+        </button>
+        <button
+          type="button"
+          onClick={() => {
+            if (!email) {
+              setError('Enter your email above first');
+              return;
+            }
+            void resetPassword(email)
+              .then(() => setInfo('Password reset email sent.'))
+              .catch((e) => setError(friendlyAuthError(e)));
+          }}
+          className="text-sm text-coral-600 underline"
+        >
+          Forgot password?
+        </button>
+        {redirectError && <p className="text-sm text-red-600">{redirectError}</p>}
+        {error && <p className="text-sm text-red-600">{error}</p>}
+        {info && <p className="text-sm text-green-700">{info}</p>}
+      </form>
     </section>
   );
 }
@@ -203,89 +199,84 @@ function ProfileSummary({
     onError: (err) => setSaveError(err instanceof Error ? err.message : 'Could not save profile'),
   });
 
-  const quickLink =
-    'rounded-full border-2 border-ink bg-white px-3 py-1 text-xs font-bold text-ink shadow-sticker-sm transition hover:bg-sunny-100 active:translate-y-0.5 active:shadow-none';
-
   return (
     <section className="mx-auto max-w-7xl px-4 py-8">
-      <StickerCard className="flex flex-wrap items-center gap-4 bg-grape-100 p-5">
-        {profile.avatarUrl ? (
-          <img
-            src={profile.avatarUrl}
-            alt="Profile"
-            className="h-16 w-16 rounded-full border-2 border-ink object-cover shadow-sticker-sm"
-          />
-        ) : (
-          <span className="flex h-16 w-16 items-center justify-center rounded-full border-2 border-ink bg-sunny-400 font-display text-2xl font-extrabold text-ink shadow-sticker-sm">
-            {(profile.name ?? profile.email).slice(0, 1).toUpperCase()}
-          </span>
-        )}
-        <div className="min-w-0 flex-1">
-          <h1 className="truncate font-display text-2xl font-extrabold text-ink">
-            Hey, {profile.name ?? 'pop star'}!
-          </h1>
-          <p className="text-sm font-medium text-ink-muted">{profile.email}</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Link to="/orders" className={quickLink}>Orders</Link>
-          <Link to="/wishlist" className={quickLink}>Wishlist</Link>
-          <Link to="/cart" className={quickLink}>Cart</Link>
-          <button onClick={onLogout} className={`${quickLink} hover:bg-candy-100`}>
+      <header className="flex flex-wrap items-center justify-between gap-4">
+        <h1 className="text-2xl font-bold text-ember-800">Your Profile</h1>
+        <div className="flex items-center gap-4 text-sm">
+          <Link to="/orders" className="text-coral-600 underline">Orders</Link>
+          <Link to="/wishlist" className="text-coral-600 underline">Wishlist</Link>
+          <Link to="/cart" className="text-coral-600 underline">Cart</Link>
+          <button onClick={onLogout} className="text-coral-600 underline">
             Sign out
           </button>
         </div>
-      </StickerCard>
+      </header>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-2">
         {/* Profile */}
-        <StickerCard className="p-5">
-          <FunHeading title="Account details" overline="All about you" />
-          <dl className="mt-4 space-y-2 text-sm font-medium">
-            <div className="flex justify-between gap-3">
-              <dt className="text-ink-muted">Email</dt>
-              <dd className="truncate font-bold text-ink">{profile.email}</dd>
+        <div className="rounded-xl border border-ember-100 bg-white p-5">
+          <h2 className="text-lg font-semibold text-ember-900">Account details</h2>
+          <dl className="mt-3 space-y-2 text-sm">
+            <div>
+              <dt className="text-ember-900/50">Email</dt>
+              <dd className="font-medium text-ember-900">{profile.email}</dd>
             </div>
-            <div className="flex justify-between gap-3">
-              <dt className="text-ink-muted">Member since</dt>
-              <dd className="font-bold text-ink">{formatDate(profile.createdAt)}</dd>
+            <div>
+              <dt className="text-ember-900/50">Member since</dt>
+              <dd className="font-medium text-ember-900">{formatDate(profile.createdAt)}</dd>
             </div>
-            <div className="flex items-center justify-between gap-3">
-              <dt className="text-ink-muted">Status</dt>
-              <dd>
-                <span className="inline-block rounded-full border-2 border-ink bg-mint-100 px-2.5 py-0.5 text-[11px] font-extrabold uppercase tracking-wide text-ink">
-                  Active
-                </span>
-              </dd>
-            </div>
+            {profile.avatarUrl && (
+              <div>
+                <dt className="text-ember-900/50">Avatar</dt>
+                <dd className="mt-1">
+                  <img src={profile.avatarUrl} alt="Profile" className="h-16 w-16 rounded-full object-cover" />
+                </dd>
+              </div>
+            )}
+            <Badge tone="green">Active</Badge>
           </dl>
 
           <form
-            className="mt-5 space-y-3 border-t-2 border-ink/10 pt-4"
+            className="mt-5 space-y-3 border-t border-ember-100 pt-4"
             onSubmit={(e) => {
               e.preventDefault();
               saveProfile.mutate();
             }}
           >
-            <label className="block text-sm font-bold">
-              <span className="text-ink-muted">Name</span>
-              <input value={name} onChange={(e) => setName(e.target.value)} className={`${inputCls} mt-1 w-full`} />
+            <label className="block text-sm">
+              <span className="text-ember-900/60">Name</span>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-ember-200 px-3 py-2 text-sm"
+              />
             </label>
-            <label className="block text-sm font-bold">
-              <span className="text-ink-muted">Phone</span>
-              <input value={phone} onChange={(e) => setPhone(e.target.value)} className={`${inputCls} mt-1 w-full`} />
+            <label className="block text-sm">
+              <span className="text-ember-900/60">Phone</span>
+              <input
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                className="mt-1 w-full rounded-lg border border-ember-200 px-3 py-2 text-sm"
+              />
             </label>
-            {saveError && <p className="text-sm font-bold text-red-600">{saveError}</p>}
-            <ChunkyButton type="submit" tone="sunny" disabled={saving} className="px-5 py-2 text-sm">
+            {saveError && <p className="text-sm text-red-600">{saveError}</p>}
+            <button
+              type="submit"
+              disabled={saving}
+              className="rounded-lg bg-coral-600 px-4 py-2 text-sm font-semibold text-white hover:bg-coral-700 disabled:opacity-50"
+            >
               {saving ? 'Saving…' : 'Save changes'}
-            </ChunkyButton>
+            </button>
           </form>
-        </StickerCard>
+        </div>
 
         {/* Addresses */}
-        <StickerCard className="p-5">
-          <FunHeading title="Addresses" subtitle="Saved addresses speed up checkout." overline="Where to?" />
+        <div className="rounded-xl border border-ember-100 bg-white p-5">
+          <h2 className="text-lg font-semibold text-ember-900">Addresses</h2>
+          <p className="mt-1 text-sm text-ember-900/50">Saved addresses can be selected at checkout.</p>
           <AddressBook addresses={addresses} />
-        </StickerCard>
+        </div>
       </div>
     </section>
   );
@@ -317,41 +308,36 @@ function AddressBook({ addresses }: { addresses: Address[] }) {
 
   return (
     <div className="mt-4">
-      {error && <p className="mb-3 text-sm font-bold text-red-600">{error}</p>}
+      {error && <p className="mb-3 text-sm text-red-600">{error}</p>}
       {addresses.length === 0 && !adding && (
-        <StickerCard className="bg-bubble-100 p-5 text-center">
-          <p className="font-display font-extrabold text-ink">No addresses yet</p>
-          <p className="mt-1 text-sm font-medium text-ink-muted">Add one to speed up checkout.</p>
-        </StickerCard>
+        <EmptyState title="No addresses yet">
+          <p>Add an address to speed up checkout.</p>
+        </EmptyState>
       )}
       <ul className="space-y-3">
         {addresses.map((address) => (
-          <li key={address.id} className="rounded-2xl border-2 border-ink bg-white p-3 text-sm shadow-sticker-sm">
+          <li key={address.id} className="rounded-lg border border-ember-100 p-3 text-sm">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="font-display font-bold text-ink">
-                  {address.fullName} <span className="font-medium text-ink-muted">· {address.label}</span>
+                <p className="font-medium text-ember-900">
+                  {address.fullName} <span className="text-ember-900/40">· {address.label}</span>
                 </p>
-                <p className="mt-0.5 font-medium text-ink-muted">
+                <p className="mt-0.5 text-ember-900/60">
                   {address.line1}
                   {address.line2 ? `, ${address.line2}` : ''}, {address.city}, {address.state} {address.pincode}
                   <br />
                   {address.phone}
                 </p>
               </div>
-              {address.isDefault && (
-                <span className="shrink-0 rounded-full border-2 border-ink bg-sunny-400 px-2 py-0.5 text-[11px] font-extrabold uppercase tracking-wide">
-                  Default
-                </span>
-              )}
+              {address.isDefault && <Badge tone="orange">Default</Badge>}
             </div>
-            <div className="mt-2 flex gap-3 text-xs font-bold">
+            <div className="mt-2 flex gap-3 text-xs">
               {!address.isDefault && (
                 <button onClick={() => setDefault.mutate(address.id)} className="text-coral-600 underline hover:text-coral-700">
                   Set default
                 </button>
               )}
-              <button onClick={() => remove.mutate(address.id)} className="text-ink-muted underline hover:text-red-600">
+              <button onClick={() => remove.mutate(address.id)} className="text-ember-900/50 underline hover:text-red-600">
                 Remove
               </button>
             </div>
@@ -361,9 +347,9 @@ function AddressBook({ addresses }: { addresses: Address[] }) {
 
       {adding && <AddressForm onDone={() => { setAdding(false); void invalidate(); }} onError={setMessage} />}
       {!adding && (
-        <ChunkyButton onClick={() => setAdding(true)} tone="white" className="mt-3 px-4 py-2 text-sm">
+        <button onClick={() => setAdding(true)} className="mt-3 rounded-lg border border-coral-300 px-4 py-2 text-sm font-semibold text-coral-600 hover:bg-coral-50">
           + Add address
-        </ChunkyButton>
+        </button>
       )}
     </div>
   );
@@ -401,32 +387,32 @@ function AddressForm({ onDone, onError }: { onDone: () => void; onError: (messag
 
   return (
     <form
-      className="mt-4 grid grid-cols-1 gap-3 rounded-bubble border-2 border-ink bg-paper p-4 sm:grid-cols-2"
+      className="mt-4 grid grid-cols-1 gap-3 rounded-lg border border-ember-100 bg-ember-50/40 p-4 sm:grid-cols-2"
       onSubmit={(e) => {
         e.preventDefault();
         void save();
       }}
     >
-      <input required placeholder="Label (Home, Office…)" value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} className={inputCls} />
-      <input required placeholder="Full name" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} className={inputCls} />
-      <input required placeholder="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={inputCls} />
-      <input required placeholder="Address line 1" value={form.line1} onChange={(e) => setForm({ ...form, line1: e.target.value })} className={`${inputCls} sm:col-span-2`} />
-      <input placeholder="Address line 2 (optional)" value={form.line2} onChange={(e) => setForm({ ...form, line2: e.target.value })} className={`${inputCls} sm:col-span-2`} />
-      <input required placeholder="City" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className={inputCls} />
-      <input required placeholder="State" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} className={inputCls} />
-      <input required placeholder="Pincode" value={form.pincode} onChange={(e) => setForm({ ...form, pincode: e.target.value })} className={inputCls} />
-      <input placeholder="Country" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} className={inputCls} />
-      <label className="flex items-center gap-2 text-sm font-bold sm:col-span-2">
-        <input type="checkbox" checked={form.isDefault} onChange={(e) => setForm({ ...form, isDefault: e.target.checked })} className="h-4 w-4 accent-[#e8513f]" />
+      <input required placeholder="Label (Home, Office…)" value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} className="rounded-lg border border-ember-200 px-3 py-2 text-sm" />
+      <input required placeholder="Full name" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} className="rounded-lg border border-ember-200 px-3 py-2 text-sm" />
+      <input required placeholder="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="rounded-lg border border-ember-200 px-3 py-2 text-sm" />
+      <input required placeholder="Address line 1" value={form.line1} onChange={(e) => setForm({ ...form, line1: e.target.value })} className="rounded-lg border border-ember-200 px-3 py-2 text-sm sm:col-span-2" />
+      <input placeholder="Address line 2 (optional)" value={form.line2} onChange={(e) => setForm({ ...form, line2: e.target.value })} className="rounded-lg border border-ember-200 px-3 py-2 text-sm sm:col-span-2" />
+      <input required placeholder="City" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="rounded-lg border border-ember-200 px-3 py-2 text-sm" />
+      <input required placeholder="State" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} className="rounded-lg border border-ember-200 px-3 py-2 text-sm" />
+      <input required placeholder="Pincode" value={form.pincode} onChange={(e) => setForm({ ...form, pincode: e.target.value })} className="rounded-lg border border-ember-200 px-3 py-2 text-sm" />
+      <input placeholder="Country" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} className="rounded-lg border border-ember-200 px-3 py-2 text-sm" />
+      <label className="flex items-center gap-2 text-sm sm:col-span-2">
+        <input type="checkbox" checked={form.isDefault} onChange={(e) => setForm({ ...form, isDefault: e.target.checked })} className="h-4 w-4 accent-ember-600" />
         Set as default
       </label>
       <div className="flex gap-2 sm:col-span-2">
-        <ChunkyButton type="submit" tone="sunny" disabled={saving} className="px-4 py-2 text-sm">
+        <button type="submit" disabled={saving} className="rounded-lg bg-coral-600 px-4 py-2 text-sm font-semibold text-white hover:bg-coral-700 disabled:opacity-50">
           {saving ? 'Saving…' : 'Save address'}
-        </ChunkyButton>
-        <ChunkyButton type="button" onClick={onDone} tone="white" className="px-4 py-2 text-sm">
+        </button>
+        <button type="button" onClick={onDone} className="rounded-lg border border-coral-300 px-4 py-2 text-sm text-coral-600 hover:bg-coral-50">
           Cancel
-        </ChunkyButton>
+        </button>
       </div>
     </form>
   );

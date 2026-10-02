@@ -38,17 +38,25 @@ class OrderDetailScreen extends ConsumerWidget {
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16),
         children: [
-          FunHeading(
-            title: '#${order.orderNumber}',
-            subtitle: 'Placed ${formatDateTime(order.createdAt)}',
-            overline: 'Order details',
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  '#${order.orderNumber}',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w700),
+                ),
+              ),
+              StatusChip(label: order.status.wire),
+            ],
           ),
           const SizedBox(height: 4),
-          Align(
-            alignment: Alignment.centerLeft,
-            child: StatusChip(label: order.status.wire),
+          Text(
+            'Placed ${formatDateTime(order.createdAt)}',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           _section(context, 'Items', Column(
             children: [
               for (final item in order.items) _itemRow(context, item),
@@ -65,7 +73,7 @@ class OrderDetailScreen extends ConsumerWidget {
               const Divider(height: 20),
               _row(context, 'Total', formatMoney(order.grandTotal), emphasize: true),
             ],
-          ), sunny: true),
+          )),
           if (order.coupon != null)
             _section(context, 'Coupon', Row(
               children: [
@@ -107,11 +115,9 @@ class OrderDetailScreen extends ConsumerWidget {
                   ),
               ],
             )),
-          if (order.notes != null && order.notes!.isNotEmpty)
-            _section(context, 'Notes', Text(order.notes!)),
           if (order.cancelReason != null)
             _section(context, 'Cancellation reason', Text(order.cancelReason!)),
-          const SizedBox(height: 4),
+          const SizedBox(height: 16),
           _buildActions(context, ref, order),
           const SizedBox(height: 24),
         ],
@@ -126,35 +132,27 @@ class OrderDetailScreen extends ConsumerWidget {
     final canReturn = order.status == OrderStatus.delivered;
     final actions = <Widget>[
       if (canCancel)
-        ChunkyButton(
-          label: 'Request cancellation',
-          icon: Icons.close_outlined,
-          color: Colors.white,
+        OutlinedButton.icon(
           onPressed: () => _requestCancel(context, ref, order),
+          icon: const Icon(Icons.close_outlined),
+          label: const Text('Request cancellation'),
         ),
       if (canReturn)
-        ChunkyButton(
-          label: 'Request return',
-          icon: Icons.assignment_return_outlined,
-          color: Colors.white,
+        OutlinedButton.icon(
           onPressed: () => _requestReturn(context, ref, order),
+          icon: const Icon(Icons.assignment_return_outlined),
+          label: const Text('Request return'),
         ),
-      ChunkyButton(
-        label: 'Download invoice',
-        icon: Icons.receipt_outlined,
-        color: SriPonColors.sunny,
+      TextButton.icon(
         onPressed: () => _downloadInvoice(context, ref, order),
+        icon: const Icon(Icons.receipt_outlined),
+        label: const Text('Download invoice'),
       ),
     ];
     if (actions.isEmpty) return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        for (var i = 0; i < actions.length; i++) ...[
-          actions[i],
-          if (i < actions.length - 1) const SizedBox(height: 10),
-        ],
-      ],
+      children: actions,
     );
   }
 
@@ -264,23 +262,19 @@ class OrderDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _section(BuildContext context, String title, Widget child, {bool sunny = false}) {
+  Widget _section(BuildContext context, String title, Widget child) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: StickerCard(
-        padding: const EdgeInsets.all(14),
-        color: sunny ? SriPonColors.sunny100 : null,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
-            ),
-            const SizedBox(height: 8),
-            child,
-          ],
-        ),
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 8),
+          child,
+        ],
       ),
     );
   }

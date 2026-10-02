@@ -1,40 +1,24 @@
 import { useQuery } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';import {
-  BadgeCheck,
-  Gift,
-  PartyPopper,
-  ReceiptIndianRupee,
-  Rocket,
-  ShieldCheck,
-  Sparkles,
-  Star,
-  Truck,
-  Zap,
-  type LucideIcon,
-} from 'lucide-react';
+import { BadgeCheck, PartyPopper, ReceiptIndianRupee, ShieldCheck, Sparkles, Truck } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { api } from '@/api/client';
 import type { ApiEnvelope, CategoryTreeNode, HomepageData, PublicSettings } from '@/api/types';
-import { ErrorState, ProductGrid, ProductGridSkeleton, Reveal, Skeleton } from '@/components/storefront-ui';
 import {
-  ChunkyButton,
-  FunChip,
-  FunHeading,
-  Mascot,
-  Starburst,
-  StickerCard,
-  StickerProductCard,
-  WaveDivider,
-} from '@/components/sticker-ui';
+  ErrorState,
+  ProductCard,
+  ProductGrid,
+  ProductGridSkeleton,
+  Reveal,
+  SectionHeading,
+  Skeleton,
+} from '@/components/storefront-ui';
 
-const TRUST_CHIPS: Array<{ icon: LucideIcon; label: string; tone: 'mint' | 'bubble' | 'grape' | 'candy' }> = [
-  { icon: ShieldCheck, label: 'Licensed stock', tone: 'mint' },
-  { icon: Truck, label: '24–48h dispatch', tone: 'bubble' },
-  { icon: ReceiptIndianRupee, label: 'GST invoice', tone: 'grape' },
-  { icon: BadgeCheck, label: 'CE / ISI compliant', tone: 'candy' },
+const TRUST_CHIPS = [
+  { icon: ShieldCheck, label: 'Licensed stock' },
+  { icon: Truck, label: '24–48h dispatch' },
+  { icon: ReceiptIndianRupee, label: 'GST invoice' },
+  { icon: BadgeCheck, label: 'CE / ISI compliant' },
 ];
-
-const BUBBLE_TONES = ['bg-sunny-100', 'bg-bubble-100', 'bg-grape-100', 'bg-mint-100', 'bg-candy-100'] as const;
-const BUBBLE_ICONS: LucideIcon[] = [PartyPopper, Rocket, Sparkles, Star, Zap, Gift];
 
 /** Storefront landing page composed from the backend-designed homepage. */
 export function HomePage() {
@@ -65,18 +49,15 @@ export function HomePage() {
   if (homepage.isLoading || settings.isLoading) {
     return (
       <div>
-        <section className="bg-sunny-100">
-          <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-14 lg:grid-cols-2">
-            <div>
-              <Skeleton className="h-7 w-52 rounded-full border-2 border-ink" />
-              <Skeleton className="mt-5 h-14 w-full rounded-2xl border-2 border-ink" />
-              <Skeleton className="mt-3 h-14 w-3/4 rounded-2xl border-2 border-ink" />
-              <div className="mt-7 flex gap-4">
-                <Skeleton className="h-12 w-36 rounded-full border-2 border-ink" />
-                <Skeleton className="h-12 w-36 rounded-full border-2 border-ink" />
-              </div>
+        <section className="bg-ember-50">
+          <div className="mx-auto max-w-7xl px-4 py-16 text-center">
+            <Skeleton className="mx-auto h-6 w-44 rounded-full" />
+            <Skeleton className="mx-auto mt-6 h-12 w-72 rounded-xl" />
+            <Skeleton className="mx-auto mt-4 h-5 w-96 max-w-full rounded-lg" />
+            <div className="mx-auto mt-9 flex justify-center gap-4">
+              <Skeleton className="h-11 w-32 rounded-full" />
+              <Skeleton className="h-11 w-32 rounded-full" />
             </div>
-            <Skeleton className="h-72 w-full rounded-bubble border-2 border-ink" />
           </div>
         </section>
         <section className="mx-auto max-w-7xl px-4 py-10">
@@ -97,11 +78,12 @@ export function HomePage() {
   const data = homepage.data;
   const store = settings.data?.store;
   const sections = data?.sections ?? [];
-  const hasBackendHero = sections.some((section) => section.type === 'HERO' && section.content.banners?.length);
 
   return (
     <div>
-      {!hasBackendHero && <StickerHero tagline={store?.tagline} />}
+      {sections.length === 0 || sections.every((section) => section.type !== 'HERO' || !section.content.banners?.length) ? (
+        <HeroFallback storeName={store?.name} tagline={store?.tagline} />
+      ) : null}
 
       {sections.map((section) => (
         <HomeSection key={section.id} section={section} />
@@ -109,80 +91,91 @@ export function HomePage() {
 
       {sections.length === 0 && categories.data && categories.data.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 py-12">
-          <FunHeading title="Shop by fun" subtitle="Pick your kind of boom." overline="Curated for you" />
-          <CategoryBubbles categories={categories.data} />
+          <SectionHeading title="Shop by category" overline="Curated for you" />
+          <CategoryGrid categories={categories.data} />
         </section>
       )}
 
       {sections.length === 0 && (
-        <section className="mx-auto max-w-7xl px-4 pb-16">
-          <StickerCard className="flex flex-col items-center gap-4 p-10 text-center">
-            <Mascot className="h-24 w-auto" />
-            <p className="font-display text-xl font-extrabold text-ink">Fresh boxes landing soon!</p>
-            <p className="-mt-2 font-medium text-ink-muted">Browse the full catalogue meanwhile.</p>
-            <ChunkyButton to="/products">Browse all crackers</ChunkyButton>
-          </StickerCard>
+        <section className="mx-auto max-w-7xl px-4 pb-12">
+          <SectionHeading title="Fresh from the showroom" overline="Bestsellers" to="/products" />
+          <EmptyStateSlim />
         </section>
       )}
     </div>
   );
 }
 
-function StickerHero({ tagline }: { tagline?: string }) {
+function EmptyStateSlim() {
   return (
-    <section className="relative overflow-hidden bg-sunny-100">
+    <div className="rounded-xl border border-dashed border-ember-200 bg-ember-50/60 p-10 text-center">
+      <p className="font-medium text-ember-800">The catalogue is live</p>
+      <p className="mt-1 text-sm text-ember-900/60">Browse products and add your favourites to the cart.</p>
+    </div>
+  );
+}
+
+function HeroFallback({ storeName, tagline }: { storeName?: string; tagline?: string }) {
+  return (
+    <section className="relative overflow-hidden bg-gradient-to-br from-coral-500 via-coral-600 to-coral-700 text-white">
+      {/* Sparkle field + tall colour washes. */}
       <div
-        className="pointer-events-none absolute inset-0 opacity-60 [background-image:var(--background-image-sparkle)]"
+        className="pointer-events-none absolute inset-0 opacity-20 [background-image:var(--background-image-sparkle)]"
         aria-hidden
       />
-      <div className="relative mx-auto grid max-w-7xl items-center gap-10 px-4 pb-16 pt-12 sm:pt-16 lg:grid-cols-[1.05fr_0.95fr]">
-        <div>
-          <span className="inline-flex -rotate-1 items-center gap-1.5 rounded-full border-2 border-ink bg-white px-4 py-1.5 font-display text-xs font-bold uppercase tracking-widest text-ink shadow-sticker-sm">
+      <div className="pointer-events-none absolute inset-0" aria-hidden>
+        <div className="absolute -right-16 -top-24 h-80 w-80 rounded-full bg-gold-400/30 blur-3xl" />
+        <div className="absolute -bottom-28 -left-20 h-80 w-80 rounded-full bg-ember-400/30 blur-3xl" />
+        <Sparkles className="absolute left-10 top-12 h-6 w-6 text-gold-300/80" />
+        <Sparkles className="absolute bottom-16 right-1/4 h-5 w-5 text-white/70" />
+        <Sparkles className="absolute right-14 top-24 h-4 w-4 text-teal-300/80" />
+      </div>
+
+      <div className="relative mx-auto max-w-7xl px-4 py-24 text-center sm:py-28">
+        <Reveal>
+          <span className="inline-flex items-center gap-2 rounded-full border border-gold-300/50 bg-gold-400/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-gold-100 backdrop-blur-sm">
             <Sparkles className="h-3.5 w-3.5" />
             Festive crackers &amp; fireworks
           </span>
-          <h1 className="mt-5 font-display text-5xl font-extrabold leading-[1.02] text-ink sm:text-7xl">
-            Let&apos;s light up{' '}
-            <span className="relative inline-block">
-              <span className="absolute inset-x-[-6px] bottom-1 top-[55%] -rotate-1 rounded-lg bg-candy-400/70" aria-hidden />
-              <span className="relative">the fun!</span>
-            </span>
+        </Reveal>
+        <Reveal delay={80}>
+          <h1 className="mt-6 font-display text-4xl font-extrabold tracking-tight sm:text-6xl">
+            {storeName ?? 'SriPon'}
           </h1>
-          <p className="mt-4 max-w-xl text-lg font-medium text-ink-muted">
-            {tagline ?? 'Celebrate responsibly'} — sparklers, fountains and sky shots for every festival,
-            packed safe and shipped to your door.
+          <span className="mx-auto mt-3 block h-2 w-28 rounded-full bg-gradient-to-r from-coral-200 via-gold-300 to-coral-200" />
+        </Reveal>
+        <Reveal delay={160}>
+          <p className="mx-auto mt-5 max-w-2xl text-base text-ember-50/90 sm:text-lg">
+            {tagline ?? 'Celebrate responsibly'} — lights, sparks and colour for every festival, delivered safe to your door.
           </p>
-          <div className="mt-8 flex flex-wrap gap-4">
-            <ChunkyButton to="/products" tone="coral">
-              Shop the fun
-            </ChunkyButton>
-            <ChunkyButton to="/products" tone="white">
-              Today&apos;s deals
-            </ChunkyButton>
+        </Reveal>
+        <Reveal delay={240}>
+          <div className="mt-9 flex flex-wrap justify-center gap-4">
+            <Link
+              to="/products"
+              className="rounded-full bg-white px-7 py-3 font-semibold text-coral-600 shadow-cta transition duration-300 hover:-translate-y-0.5 hover:bg-coral-50 active:scale-95"
+            >
+              Shop now
+            </Link>
+            <Link
+              to="/wishlist"
+              className="rounded-full border border-white/40 bg-white/10 px-7 py-3 font-semibold text-white backdrop-blur transition duration-300 hover:bg-white/20 active:scale-95"
+            >
+              Browse all
+            </Link>
           </div>
-          <div className="mt-8 flex flex-wrap gap-2.5">
+        </Reveal>
+        <Reveal delay={340}>
+          <div className="mx-auto mt-12 flex max-w-3xl flex-wrap items-center justify-center gap-x-8 gap-y-3 border-t border-white/15 pt-6 text-sm">
             {TRUST_CHIPS.map((chip) => (
-              <FunChip key={chip.label} icon={chip.icon} label={chip.label} tone={chip.tone} />
+              <span key={chip.label} className="inline-flex items-center gap-2 font-medium text-ember-50/95">
+                <chip.icon className="h-4 w-4 text-gold-300" />
+                {chip.label}
+              </span>
             ))}
           </div>
-        </div>
-
-        <div className="relative mx-auto w-full max-w-md">
-          <StickerCard className="relative bg-white p-8 pt-10 text-center">
-            <Mascot className="mx-auto h-52 w-auto" />
-            <p className="mt-4 font-display text-2xl font-extrabold text-ink">Poppy&apos;s pick</p>
-            <p className="mt-1 font-medium text-ink-muted">Sealed boxes, genuine stock, zero duds.</p>
-            <ChunkyButton to="/products" tone="sunny" className="mt-5 w-full">
-              Start popping
-            </ChunkyButton>
-            <Starburst label="30%" sub="off*" className="absolute -right-5 -top-5 animate-wiggle" />
-            <span className="absolute -left-4 top-1/3 inline-flex rotate-6 items-center gap-1 rounded-full border-2 border-ink bg-mint-100 px-3 py-1 text-xs font-bold text-ink shadow-sticker-sm">
-              <Truck className="h-3.5 w-3.5" /> 24–48h
-            </span>
-          </StickerCard>
-        </div>
+        </Reveal>
       </div>
-      <WaveDivider fill="var(--color-background)" className="relative" />
     </section>
   );
 }
@@ -206,9 +199,9 @@ function HomeSection({ section }: { section: HomepageData['sections'][number] })
       if (banners.length === 0) return null;
       return (
         <section className="mx-auto max-w-7xl px-4 py-8">
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {banners.map((banner) => (
-              <StickerBanner key={banner.id} banner={banner} />
+              <BannerCard key={banner.id} banner={banner} />
             ))}
           </div>
         </section>
@@ -219,12 +212,8 @@ function HomeSection({ section }: { section: HomepageData['sections'][number] })
       if (categories.length === 0) return null;
       return (
         <section className="mx-auto max-w-7xl px-4 py-10">
-          <FunHeading
-            title={section.title ?? 'Shop by fun'}
-            subtitle="Pick your kind of boom."
-            overline="Browse the range"
-          />
-          <CategoryBubbles categories={categories} />
+          <SectionHeading title={section.title ?? 'Shop by category'} overline="Browse the range" />
+          <CategoryGrid categories={categories} />
         </section>
       );
     }
@@ -237,8 +226,8 @@ function HomeSection({ section }: { section: HomepageData['sections'][number] })
       if (products.length === 0) return null;
       return (
         <section className="mx-auto max-w-7xl px-4 py-10">
-          <FunHeading
-            title={section.title ?? 'Fresh pops'}
+          <SectionHeading
+            title={section.title ?? 'Featured products'}
             subtitle="Sealed boxes, genuine stock."
             overline="Handpicked for you"
             to="/products"
@@ -246,7 +235,7 @@ function HomeSection({ section }: { section: HomepageData['sections'][number] })
           <Reveal>
             <ProductGrid>
               {products.map((product) => (
-                <StickerProductCard key={product.id} product={product} />
+                <ProductCard key={product.id} product={product} />
               ))}
             </ProductGrid>
           </Reveal>
@@ -271,83 +260,81 @@ function BannerStrip({
         <img src={banner.imageUrl} alt={banner.title ?? 'Promotion'} className="absolute inset-0 h-full w-full object-cover" />
       )}
       <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-transparent" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-gold-400 via-coral-400 to-teal-400" aria-hidden />
       <div className="relative z-10 mx-auto flex min-h-[320px] max-w-7xl flex-col justify-center px-4 py-16 text-white">
-        <span className="inline-flex w-fit -rotate-1 items-center gap-1.5 rounded-lg border-2 border-ink bg-sunny-400 px-2.5 py-0.5 font-display text-xs font-bold uppercase tracking-widest text-ink">
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-eyebrow text-gold-300">
           <Sparkles className="h-3.5 w-3.5" />
           Featured deal
         </span>
         {banner.title && (
-          <h2 className="mt-3 max-w-xl font-display text-3xl font-extrabold sm:text-4xl">{banner.title}</h2>
+          <h2 className="mt-2 max-w-xl font-display text-3xl font-extrabold sm:text-4xl">{banner.title}</h2>
         )}
-        {banner.subtitle && <p className="mt-3 max-w-lg font-medium text-ember-100">{banner.subtitle}</p>}
+        {banner.subtitle && <p className="mt-3 max-w-lg text-ember-100">{banner.subtitle}</p>}
         {banner.actionTarget && (
-          <ChunkyButton to={banner.actionTarget} tone="sunny" className="mt-6 w-fit">
+          <Link
+            to={banner.actionTarget}
+            className="mt-6 inline-block w-fit rounded-full bg-gold-500 px-7 py-2.5 font-semibold text-ink shadow-cta transition duration-300 hover:-translate-y-0.5 hover:bg-gold-400 active:scale-95"
+          >
             Shop now
-          </ChunkyButton>
+          </Link>
         )}
       </div>
     </section>
   );
 }
 
-function StickerBanner({
+function BannerCard({
   banner,
 }: {
   banner: NonNullable<HomepageData['sections'][number]['content']['banners']>[number];
 }) {
   const target = banner.actionTarget ?? (banner.category?.slug ? `/products/${banner.category.slug}` : '/products');
   return (
-    <StickerCard className="group relative overflow-hidden transition duration-150 hover:-translate-y-1 hover:shadow-sticker-lg">
+    <Link
+      to={target}
+      className="group relative overflow-hidden rounded-xl border border-line bg-paper-strong shadow-card transition duration-300 hover:-translate-y-1 hover:border-coral-200 hover:shadow-lifted"
+    >
+      <div className="pointer-events-none absolute right-3 top-3 h-10 w-10 rounded-full border border-gold-300/70 bg-gold-100/40 flex items-center justify-center" aria-hidden>
+        <Sparkles className="h-4 w-4 text-gold-600" />
+      </div>
       {banner.imageUrl && (
-        <div className="m-2 overflow-hidden rounded-2xl border-2 border-ink">
-          <img
-            src={banner.imageUrl}
-            alt={banner.title ?? 'Promotion'}
-            className="h-40 w-full object-cover transition duration-300 group-hover:scale-105"
-            loading="lazy"
-          />
-        </div>
+        <img src={banner.imageUrl} alt={banner.title ?? 'Promotion'} className="h-40 w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
       )}
-      <div className="p-5 pt-3">
+      <div className="p-5">
         {banner.title && (
-          <h3 className="font-display text-lg font-extrabold text-ink">{banner.title}</h3>
+          <h3 className="font-display text-lg font-semibold text-ember-900 group-hover:text-coral-600">{banner.title}</h3>
         )}
-        {banner.subtitle && <p className="mt-1 text-sm font-medium text-ink-muted">{banner.subtitle}</p>}
-        <span className="mt-3 inline-block rounded-full border-2 border-ink bg-sunny-100 px-3.5 py-1 font-display text-sm font-bold text-ink shadow-sticker-sm transition duration-150 group-hover:bg-sunny-400">
+        {banner.subtitle && <p className="mt-1 text-sm text-ember-900/60">{banner.subtitle}</p>}
+        <span className="mt-3 inline-block text-sm font-semibold text-coral-600 transition-transform duration-300 group-hover:translate-x-1">
           Explore →
         </span>
       </div>
-      {/* whole-card link overlay without nested interactives */}
-      <Link to={target} className="absolute inset-0" aria-label={banner.title ?? 'Promotion'} />
-    </StickerCard>
+    </Link>
   );
 }
 
-function CategoryBubbles({
+function CategoryGrid({
   categories,
 }: {
   categories: Array<{ name: string; slug: string; bannerImageUrl?: string | null }>;
 }) {
   return (
     <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-      {categories.map((category, index) => {
-        const Icon = BUBBLE_ICONS[index % BUBBLE_ICONS.length];
-        const tone = BUBBLE_TONES[index % BUBBLE_TONES.length];
-        return (
-          <Link
-            key={category.slug}
-            to={`/products/${category.slug}`}
-            className="group flex flex-col items-center gap-3 rounded-bubble border-2 border-ink bg-white p-6 text-center shadow-sticker transition duration-150 hover:-translate-y-1 hover:rotate-[-0.5deg] hover:shadow-sticker-lg"
-          >
-            <span
-              className={`flex h-20 w-20 items-center justify-center rounded-full border-2 border-ink ${tone} shadow-sticker-sm transition duration-150 group-hover:scale-105`}
-            >
-              <Icon className="h-9 w-9 text-ink" />
-            </span>
-            <span className="font-display text-base font-bold text-ink">{category.name}</span>
-          </Link>
-        );
-      })}
+      {categories.map((category) => (
+        <Link
+          key={category.slug}
+          to={`/products/${category.slug}`}
+          className="group flex flex-col items-center gap-3 rounded-xl border border-line bg-paper-strong p-6 text-center shadow-card transition duration-300 hover:-translate-y-1 hover:border-coral-200 hover:shadow-lifted"
+        >
+          <div className="relative" aria-hidden>
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-coral-100 to-gold-100 text-coral-600 transition duration-300 group-hover:scale-105">
+              <PartyPopper className="h-7 w-7" />
+            </div>
+            <Sparkles className="absolute -right-1 -top-1 h-4 w-4 text-gold-500 transition-transform duration-300 group-hover:rotate-45" />
+          </div>
+          <p className="font-display font-semibold text-ember-900 group-hover:text-coral-600">{category.name}</p>
+        </Link>
+      ))}
     </div>
   );
 }
