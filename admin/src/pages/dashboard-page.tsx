@@ -42,7 +42,7 @@ export function DashboardPage() {
               label="Low stock items"
               value={data.lowStockCount}
               hint="at or below threshold"
-              accent={data.lowStockCount > 0 ? 'text-coral-600' : 'text-slate-800'}
+              accent={data.lowStockCount > 0 ? 'text-flame-600' : 'text-slate-800'}
             />
             <StatCard
               label="Out of stock"

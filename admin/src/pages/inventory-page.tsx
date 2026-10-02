@@ -130,7 +130,7 @@ export function InventoryPage() {
                 setPage(1);
               }}
               className={`rounded-md px-3 py-1.5 text-sm transition-colors ${
-                view === v ? 'bg-coral-600 text-white' : 'text-slate-600 hover:bg-slate-100'
+                view === v ? 'bg-flame-600 text-white' : 'text-slate-600 hover:bg-slate-100'
               }`}
             >
               {v === 'all' ? 'All stock' : 'Low stock'}

@@ -159,7 +159,7 @@ function CheckoutContent() {
         <div className="mt-4">
           <EmptyState title="Your cart is empty">
             <p>
-              <Link to="/products" className="font-medium text-coral-600 underline">Browse the catalogue</Link> first.
+              <Link to="/products" className="font-medium text-flame-600 underline">Browse the catalogue</Link> first.
             </p>
           </EmptyState>
         </div>
@@ -353,7 +353,7 @@ function CheckoutContent() {
           <button
             onClick={() => placeOrder.mutate()}
             disabled={busy || cartData.outOfStockCount > 0}
-            className="mt-5 w-full rounded-lg bg-coral-600 px-4 py-2.5 font-semibold text-white hover:bg-coral-700 disabled:opacity-50"
+            className="mt-5 w-full rounded-lg bg-flame-600 px-4 py-2.5 font-semibold text-white hover:bg-flame-700 disabled:opacity-50"
           >
             {busy ? 'Placing order…' : 'Place order'}
           </button>
@@ -388,10 +388,10 @@ function OrderCreated({ order, payment, notice }: { order: Order; payment: Payme
         </div>
       )}
       <div className="mt-8 flex justify-center gap-3">
-        <Link to={detailsUrl} className="rounded-lg bg-coral-600 px-5 py-2.5 font-semibold text-white hover:bg-coral-700">
+        <Link to={detailsUrl} className="rounded-lg bg-flame-600 px-5 py-2.5 font-semibold text-white hover:bg-flame-700">
           View order
         </Link>
-        <Link to="/products" className="rounded-lg border border-coral-300 px-5 py-2.5 font-semibold text-coral-600 hover:bg-coral-50">
+        <Link to="/products" className="rounded-lg border border-flame-300 px-5 py-2.5 font-semibold text-flame-600 hover:bg-flame-50">
           Continue shopping
         </Link>
       </div>

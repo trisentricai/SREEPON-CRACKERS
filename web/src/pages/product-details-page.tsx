@@ -101,11 +101,11 @@ export function ProductDetailsPage() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-8">
       <nav className="text-sm text-ember-900/50">
-        <Link to="/products" className="hover:text-coral-700">Catalogue</Link>
+        <Link to="/products" className="hover:text-flame-700">Catalogue</Link>
         {product.category && (
           <>
             {' / '}
-            <Link to={`/products/${product.category.slug}`} className="hover:text-coral-700">
+            <Link to={`/products/${product.category.slug}`} className="hover:text-flame-700">
               {product.category.name}
             </Link>
           </>
@@ -136,7 +136,7 @@ export function ProductDetailsPage() {
                 <button
                   key={image.id}
                   onClick={() => setActiveImage(index)}
-                  className={`h-20 w-20 overflow-hidden rounded-lg border-2 transition ${index === activeImage ? 'border-coral-600 shadow-sm' : 'border-transparent hover:border-coral-200'}`}
+                  className={`h-20 w-20 overflow-hidden rounded-lg border-2 transition ${index === activeImage ? 'border-flame-600 shadow-sm' : 'border-transparent hover:border-flame-200'}`}
                 >
                   <img src={image.url} alt={image.altText ?? ''} className="h-full w-full object-cover" />
                 </button>
@@ -155,7 +155,7 @@ export function ProductDetailsPage() {
           {product.shortDescription && <p className="mt-2 text-ember-900/70">{product.shortDescription}</p>}
 
           <div className="mt-4 flex items-baseline gap-3">
-            <span className="text-3xl font-extrabold text-coral-600">{formatMoney(product.basePrice)}</span>
+            <span className="text-3xl font-extrabold text-flame-600">{formatMoney(product.basePrice)}</span>
             {product.mrpPrice && (
               <span className="text-lg text-ember-900/40 line-through">{formatMoney(product.mrpPrice)}</span>
             )}
@@ -167,7 +167,7 @@ export function ProductDetailsPage() {
             <div className="relative">
               <dt className="text-ember-900/50">SKU</dt>
               <dd className="font-medium text-ember-900">{product.sku}</dd>
-              <span className="absolute -left-2 top-0 h-full w-0.5 rounded-full bg-coral-200" aria-hidden />
+              <span className="absolute -left-2 top-0 h-full w-0.5 rounded-full bg-flame-200" aria-hidden />
             </div>
             <div>
               <dt className="text-ember-900/50">Unit</dt>
@@ -196,7 +196,7 @@ export function ProductDetailsPage() {
           {product.description && (
             <div className="mt-6">
               <h2 className="mb-2 flex items-center gap-2 text-lg font-semibold text-ember-900">
-                <span className="h-4 w-1 rounded-full bg-coral-500" aria-hidden />
+                <span className="h-4 w-1 rounded-full bg-flame-500" aria-hidden />
                 Description
               </h2>
               <p className="whitespace-pre-line text-sm text-ember-900/70">{product.description}</p>
@@ -213,7 +213,7 @@ export function ProductDetailsPage() {
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                   disabled={!isAuthenticated || !inStock || quantity <= 1}
                   aria-label="Decrease quantity"
-                  className="flex h-9 w-9 items-center justify-center rounded-l-full text-ember-800 transition hover:bg-coral-50 active:scale-95 disabled:opacity-40"
+                  className="flex h-9 w-9 items-center justify-center rounded-l-full text-ember-800 transition hover:bg-flame-50 active:scale-95 disabled:opacity-40"
                 >
                   <Minus className="h-4 w-4" />
                 </button>
@@ -225,7 +225,7 @@ export function ProductDetailsPage() {
                   onClick={() => setQuantity((q) => Math.min(10, q + 1))}
                   disabled={!isAuthenticated || !inStock || quantity >= 10}
                   aria-label="Increase quantity"
-                  className="flex h-9 w-9 items-center justify-center rounded-r-full text-ember-800 transition hover:bg-coral-50 active:scale-95 disabled:opacity-40"
+                  className="flex h-9 w-9 items-center justify-center rounded-r-full text-ember-800 transition hover:bg-flame-50 active:scale-95 disabled:opacity-40"
                 >
                   <Plus className="h-4 w-4" />
                 </button>
@@ -234,14 +234,14 @@ export function ProductDetailsPage() {
             <button
               onClick={() => addToCart.mutate()}
               disabled={!isAuthenticated || !inStock || addToCart.isPending}
-              className="rounded-full bg-coral-600 px-7 py-2.5 font-semibold text-white shadow-cta transition duration-200 hover:-translate-y-0.5 hover:bg-coral-700 active:scale-95 disabled:translate-y-0 disabled:opacity-50"
+              className="rounded-full bg-flame-600 px-7 py-2.5 font-semibold text-white shadow-cta transition duration-200 hover:-translate-y-0.5 hover:bg-flame-700 active:scale-95 disabled:translate-y-0 disabled:opacity-50"
             >
               {addToCart.isPending ? 'Adding…' : 'Add to cart'}
             </button>
             <button
               onClick={() => addToWishlist.mutate()}
               disabled={!isAuthenticated || addToWishlist.isPending}
-              className="rounded-full border border-coral-300 px-6 py-2.5 font-semibold text-coral-600 transition duration-200 hover:bg-coral-50 active:scale-95 disabled:opacity-50"
+              className="rounded-full border border-flame-300 px-6 py-2.5 font-semibold text-flame-600 transition duration-200 hover:bg-flame-50 active:scale-95 disabled:opacity-50"
             >
               {addToWishlist.isPending ? 'Saving…' : 'Add to wishlist'}
             </button>
@@ -249,19 +249,19 @@ export function ProductDetailsPage() {
 
           <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-line bg-paper-strong p-4 text-sm text-ember-900/70 shadow-card">
             <span className="inline-flex items-center gap-1.5">
-              <Truck className="h-4 w-4 text-teal-600" /> Ships in 24–48h
+              <Truck className="h-4 w-4 text-indigo-600" /> Ships in 24–48h
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-teal-600" /> Licensed &amp; insured
+              <ShieldCheck className="h-4 w-4 text-indigo-600" /> Licensed &amp; insured
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <BadgeCheck className="h-4 w-4 text-teal-600" /> GST invoice included
+              <BadgeCheck className="h-4 w-4 text-indigo-600" /> GST invoice included
             </span>
           </div>
 
           {!isAuthenticated && (
             <p className="mt-4 text-sm text-ember-900/60">
-              <Link to="/profile" className="font-medium text-coral-600 underline">
+              <Link to="/profile" className="font-medium text-flame-600 underline">
                 Sign in
               </Link>{' '}
               to add items to your cart or wishlist.

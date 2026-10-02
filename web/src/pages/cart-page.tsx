@@ -82,7 +82,7 @@ function CartContent() {
         <div className="mt-4">
           <EmptyState title="Your cart is empty">
             <p>
-              <Link to="/products" className="font-medium text-coral-600 underline">Browse the catalogue</Link>{' '}
+              <Link to="/products" className="font-medium text-flame-600 underline">Browse the catalogue</Link>{' '}
               and add your favourites.
             </p>
           </EmptyState>
@@ -114,7 +114,7 @@ function CartContent() {
                 )}
               </Link>
               <div className="flex flex-1 flex-col">
-                <Link to={`/products/slug/${item.product.slug}`} className="font-semibold text-ember-900 hover:text-coral-600">
+                <Link to={`/products/slug/${item.product.slug}`} className="font-semibold text-ember-900 hover:text-flame-600">
                   {item.product.name}
                 </Link>
                 <p className="text-xs text-ember-900/50">{formatUnit(item.product.unit)} · {formatMoney(item.product.basePrice)} each</p>
@@ -125,7 +125,7 @@ function CartContent() {
                       value={item.quantity}
                       disabled={updateQuantity.isPending}
                       onChange={(e) => updateQuantity.mutate({ itemId: item.id, quantity: Number(e.target.value) })}
-                      className="rounded-lg border border-coral-200 px-2 py-1 text-sm disabled:opacity-50"
+                      className="rounded-lg border border-flame-200 px-2 py-1 text-sm disabled:opacity-50"
                     >
                       {Array.from({ length: item.availableStock + 1 }, (_, i) => i + 1).map((n) => (
                         <option key={n} value={n}>{n}</option>
@@ -166,14 +166,14 @@ function CartContent() {
           </dl>
           <Link
             to="/checkout"
-            className="mt-5 block rounded-lg bg-coral-600 px-4 py-2.5 text-center font-semibold text-white hover:bg-coral-700"
+            className="mt-5 block rounded-lg bg-flame-600 px-4 py-2.5 text-center font-semibold text-white hover:bg-flame-700"
           >
             Proceed to checkout
           </Link>
           <button
             onClick={() => clearCart.mutate()}
             disabled={clearCart.isPending}
-            className="mt-2 w-full rounded-lg border border-coral-200 px-4 py-2 text-sm text-coral-600 hover:bg-coral-50 disabled:opacity-50"
+            className="mt-2 w-full rounded-lg border border-flame-200 px-4 py-2 text-sm text-flame-600 hover:bg-flame-50 disabled:opacity-50"
           >
             Clear cart
           </button>

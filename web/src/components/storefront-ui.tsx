@@ -93,11 +93,11 @@ export function ProductGridSkeleton({ count = 8 }: { count?: number }) {
 export function BrandMark({ name, to = '/', light = false }: { name: string; to?: string; light?: boolean }) {
   return (
     <Link to={to} className="group inline-flex items-center gap-2.5" aria-label={name}>
-      <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-coral-500 to-coral-700 shadow-cta transition duration-300 group-hover:scale-105">
+      <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-flame-500 to-flame-700 shadow-cta transition duration-300 group-hover:scale-105">
         <PartyPopper className="h-5 w-5 text-white" />
         <Sparkles className="absolute -right-1.5 -top-1.5 h-3.5 w-3.5 text-gold-500" strokeWidth={2.5} />
       </span>
-      <span className={cn('font-display text-xl font-bold tracking-display', light ? 'text-white' : 'text-coral-600')}>
+      <span className={cn('font-display text-xl font-bold tracking-display', light ? 'text-white' : 'text-flame-600')}>
         {name}
       </span>
     </Link>
@@ -159,7 +159,7 @@ export function Badge({
     red: 'bg-red-100 text-red-800',
     amber: 'bg-amber-100 text-amber-800',
     blue: 'bg-blue-100 text-blue-800',
-    orange: 'bg-coral-600 text-white',
+    orange: 'bg-flame-600 text-white',
     gold: 'bg-gold-100 text-gold-800',
   };
   return (
@@ -195,7 +195,7 @@ export function SectionHeading({
       {to && (
         <Link
           to={to}
-          className="group/see shrink-0 rounded-full border border-teal-200 bg-white/70 px-3.5 py-1.5 text-sm font-medium text-teal-700 shadow-card transition duration-300 hover:border-teal-400 hover:bg-teal-50 hover:shadow-none"
+          className="group/see shrink-0 rounded-full border border-indigo-200 bg-white/70 px-3.5 py-1.5 text-sm font-medium text-indigo-700 shadow-card transition duration-300 hover:border-indigo-400 hover:bg-indigo-50 hover:shadow-none"
         >
           <span className="inline-flex items-center gap-1">
             View all
@@ -285,7 +285,7 @@ export function ProductCard({ product }: { product: CardProduct }) {
     <div className="group relative">
       <Link
         to={categoryHref}
-        className="flex flex-col overflow-hidden rounded-xl border border-line bg-paper-strong shadow-card transition duration-300 hover:-translate-y-1 hover:border-coral-200 hover:shadow-lifted"
+        className="flex flex-col overflow-hidden rounded-xl border border-line bg-paper-strong shadow-card transition duration-300 hover:-translate-y-1 hover:border-flame-200 hover:shadow-lifted"
       >
         <div className="relative aspect-square overflow-hidden bg-ember-50">
           {image ? (
@@ -315,17 +315,17 @@ export function ProductCard({ product }: { product: CardProduct }) {
           <div className="flex items-center justify-between gap-2">
             <p className="text-xs text-ember-900/50">{product.category?.name ?? formatUnit(product.unit)}</p>
             {product.inStock ? (
-              <span className="inline-flex items-center gap-1 text-xs font-medium text-teal-700">
-                <span className="h-1.5 w-1.5 rounded-full bg-teal-600" aria-hidden />
+              <span className="inline-flex items-center gap-1 text-xs font-medium text-indigo-700">
+                <span className="h-1.5 w-1.5 rounded-full bg-indigo-600" aria-hidden />
                 In stock
               </span>
             ) : null}
           </div>
-          <h3 className="mt-0.5 line-clamp-2 font-display text-sm font-semibold text-ember-900 group-hover:text-coral-600">
+          <h3 className="mt-0.5 line-clamp-2 font-display text-sm font-semibold text-ember-900 group-hover:text-flame-600">
             {product.name}
           </h3>
           <div className="mt-2 flex items-baseline gap-2">
-            <span className="font-display font-bold text-coral-600">{formatMoney(product.basePrice)}</span>
+            <span className="font-display font-bold text-flame-600">{formatMoney(product.basePrice)}</span>
             {product.mrpPrice && (
               <span className="text-xs text-ember-900/40 line-through">{formatMoney(product.mrpPrice)}</span>
             )}
@@ -340,7 +340,7 @@ export function ProductCard({ product }: { product: CardProduct }) {
         aria-label={wished ? 'Added to wishlist' : 'Add to wishlist'}
         className={cn(
           'absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full shadow-card transition duration-200 hover:scale-110 active:scale-95',
-          wished ? 'bg-coral-600 text-white' : 'bg-white/90 text-ember-700 backdrop-blur hover:text-coral-600',
+          wished ? 'bg-flame-600 text-white' : 'bg-white/90 text-ember-700 backdrop-blur hover:text-flame-600',
         )}
       >
         <Heart className={cn('h-4 w-4', wished && 'fill-current')} />
@@ -350,7 +350,7 @@ export function ProductCard({ product }: { product: CardProduct }) {
         onClick={onQuickAdd}
         disabled={addToCart.isPending}
         aria-label={`Add ${product.name} to cart`}
-        className="absolute bottom-[92px] right-2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-coral-600 text-white opacity-0 shadow-cta transition duration-200 hover:bg-coral-700 hover:scale-110 active:scale-95 group-hover:opacity-100 disabled:opacity-60"
+        className="absolute bottom-[92px] right-2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-flame-600 text-white opacity-0 shadow-cta transition duration-200 hover:bg-flame-700 hover:scale-110 active:scale-95 group-hover:opacity-100 disabled:opacity-60"
       >
         {addToCart.isPending ? (
           <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
@@ -388,7 +388,7 @@ export function AuthGate({ isAuthenticated, isLoading, children, title }: { isAu
       <section className="mx-auto max-w-7xl px-4 py-16">
         <EmptyState title={title}>
           <p className="mt-3">
-            <Link to="/profile" className="font-medium text-teal-600 underline">
+            <Link to="/profile" className="font-medium text-indigo-600 underline">
               Sign in
             </Link>{' '}
             to continue.

@@ -1,7 +1,7 @@
 <style>
-  :root { --coral: #ff6b5a; --teal: #14b8a6; }
-  h1, h2 { border-bottom: 2px solid #ff6b5a; padding-bottom: 6px; }
-  h3 { color: #14b8a6; }
+  :root { --flame: #ff8a3d; --indigo: #4338ca; }
+  h1, h2 { border-bottom: 2px solid #ff8a3d; padding-bottom: 6px; }
+  h3 { color: #4338ca; }
   code { color: #c2410c; }
 </style>
 
@@ -12,8 +12,8 @@
 > tokens, components, styling, assets, icons, and layout conventions so that design
 > work stays byte-identical across **web**, **admin**, **mobile**, and **backend** layers.
 >
-> Accent colors used throughout this document: **#ff6b5a (Coral)** · **#14b8a6 (Teal)**.
-> They appear below as the shipped **coral (primary action) + teal (secondary)** system built
+> Accent colors used throughout this document: **#ff8a3d (Flame)** · **#4338ca (Indigo)**.
+> They appear below as the shipped **flame (primary action) + indigo (secondary)** system built
 > on the warm **ember/gold/paper** baseline, and as the reference palette for Figma variables.
 
 ---
@@ -41,8 +41,8 @@ change all three.
 
 - **Web:** `web/src/index.css` — Tailwind v4 CSS-first `@theme` block (NO `tailwind.config.js`; Tailwind v4 is configured in CSS via `@import "tailwindcss"`).
 - **Mobile:** `mobile/lib/core/widgets/widgets.dart` → `abstract final class SriPonColors` (byte-identical hex values), consumed via `mobile/lib/core/theme/sripon_theme.dart`.
-- **Admin:** `admin/src/index.css` — mirrors the web coral/teal tokens; layout uses a `bg-slate-900` sidebar with `bg-coral-600` active nav. When unifying designs, keep coral/teal actives + ember headings exactly in sync with web.
-- **No JS/TS token modules.** Tokens are CSS-first; components consume them as Tailwind utilities (`text-coral-600`, `bg-coral-100`).
+- **Admin:** `admin/src/index.css` — mirrors the web flame/indigo tokens; layout uses a `bg-slate-900` sidebar with `bg-flame-600` active nav. When unifying designs, keep flame/indigo actives + ember headings exactly in sync with web.
+- **No JS/TS token modules.** Tokens are CSS-first; components consume them as Tailwind utilities (`text-flame-600`, `bg-flame-100`).
 
 ### 2.2 The ember palette (`web/src/index.css`, `@theme`)
 
@@ -98,41 +98,43 @@ change all three.
 |---|---|---|---|
 | Page background | `bg-paper` / `bg-background` | `#fff8f0` | body, section shells |
 | Card / raised surface | `bg-paper-strong` | `#fffdf8` | product cards, banner cards |
-| Primary brand / CTAs | `bg-coral-600` | `#e8513f` | buttons, active links, badges, signature */
-| Hover / deeper CTA | `bg-coral-700` | `#c93a29` | button hover (white text, 4.5:1) |
-| Secondary links/focus | `text-teal-600` | `#0d9488` | inline links, checklist/trust accents |
+| Primary brand / CTAs | `bg-flame-600` | `#b94f08` | buttons, active links, badges, signature */
+| Hover / deeper CTA | `bg-flame-700` | `#93400a` | button hover (white text, 5:1) |
+| Secondary links/focus | `text-indigo-600` | `#4338ca` | inline links, checklist/trust accents |
 | Headings / strong text | `text-ember-800/900` | `#9a3b05` / `#7a2d03` | titles inside warm surfaces |
 | Muted text | `text-ember-900/50..70` | alpha of `#7a2d03` | secondary labels, subtitles |
 | Body/ink text | `text-ink` / `text-foreground` | `#241b16` | default text color |
 | Hairlines / borders | `border-line` | `#e8ddd0` | card borders, dividers |
 | Accent / discount | `bg-gold-500`, `text-ink` | `#d9a021` | “% off” badges, festive sparkle |
-| Soft tint surfaces | `bg-ember-50`, `bg-coral-100`, `border-coral-200` | see palette | header band, empty states, chips, selected filters |
+| Soft tint surfaces | `bg-ember-50`, `bg-flame-100`, `border-flame-200` | see palette | header band, empty states, chips, selected filters |
 | Error / success | `red-*` / `green-*` (Tailwind stock) | — | form + API errors, success |
 
-### 2.4 Color roles — moved into the coral/teal table (§2.3); no separate admin palette.
+### 2.4 Color roles — moved into the flame/indigo table (§2.3); no separate admin palette.
 
-### 2.5 Coral + teal tokens (shipped) — primary/secondary actives
+### 2.5 Flame + indigo tokens (shipped) — primary/secondary actives
 
 ```css
 /* Primary/secondary actives across web + admin + mobile (deep variants keep text AA). */
---color-coral-50:  #fff2f0;
---color-coral-100: #ffe3df;
---color-coral-200: #ffcfc8;
---color-coral-300: #ff9d8f;
---color-coral-400: #ff8169;
---color-coral-500: #ff6b5a;   /* hero gradients, Sparkles, price highlights */
---color-coral-600: #e8513f;   /* PRIMARY CTA fill + white text (4.5:1) */
---color-coral-700: #c93a29;   /* PRIMARY CTA hover */
---color-teal-100:  #ccfbf1;
---color-teal-400:  #2dd4bf;
---color-teal-500:  #14b8a6;   /* trust/success accents, focus rings */
---color-teal-600:  #0d9488;   /* SECONDARY links/emphasis (AA on paper) */
---color-teal-700:  #0f766e;
+--color-flame-50:  #fff6ec;
+--color-flame-100: #ffe8d3;
+--color-flame-200: #ffcf9f;
+--color-flame-300: #ffab63;
+--color-flame-400: #ff9440;
+--color-flame-500: #ff8a3d;   /* hero gradients, Sparkles, price highlights */
+--color-flame-600: #b94f08;   /* PRIMARY CTA fill + white text (5:1) */
+--color-flame-700: #93400a;   /* PRIMARY CTA hover */
+--color-indigo-50:  #eef0fd;
+--color-indigo-100: #e1e4fc;
+--color-indigo-200: #c6cbf9;
+--color-indigo-400: #757bec;
+--color-indigo-500: #544fd8;   /* trust/success accents */
+--color-indigo-600: #4338ca;   /* SECONDARY links/emphasis + focus rings (AA on paper) */
+--color-indigo-700: #3730a3;
 ```
 
-Contrast guardrails: `#ff6b5a` on white ≈ 3.16:1 (headline/large only, never body text);
-`#14b8a6` on white ≈ 2.9:1 (large/icon only). Use deep variants `coral-600`/`coral-700` for
-white-text buttons and `teal-600` for text to keep WCAG AA. Gold `#d9a021` stays the festive
+Contrast guardrails: `#ff8a3d` on white ≈ 2.9:1 (headline/large only, never body text);
+`#544fd8` on white ≈ 5.9:1 (accents OK). Use deep variants `flame-600`/`flame-700` for
+white-text buttons and `indigo-600` for text to keep WCAG AA. Gold `#d9a021` stays the festive
 discount accent; headings/strong text stay `ember-800/900` on warm surfaces.
 
 ### 2.6 Typography tokens
@@ -152,7 +154,7 @@ Flutter mirrors fonts via `GoogleFonts.nunitoSans` / `GoogleFonts.rubik`
 - **Layout grid:** 4px base; page gutter `px-4`, container `max-w-7xl`, vertical rhythm `py-8…py-24`.
 - **Radius:** cards/inputs `rounded-xl` (12px); pills/chips/CTAs `rounded-full`.
 - **Elevation:** tiered shadow tokens in `@theme` — `shadow-card` (resting cards), `shadow-lifted` (hover cards), `shadow-pop` (sticky header, floating buttons), `shadow-cta` (primary CTAs). Hover cards: `hover:-translate-y-1 hover:shadow-lifted`; header shadows in on scroll.
-- **Focus:** global `:focus-visible { outline: 2px solid var(--color-coral-600) }` in `@layer base`.
+- **Focus:** global `:focus-visible { outline: 2px solid var(--color-indigo-600) }` in `@layer base`.
 
 ---
 
@@ -162,10 +164,10 @@ Flutter mirrors fonts via `GoogleFonts.nunitoSans` / `GoogleFonts.rubik`
 
 ```tsx
 export function Badge({ children, tone = 'neutral' })           // neutral | green | red | amber | blue | orange | gold
-export function Spinner({ label = 'Loading…' })                  // coral spinner + label
+export function Spinner({ label = 'Loading…' })                  // flame spinner + label
 export function ErrorState({ error })                            // error card / phase-stub notice
 export function EmptyState({ title, children })                  // dashed ember-50 card
-export function SectionHeading({ title, subtitle, to, overline })// gold eyebrow (overline) + display font + teal "View all →" pill
+export function SectionHeading({ title, subtitle, to, overline })// gold eyebrow (overline) + display font + indigo "View all →" pill
 export function ProductCard({ product })                         // fancy card: discount badge, wishlist heart, hover quick-add, inStock dot
 export function ProductGrid({ children })                        // grid-cols-2 sm:grid-cols-3 lg:grid-cols-4
 export function AuthGate({ isAuthenticated, isLoading, children, title })
@@ -174,7 +176,7 @@ export function AuthGate({ isAuthenticated, isLoading, children, title })
 **Motion & loading primitives** (no animation lib; all respect `prefers-reduced-motion`):
 - `Reveal({ children, className, delay })` — IntersectionObserver fade-up wrapper; initial state skips animation when reduced-motion is set or IO is missing. Do NOT call `setState` synchronously in effects (`react-hooks/set-state-in-effect`).
 - `Skeleton({ className })` — shimmer block (`.shimmer`); `ProductCardSkeleton` / `ProductGridSkeleton` for ready-made placeholder cards. Web uses skeletons instead of `Spinner` on home/products/detail/cart.
-- `BrandMark({ name, to, light })` — inline gem: coral gradient tile + gold `PartyPopper`/`Sparkles` + wordmark (`font-display`). Header, footer, mobile AppBar.
+- `BrandMark({ name, to, light })` — inline gem: flame gradient tile + gold `PartyPopper`/`Sparkles` + wordmark (`font-display`). Header, footer, mobile AppBar.
 - ProductCard quick actions: floating **wishlist heart** (top-right) + hover **quick-add** `+` (bottom-right) are *siblings* of the card `Link` (never nested interactive elements — React forbids it). Both call existing `/wishlist/items` and `/cart/items` mutations and redirect to `/profile` when signed out.
 - Header: announcement ribbon `.marquee` (`.marquee-track`, 26s loop, killed under reduced motion); press states use `active:scale-95`. Mobile parity in `home_screen.dart` + `SriPonShimmer` (`widgets.dart`).
 
@@ -182,14 +184,14 @@ Patterns to copy from `ProductCard` (`storefront-ui.tsx:110`):
 - Link card: `group flex flex-col overflow-hidden rounded-xl border border-line bg-paper-strong transition duration-300 hover:-translate-y-0.5 hover:shadow-lg`
 - Image well: `relative aspect-square overflow-hidden bg-ember-50` + `img` with `loading="lazy"`, `object-cover`, `group-hover:scale-105`
 - Discount badge: absolute `rounded-full bg-gold-500 px-2 py-0.5 text-xs font-bold text-ink`
-- Price pair: `text-coral-600 font-bold` + strikethrough MRP `text-ember-900/40 line-through`
+- Price pair: `text-flame-600 font-bold` + strikethrough MRP `text-ember-900/40 line-through`
 - Category/unit: `text-xs text-ember-900/50`, name `line-clamp-2 font-display text-sm font-semibold`
 
 ### 3.2 Admin — `admin/src/components/admin-ui.tsx`
 
 `Card`, `StatCard`, `Badge`, `Spinner`, `ErrorState`, `EmptyState`, `Button` (variants
-`primary | secondary | ghost | danger`; default `bg-coral-600`), table + form primitives.
-Admin styling uses slate/coral utilities.
+`primary | secondary | ghost | danger`; default `bg-flame-600`), table + form primitives.
+Admin styling uses slate/flame utilities.
 
 ### 3.3 Mobile — `mobile/lib/core/widgets/widgets.dart` + `storefront.dart`
 
@@ -279,16 +281,18 @@ resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } }
 ### 7.3 Common recipes (copy these, don’t reinvent)
 ```tsx
 // Pill CTA
-className="rounded-full bg-white px-7 py-3 font-semibold text-coral-600 shadow-lg transition duration-300 hover:-translate-y-0.5 hover:bg-coral-50"
+className="rounded-full bg-white px-7 py-3 font-semibold text-flame-600 shadow-lg transition duration-300 hover:-translate-y-0.5 hover:bg-flame-50"
 // Hero gradient
-className="relative overflow-hidden bg-gradient-to-br from-coral-500 via-coral-600 to-coral-700 text-white"
+className="relative overflow-hidden bg-gradient-to-br from-flame-500 via-flame-600 to-flame-700 text-white"
 // Section heading
 <SectionHeading title="Shop by category" subtitle="…" to="/products" />
 // Form / input styling (profile-page + checkout) uses `rounded-lg border border-line bg-paper-strong px-3 py-2`
 // Focus ring is handled globally (ember-600 outline)
 // Quantity stepper (product-details): rounded-full container, − / count / + with
-//   `disabled:opacity-40`, hover:bg-coral-50, active:scale-95, Minus/Plus lucide icons
+//   `disabled:opacity-40`, hover:bg-flame-50, active:scale-95, Minus/Plus lucide icons
 // Hero trust chips: `border-t border-white/15 pt-6` row of icon + label under the CTAs
+// Engaging motion: `.animate-float` (7s drift for hero accents), `.animate-pop` (badge pop-in),
+//   `.marquee-track` (26s ribbon) — all killed under `prefers-reduced-motion`
 ```
 
 ---
@@ -345,9 +349,9 @@ When the user pastes a Figma URL or asks for design work, follow this order:
    exist (Button, Badge, Card, ProductCard, ember/gold tokens) before generating anything new.
 3. **Translate to tokens, never hard-code colors:**
    - Any fill/auto color in Figma → nearest `ember-*` / `gold-*` / `paper` / `ink` token (table in §2.3).
-   - Coral `#ff6b5a` / teal `#14b8a6` from new designs → the *shipped tokens* §2.5: `coral-600`
-     (`#e8513f`) for primary CTA fills, `coral-700` hover, `teal-600` (`#0d9488`) for secondary
-     links — deep variants for text/buttons. If a Figma variable already carries these names, map 1:1.
+   - Flame `#ff8a3d` / indigo `#4338ca` from new designs → the *shipped tokens* §2.5: `flame-600`
+      (`#b94f08`) for primary CTA fills, `flame-700` hover, `indigo-600` (`#4338ca`) for secondary
+      links — deep variants for text/buttons. If a Figma variable already carries these names, map 1:1.
    - Fonts → Nunito Sans (body) / Rubik (display). Fix Figma “SemiBold/ExtraBold” spellings to
      Tailwind `font-semibold/font-extrabold`.
    - Radius 12px → `rounded-xl`, pills → `rounded-full`, spacing multiples of 4.
@@ -361,9 +365,9 @@ When the user pastes a Figma URL or asks for design work, follow this order:
    `mobile/lib/core/widgets/widgets.dart`, and (if published) the Figma library. Never diverge.
 
 **Do / Don’t**
-- Do use `coral-600` as the primary action/accent color and `teal-600` for secondary links,
+- Do use `flame-600` as the primary action/accent color and `indigo-600` for secondary links,
   resting on the warm ember/paper baseline (headings `ember-800/900`, gold festive accents).
-- Do keep white text off `#ff6b5a`/`#14b8a6` (contrast) — use deep variants `coral-600/700`.
+- Do keep white text off `#ff8a3d`/`#544fd8` (contrast) — use deep variants `flame-600/700`.
 - Do lazy-load images, preserve `alt`, honor `prefers-reduced-motion`.
 - Don’t introduce Tailwind colors not defined in `@theme`.
 - Don’t create new icon SVGs when lucide has the glyph.
@@ -379,4 +383,4 @@ When the user pastes a Figma URL or asks for design work, follow this order:
 - New `img`s must set `alt` and `loading="lazy"`; focusable controls get a visible `:focus-visible` ring (global, free).
 - Design work is adapted from Figma as a *reference*; final truth is the code + this doc.
 
-*— SriPon Design Integration Rules (Coral `#ff6b5a` · Teal `#14b8a6`)*
+*— SriPon Design Integration Rules (Flame `#ff8a3d` · Indigo `#4338ca`)*

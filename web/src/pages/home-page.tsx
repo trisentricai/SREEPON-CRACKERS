@@ -117,18 +117,18 @@ function EmptyStateSlim() {
 
 function HeroFallback({ storeName, tagline }: { storeName?: string; tagline?: string }) {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-coral-500 via-coral-600 to-coral-700 text-white">
+    <section className="relative overflow-hidden bg-gradient-to-br from-flame-500 via-flame-600 to-flame-700 text-white">
       {/* Sparkle field + tall colour washes. */}
       <div
         className="pointer-events-none absolute inset-0 opacity-20 [background-image:var(--background-image-sparkle)]"
         aria-hidden
       />
       <div className="pointer-events-none absolute inset-0" aria-hidden>
-        <div className="absolute -right-16 -top-24 h-80 w-80 rounded-full bg-gold-400/30 blur-3xl" />
-        <div className="absolute -bottom-28 -left-20 h-80 w-80 rounded-full bg-ember-400/30 blur-3xl" />
-        <Sparkles className="absolute left-10 top-12 h-6 w-6 text-gold-300/80" />
-        <Sparkles className="absolute bottom-16 right-1/4 h-5 w-5 text-white/70" />
-        <Sparkles className="absolute right-14 top-24 h-4 w-4 text-teal-300/80" />
+        <div className="absolute -right-16 -top-24 h-80 w-80 rounded-full bg-gold-400/30 blur-3xl animate-float" />
+        <div className="absolute -bottom-28 -left-20 h-80 w-80 rounded-full bg-ember-400/30 blur-3xl animate-float" style={{ animationDelay: '2.4s' }} />
+        <Sparkles className="absolute left-10 top-12 h-6 w-6 text-gold-300/80 animate-float" />
+        <Sparkles className="absolute bottom-16 right-1/4 h-5 w-5 text-white/70 animate-float" style={{ animationDelay: '1.2s' }} />
+        <Sparkles className="absolute right-14 top-24 h-4 w-4 text-indigo-300/80 animate-float" style={{ animationDelay: '3.6s' }} />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-4 py-24 text-center sm:py-28">
@@ -142,7 +142,7 @@ function HeroFallback({ storeName, tagline }: { storeName?: string; tagline?: st
           <h1 className="mt-6 font-display text-4xl font-extrabold tracking-tight sm:text-6xl">
             {storeName ?? 'SriPon'}
           </h1>
-          <span className="mx-auto mt-3 block h-2 w-28 rounded-full bg-gradient-to-r from-coral-200 via-gold-300 to-coral-200" />
+          <span className="mx-auto mt-3 block h-2 w-28 rounded-full bg-gradient-to-r from-flame-200 via-gold-300 to-flame-200" />
         </Reveal>
         <Reveal delay={160}>
           <p className="mx-auto mt-5 max-w-2xl text-base text-ember-50/90 sm:text-lg">
@@ -153,7 +153,7 @@ function HeroFallback({ storeName, tagline }: { storeName?: string; tagline?: st
           <div className="mt-9 flex flex-wrap justify-center gap-4">
             <Link
               to="/products"
-              className="rounded-full bg-white px-7 py-3 font-semibold text-coral-600 shadow-cta transition duration-300 hover:-translate-y-0.5 hover:bg-coral-50 active:scale-95"
+              className="rounded-full bg-white px-7 py-3 font-semibold text-flame-600 shadow-cta transition duration-300 hover:-translate-y-0.5 hover:bg-flame-50 active:scale-95"
             >
               Shop now
             </Link>
@@ -260,7 +260,7 @@ function BannerStrip({
         <img src={banner.imageUrl} alt={banner.title ?? 'Promotion'} className="absolute inset-0 h-full w-full object-cover" />
       )}
       <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-gold-400 via-coral-400 to-teal-400" aria-hidden />
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-gold-400 via-flame-400 to-indigo-400" aria-hidden />
       <div className="relative z-10 mx-auto flex min-h-[320px] max-w-7xl flex-col justify-center px-4 py-16 text-white">
         <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-eyebrow text-gold-300">
           <Sparkles className="h-3.5 w-3.5" />
@@ -292,7 +292,7 @@ function BannerCard({
   return (
     <Link
       to={target}
-      className="group relative overflow-hidden rounded-xl border border-line bg-paper-strong shadow-card transition duration-300 hover:-translate-y-1 hover:border-coral-200 hover:shadow-lifted"
+      className="group relative overflow-hidden rounded-xl border border-line bg-paper-strong shadow-card transition duration-300 hover:-translate-y-1 hover:border-flame-200 hover:shadow-lifted"
     >
       <div className="pointer-events-none absolute right-3 top-3 h-10 w-10 rounded-full border border-gold-300/70 bg-gold-100/40 flex items-center justify-center" aria-hidden>
         <Sparkles className="h-4 w-4 text-gold-600" />
@@ -302,10 +302,10 @@ function BannerCard({
       )}
       <div className="p-5">
         {banner.title && (
-          <h3 className="font-display text-lg font-semibold text-ember-900 group-hover:text-coral-600">{banner.title}</h3>
+          <h3 className="font-display text-lg font-semibold text-ember-900 group-hover:text-flame-600">{banner.title}</h3>
         )}
         {banner.subtitle && <p className="mt-1 text-sm text-ember-900/60">{banner.subtitle}</p>}
-        <span className="mt-3 inline-block text-sm font-semibold text-coral-600 transition-transform duration-300 group-hover:translate-x-1">
+        <span className="mt-3 inline-block text-sm font-semibold text-flame-600 transition-transform duration-300 group-hover:translate-x-1">
           Explore →
         </span>
       </div>
@@ -324,15 +324,15 @@ function CategoryGrid({
         <Link
           key={category.slug}
           to={`/products/${category.slug}`}
-          className="group flex flex-col items-center gap-3 rounded-xl border border-line bg-paper-strong p-6 text-center shadow-card transition duration-300 hover:-translate-y-1 hover:border-coral-200 hover:shadow-lifted"
+          className="group flex flex-col items-center gap-3 rounded-xl border border-line bg-paper-strong p-6 text-center shadow-card transition duration-300 hover:-translate-y-1 hover:border-flame-200 hover:shadow-lifted"
         >
           <div className="relative" aria-hidden>
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-coral-100 to-gold-100 text-coral-600 transition duration-300 group-hover:scale-105">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-flame-100 to-gold-100 text-flame-600 transition duration-300 group-hover:scale-105">
               <PartyPopper className="h-7 w-7" />
             </div>
             <Sparkles className="absolute -right-1 -top-1 h-4 w-4 text-gold-500 transition-transform duration-300 group-hover:rotate-45" />
           </div>
-          <p className="font-display font-semibold text-ember-900 group-hover:text-coral-600">{category.name}</p>
+          <p className="font-display font-semibold text-ember-900 group-hover:text-flame-600">{category.name}</p>
         </Link>
       ))}
     </div>

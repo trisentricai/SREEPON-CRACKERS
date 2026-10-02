@@ -57,7 +57,7 @@ function OrdersContent() {
         <div className="mt-4">
           <EmptyState title="No orders yet">
             <p>
-              <Link to="/products" className="font-medium text-coral-600 underline">Browse the catalogue</Link> and
+              <Link to="/products" className="font-medium text-flame-600 underline">Browse the catalogue</Link> and
               place your first order.
             </p>
           </EmptyState>

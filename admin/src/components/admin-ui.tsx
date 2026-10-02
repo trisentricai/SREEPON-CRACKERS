@@ -33,7 +33,7 @@ export function StatCard({
 
 const TONE_CLASSES: Record<string, string> = {
   slate: 'bg-slate-100 text-slate-700',
-  orange: 'bg-coral-100 text-coral-700',
+  orange: 'bg-flame-100 text-flame-700',
   amber: 'bg-amber-100 text-amber-800',
   green: 'bg-emerald-100 text-emerald-700',
   red: 'bg-red-100 text-red-700',
@@ -60,7 +60,7 @@ export function Badge({
 export function Spinner({ label = 'Loading…' }: { label?: string }) {
   return (
     <div className="flex items-center justify-center gap-3 py-12 text-sm text-slate-500">
-      <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-coral-600" />
+      <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-flame-600" />
       {label}
     </div>
   );
@@ -95,7 +95,7 @@ export function Button({
   const base =
     'inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50';
   const variants: Record<string, string> = {
-    primary: 'bg-coral-600 text-white hover:bg-coral-700',
+    primary: 'bg-flame-600 text-white hover:bg-flame-700',
     secondary: 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50',
     ghost: 'text-slate-600 hover:bg-slate-100',
     danger: 'bg-red-600 text-white hover:bg-red-700',
@@ -127,13 +127,13 @@ export function Field({
 
 export function TextInput({ className = '', ...rest }: InputHTMLAttributes<HTMLInputElement>) {
   const base =
-    'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-coral-600 focus:outline-none';
+    'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-flame-600 focus:outline-none';
   return <input className={`${base} ${className}`} {...rest} />;
 }
 
 export function Select({ className = '', children, ...rest }: SelectHTMLAttributes<HTMLSelectElement>) {
   const base =
-    'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-coral-600 focus:outline-none';
+    'w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-flame-600 focus:outline-none';
   return (
     <select className={`${base} ${className}`} {...rest}>
       {children}
@@ -159,7 +159,7 @@ export function Toggle({
       aria-label={label ?? 'toggle'}
       onClick={() => onChange(!checked)}
       className={`relative inline-flex h-6 w-11 shrink-0 items-center rounded-full transition-colors ${
-        checked ? 'bg-coral-600' : 'bg-slate-300'
+        checked ? 'bg-flame-600' : 'bg-slate-300'
       }`}
     >
       <span

@@ -33,7 +33,7 @@ function USPRibbon() {
   const items = [...USPS, ...USPS];
   return (
     <div
-      className="marquee bg-gradient-to-r from-ember-700 via-coral-600 to-ember-700 text-white"
+      className="marquee bg-gradient-to-r from-ember-700 via-flame-600 to-ember-700 text-white"
       role="note"
     >
       <div className="marquee-track items-center py-1.5 text-xs font-semibold">
@@ -69,7 +69,7 @@ function SiteHeader() {
   });
 
   const navLink = ({ isActive }: { isActive: boolean }) =>
-    `relative py-1.5 transition-colors duration-200 hover:text-coral-600 ${isActive ? 'text-coral-600' : 'text-ember-900/80'}`;
+    `relative py-1.5 transition-colors duration-200 hover:text-flame-600 ${isActive ? 'text-flame-600' : 'text-ember-900/80'}`;
 
   return (
     <header
@@ -95,12 +95,15 @@ function SiteHeader() {
         <div className="flex items-center gap-2 text-sm md:gap-3">
           <Link
             to="/cart"
-            className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-coral-50 hover:text-coral-600 md:hidden"
+            className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-flame-50 hover:text-flame-600 md:hidden"
             aria-label="Cart"
           >
             <ShoppingBag className="h-5 w-5" />
             {!isLoading && isAuthenticated && (cartCount.data?.totalQuantity ?? 0) > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-coral-600 px-1 text-[10px] font-bold text-white shadow-sm">
+              <span
+                key={cartCount.data?.totalQuantity ?? 0}
+                className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 animate-pop items-center justify-center rounded-full bg-flame-600 px-1 text-[10px] font-bold text-white shadow-sm"
+              >
                 {cartCount.data?.totalQuantity ?? 0}
               </span>
             )}
@@ -108,19 +111,22 @@ function SiteHeader() {
 
           <Link
             to="/wishlist"
-            className="hidden h-10 w-10 items-center justify-center rounded-full hover:bg-coral-50 hover:text-coral-600 md:flex"
+            className="hidden h-10 w-10 items-center justify-center rounded-full hover:bg-flame-50 hover:text-flame-600 md:flex"
             aria-label="Wishlist"
           >
             <Heart className="h-5 w-5" />
           </Link>
           <Link
             to="/cart"
-            className="relative hidden h-10 w-10 items-center justify-center rounded-full hover:bg-coral-50 hover:text-coral-600 md:flex"
+            className="relative hidden h-10 w-10 items-center justify-center rounded-full hover:bg-flame-50 hover:text-flame-600 md:flex"
             aria-label="Cart"
           >
             <ShoppingBag className="h-5 w-5" />
             {!isLoading && isAuthenticated && (cartCount.data?.totalQuantity ?? 0) > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-coral-600 px-1 text-[10px] font-bold text-white shadow-sm">
+              <span
+                key={cartCount.data?.totalQuantity ?? 0}
+                className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 animate-pop items-center justify-center rounded-full bg-flame-600 px-1 text-[10px] font-bold text-white shadow-sm"
+              >
                 {cartCount.data?.totalQuantity ?? 0}
               </span>
             )}
@@ -130,13 +136,13 @@ function SiteHeader() {
 
           {isLoading ? null : isAuthenticated ? (
             <>
-              <Link to="/profile" className="hidden h-10 items-center gap-2 rounded-full px-3 font-medium hover:text-coral-600 sm:inline-flex">
+              <Link to="/profile" className="hidden h-10 items-center gap-2 rounded-full px-3 font-medium hover:text-flame-600 sm:inline-flex">
                 <User className="h-4 w-4" />
                 Profile
               </Link>
               <button
                 onClick={() => void logout()}
-                className="inline-flex h-10 items-center gap-2 rounded-full px-3 font-medium text-ember-700 hover:bg-coral-50 hover:text-coral-600"
+                className="inline-flex h-10 items-center gap-2 rounded-full px-3 font-medium text-ember-700 hover:bg-flame-50 hover:text-flame-600"
               >
                 <LogOut className="h-4 w-4" />
                 <span className="hidden sm:inline">Log out</span>
@@ -145,7 +151,7 @@ function SiteHeader() {
           ) : (
             <Link
               to="/profile"
-              className="rounded-full bg-coral-600 px-5 py-2 font-semibold text-white shadow-cta transition duration-200 hover:-translate-y-0.5 hover:bg-coral-700 active:scale-95"
+              className="rounded-full bg-flame-600 px-5 py-2 font-semibold text-white shadow-cta transition duration-200 hover:-translate-y-0.5 hover:bg-flame-700 active:scale-95"
             >
               Sign in
             </Link>
@@ -208,7 +214,7 @@ function SiteFooter() {
             </p>
             <button
               onClick={scrollTop}
-              className="inline-flex w-fit items-center gap-2 rounded-full border border-ember-300 bg-paper-strong px-4 py-2 text-sm font-semibold text-coral-600 transition duration-200 hover:bg-coral-50 active:scale-95"
+              className="inline-flex w-fit items-center gap-2 rounded-full border border-ember-300 bg-paper-strong px-4 py-2 text-sm font-semibold text-flame-600 transition duration-200 hover:bg-flame-50 active:scale-95"
             >
               Back to top
               <ArrowUp className="h-4 w-4" />
@@ -227,7 +233,7 @@ function FooterCol({ title, links }: { title: string; links: Array<{ label: stri
       <ul className="mt-3 space-y-2 text-sm">
         {links.map((link) => (
           <li key={link.label}>
-            <Link to={link.to} className="text-ember-900/70 transition-colors hover:text-coral-600">
+            <Link to={link.to} className="text-ember-900/70 transition-colors hover:text-flame-600">
               {link.label}
             </Link>
           </li>

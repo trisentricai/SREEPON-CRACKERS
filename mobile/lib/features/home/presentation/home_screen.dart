@@ -34,7 +34,7 @@ class HomeScreen extends ConsumerWidget {
                 gradient: const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [SriPonColors.coral500, SriPonColors.coral700],
+                  colors: [SriPonColors.flame500, SriPonColors.flame700],
                 ),
                 borderRadius: BorderRadius.circular(9),
               ),
@@ -137,18 +137,18 @@ class _TrustChips extends StatelessWidget {
           return Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: SriPonColors.teal100.withValues(alpha: 0.6),
+              color: SriPonColors.indigo100.withValues(alpha: 0.6),
               borderRadius: BorderRadius.circular(20),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, size: 14, color: SriPonColors.teal700),
+                Icon(icon, size: 14, color: SriPonColors.indigo700),
                 const SizedBox(width: 6),
                 Text(
                   label,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: SriPonColors.teal700,
+                        color: SriPonColors.indigo700,
                         fontWeight: FontWeight.w600,
                       ),
                 ),
@@ -274,7 +274,7 @@ class _HeroSlide extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [SriPonColors.coral600, SriPonColors.coral700],
+          colors: [SriPonColors.flame600, SriPonColors.flame700],
         ),
       ),
       clipBehavior: Clip.antiAlias,
@@ -417,7 +417,7 @@ class _FallbackHero extends StatelessWidget {
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [SriPonColors.coral600, SriPonColors.coral700],
+          colors: [SriPonColors.flame600, SriPonColors.flame700],
         ),
       ),
       child: Stack(

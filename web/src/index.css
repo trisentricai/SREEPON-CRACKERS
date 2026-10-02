@@ -36,22 +36,25 @@
   --color-gold-800: #7d5400;
   --color-gold-900: #5e3f00;
 
-  /* Coral — festive accent (fireworks glow); deep variants keep text/buttons AA. */
-  --color-coral-50: #fff2f0;
-  --color-coral-100: #ffe3df;
-  --color-coral-200: #ffcfc8;
-  --color-coral-300: #ff9d8f;
-  --color-coral-400: #ff8169;
-  --color-coral-500: #ff6b5a;
-  --color-coral-600: #e8513f;
-  --color-coral-700: #c93a29;
+  /* Flame — engaging primary orange (anchor #ff8a3d); deep variants keep text/buttons AA. */
+  --color-flame-50: #fff6ec;
+  --color-flame-100: #ffe8d3;
+  --color-flame-200: #ffcf9f;
+  --color-flame-300: #ffab63;
+  --color-flame-400: #ff9440;
+  --color-flame-500: #ff8a3d;
+  --color-flame-600: #b94f08;
+  --color-flame-700: #93400a;
 
-  /* Teal — complementary trust/success accent. */
-  --color-teal-100: #ccfbf1;
-  --color-teal-400: #2dd4bf;
-  --color-teal-500: #14b8a6;
-  --color-teal-600: #0d9488;
-  --color-teal-700: #0f766e;
+  /* Indigo — engaging secondary (anchor #4338ca); deep variants keep text/buttons AA. */
+  --color-indigo-50: #eef0fd;
+  --color-indigo-100: #e1e4fc;
+  --color-indigo-200: #c6cbf9;
+  --color-indigo-300: #a2a8f4;
+  --color-indigo-400: #757bec;
+  --color-indigo-500: #544fd8;
+  --color-indigo-600: #4338ca;
+  --color-indigo-700: #3730a3;
 
   /* Warm surfaces + ink. */
   --color-paper: #fff8f0;
@@ -68,7 +71,7 @@
   --shadow-card: 0 1px 2px rgb(74 36 12 / 0.05), 0 5px 14px rgb(74 36 12 / 0.07);
   --shadow-lifted: 0 2px 4px rgb(74 36 12 / 0.06), 0 18px 36px rgb(74 36 12 / 0.14);
   --shadow-pop: 0 1px 2px rgb(74 36 12 / 0.08), 0 10px 24px rgb(74 36 12 / 0.18);
-  --shadow-cta: 0 8px 20px rgb(232 81 63 / 0.35);
+  --shadow-cta: 0 8px 20px rgb(185 79 8 / 0.35);
 
   /* Shape scale. */
   --radius-card: 1rem;
@@ -94,12 +97,12 @@
   }
 
   ::selection {
-    background-color: var(--color-coral-100);
+    background-color: var(--color-flame-100);
     color: var(--color-ink);
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-coral-600);
+    outline: 2px solid var(--color-indigo-600);
     outline-offset: 2px;
   }
 
@@ -144,6 +147,33 @@
   @keyframes marquee-scroll {
     to {
       transform: translateX(-50%);
+    }
+  }
+
+  /* Gentle float for hero accents and floating badges. */
+  .animate-float {
+    animation: float-y 7s ease-in-out infinite;
+  }
+  @keyframes float-y {
+    0%,
+    100% {
+      transform: translateY(-6px);
+    }
+    50% {
+      transform: translateY(6px);
+    }
+  }
+
+  /* Pop-in for count badges and fresh highlights. */
+  .animate-pop {
+    animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes pop-in {
+    0% {
+      transform: scale(0.4);
+    }
+    100% {
+      transform: scale(1);
     }
   }
 }
