@@ -1,5 +1,4 @@
 ﻿import { useState } from 'react';
-import axios from 'axios';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/client';
 import type {
@@ -9,7 +8,6 @@ import type {
   ProductImage,
   ProductListResponse,
   ProductUnit,
-  SignedUpload,
 } from '@/api/types';
 import {
   Badge,
@@ -26,6 +24,7 @@ import {
   Toggle,
 } from '@/components/admin-ui';
 import { formatMoney, slugify } from '@/lib/format';
+import { uploadImageFile } from '@/components/image-uploader';
 
 const LIMIT = 20;
 
@@ -217,40 +216,18 @@ export function ProductsPage() {
     setModalOpen(true);
   }
 
-  /** Sign an upload on the backend, push bytes straight to Cloudinary, append the URL. */
+  /** Upload via the shared helper, append the URL to the form gallery. */
   async function handleFile(file: File) {
-    if (!file.type.startsWith('image/')) {
-      setUploadError('Please choose an image file.');
-      return;
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      setUploadError('Image must be 5 MB or smaller.');
-      return;
-    }
     setUploadError(null);
     setUploading(true);
     try {
-      const { data } = await apiClient.post<ApiEnvelope<SignedUpload>>('/admin/media/sign', {
-        folder: 'sripon/products',
-        resourceType: 'image',
-      });
-      const signature = data.data;
-      const body = new FormData();
-      body.append('file', file);
-      body.append('api_key', signature.apiKey);
-      body.append('timestamp', String(signature.timestamp));
-      body.append('folder', signature.folder);
-      body.append('signature', signature.signature);
-      const upload = await axios.post<{ secure_url: string; public_id: string }>(
-        `https://api.cloudinary.com/v1_1/${signature.cloudName}/${signature.resourceType}/upload`,
-        body,
-      );
+      const uploaded = await uploadImageFile(file, 'sripon/products');
       setForm((f) => ({
         ...f,
-        images: [...f.images, { url: upload.data.secure_url, cloudinaryPublicId: upload.data.public_id }],
+        images: [...f.images, { url: uploaded.url, cloudinaryPublicId: uploaded.publicId }],
       }));
     } catch (err) {
-      setUploadError(err instanceof Error ? `Upload failed: ${err.message}` : 'Upload failed');
+      setUploadError(err instanceof Error ? err.message : 'Upload failed');
     } finally {
       setUploading(false);
     }

@@ -23,6 +23,7 @@ import {
   Toggle,
 } from '@/components/admin-ui';
 import { titleCase } from '@/lib/format';
+import { ImageUploadButton } from '@/components/image-uploader';
 
 const LIMIT = 20;
 
@@ -119,6 +120,8 @@ export function BannersPage() {
     },
   });
 
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
   const invalidate = () => void queryClient.invalidateQueries({ queryKey: ['admin-banners'] });
 
   const saveBanner = useMutation({
@@ -158,6 +161,7 @@ export function BannersPage() {
     setEditing(null);
     setForm(EMPTY_FORM);
     setFormError(null);
+    setUploadError(null);
     setModalOpen(true);
   }
 
@@ -165,6 +169,7 @@ export function BannersPage() {
     setEditing(banner);
     setForm(toForm(banner));
     setFormError(null);
+    setUploadError(null);
     setModalOpen(true);
   }
 
@@ -273,6 +278,30 @@ export function BannersPage() {
                 </option>
               ))}
             </Select>
+          </Field>
+          <Field label="Banner image" hint="Upload 1600 × 500 px (3:1) — hero 1920 × 640 px. 5 MB max.">
+            <div className="flex items-start gap-3">
+              <ImageUploadButton
+                folder="sripon/banners"
+                label="+ Upload image"
+                onUploaded={(image) => {
+                  setUploadError(null);
+                  setForm((f) => ({ ...f, imageUrl: image.url }));
+                }}
+                onError={setUploadError}
+              />
+              {form.imageUrl && (
+                <img
+                  src={form.imageUrl}
+                  alt="Banner preview"
+                  className="h-24 w-48 rounded-lg border border-slate-200 object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }}
+                />
+              )}
+            </div>
+            {uploadError && <p className="mt-2 text-xs text-red-600">{uploadError}</p>}
           </Field>
           <Field label="Image URL">
             <TextInput
