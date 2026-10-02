@@ -78,12 +78,22 @@ export function HomePage() {
   const data = homepage.data;
   const store = settings.data?.store;
   const sections = data?.sections ?? [];
+  const hasSectionHero = sections.some(
+    (section) => section.type === 'HERO' && (section.content.banners?.length ?? 0) > 0,
+  );
+  // Grouped HOME_HERO banners render even when no HERO homepage section is
+  // configured, so a banner saved in admin never silently disappears.
+  const heroBanners =
+    data?.banners.find((group) => group.placement === 'HOME_HERO')?.items ?? [];
 
   return (
     <div>
-      {sections.length === 0 || sections.every((section) => section.type !== 'HERO' || !section.content.banners?.length) ? (
+      {!hasSectionHero && heroBanners.length === 0 ? (
         <HeroFallback storeName={store?.name} tagline={store?.tagline} />
       ) : null}
+
+      {!hasSectionHero &&
+        heroBanners.map((banner, index) => <BannerStrip key={banner.id} banner={banner} first={index === 0} />)}
 
       {sections.map((section) => (
         <HomeSection key={section.id} section={section} />
