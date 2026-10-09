@@ -8,6 +8,7 @@ import type {
   BannerListResponse,
   BannerPlacement,
   CreateBannerInput,
+  ImagePosition,
 } from '@/api/types';
 import {
   Button,
@@ -23,6 +24,7 @@ import {
   Toggle,
 } from '@/components/admin-ui';
 import { titleCase } from '@/lib/format';
+import { IMAGE_POSITIONS } from '@/lib/image-position';
 import { ImageUploadButton } from '@/components/image-uploader';
 
 const LIMIT = 20;
@@ -44,6 +46,7 @@ interface BannerFormState {
   title: string;
   subtitle: string;
   imageUrl: string;
+  objectPosition: ImagePosition;
   actionType: BannerActionType;
   actionTarget: string;
   categoryId: string;
@@ -56,6 +59,7 @@ const EMPTY_FORM: BannerFormState = {
   title: '',
   subtitle: '',
   imageUrl: '',
+  objectPosition: 'CENTER',
   actionType: 'CUSTOM_URL',
   actionTarget: '',
   categoryId: '',
@@ -69,6 +73,7 @@ function toForm(banner: Banner): BannerFormState {
     title: banner.title,
     subtitle: banner.subtitle ?? '',
     imageUrl: banner.imageUrl,
+    objectPosition: banner.objectPosition ?? 'CENTER',
     actionType: banner.actionType,
     actionTarget: banner.actionTarget ?? '',
     categoryId: banner.category?.id ?? '',
@@ -83,6 +88,7 @@ function buildPayload(form: BannerFormState): CreateBannerInput {
     title: form.title,
     subtitle: form.subtitle || undefined,
     imageUrl: form.imageUrl,
+    objectPosition: form.objectPosition,
     actionType: form.actionType,
     actionTarget: form.actionType === 'LINKED_CATEGORY' ? undefined : form.actionTarget || undefined,
     categoryId: form.actionType === 'LINKED_CATEGORY' ? form.categoryId || undefined : undefined,
@@ -309,6 +315,18 @@ export function BannersPage() {
               onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))}
               placeholder="https://res.cloudinary.com/…"
             />
+          </Field>
+          <Field label="Placement (focal point)" hint="Where to crop/place the image within the banner frame.">
+            <Select
+              value={form.objectPosition}
+              onChange={(e) => setForm((f) => ({ ...f, objectPosition: e.target.value as ImagePosition }))}
+            >
+              {IMAGE_POSITIONS.map((pos) => (
+                <option key={pos.value} value={pos.value}>
+                  {pos.label}
+                </option>
+              ))}
+            </Select>
           </Field>
           <Field label="Subtitle">
             <TextInput value={form.subtitle} onChange={(e) => setForm((f) => ({ ...f, subtitle: e.target.value }))} />

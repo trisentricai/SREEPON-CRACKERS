@@ -38,7 +38,7 @@ const catalogRelations = {
   category: { select: { id: true, name: true, slug: true } },
   images: {
     orderBy: { displayOrder: 'asc' },
-    select: { id: true, url: true, altText: true, displayOrder: true },
+    select: { id: true, url: true, altText: true, objectPosition: true, displayOrder: true },
   },
   inventory: { select: { quantity: true, lowStockThreshold: true } },
 } satisfies Prisma.ProductSelect;
@@ -239,6 +239,7 @@ export async function createProduct(input: CreateProductInput) {
             url: img.url,
             cloudinaryPublicId: img.cloudinaryPublicId ?? '',
             altText: img.altText ?? null,
+            objectPosition: img.objectPosition ?? 'CENTER',
             displayOrder: index,
           })),
         });
@@ -336,9 +337,10 @@ export async function addProductImage(productId: string, input: CreateProductIma
         url: input.url,
         cloudinaryPublicId: input.cloudinaryPublicId,
         altText: input.altText ?? null,
+        objectPosition: input.objectPosition ?? 'CENTER',
         displayOrder,
       },
-      select: { id: true, url: true, altText: true, displayOrder: true },
+      select: { id: true, url: true, altText: true, objectPosition: true, displayOrder: true },
     });
   } catch (err) {
     throw toApiError(err, { resource: 'Product image' });
@@ -356,9 +358,10 @@ export async function updateProductImage(imageId: string, input: UpdateProductIm
         ...(input.url !== undefined ? { url: input.url } : {}),
         ...(input.cloudinaryPublicId !== undefined ? { cloudinaryPublicId: input.cloudinaryPublicId } : {}),
         ...(input.altText !== undefined ? { altText: input.altText } : {}),
+        ...(input.objectPosition !== undefined ? { objectPosition: input.objectPosition } : {}),
         ...(input.displayOrder !== undefined ? { displayOrder: input.displayOrder } : {}),
       },
-      select: { id: true, url: true, altText: true, displayOrder: true },
+      select: { id: true, url: true, altText: true, objectPosition: true, displayOrder: true },
     });
     return updated;
   } catch (err) {

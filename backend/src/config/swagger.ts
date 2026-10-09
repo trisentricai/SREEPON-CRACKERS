@@ -144,6 +144,11 @@ export const openApiSpec = swaggerJsdoc({
             id: { type: 'string', format: 'uuid' },
             url: { type: 'string', format: 'url' },
             altText: { type: 'string', nullable: true },
+            objectPosition: {
+              type: 'string',
+              enum: ['CENTER', 'TOP', 'TOP_LEFT', 'TOP_RIGHT', 'LEFT', 'RIGHT', 'BOTTOM', 'BOTTOM_LEFT', 'BOTTOM_RIGHT'],
+              description: 'Focal point used to crop/place the image inside its frame.',
+            },
             displayOrder: { type: 'integer' },
           },
         },
@@ -644,6 +649,11 @@ export const openApiSpec = swaggerJsdoc({
             title: { type: 'string' },
             subtitle: { type: 'string', nullable: true },
             imageUrl: { type: 'string', format: 'url' },
+            objectPosition: {
+              type: 'string',
+              enum: ['CENTER', 'TOP', 'TOP_LEFT', 'TOP_RIGHT', 'LEFT', 'RIGHT', 'BOTTOM', 'BOTTOM_LEFT', 'BOTTOM_RIGHT'],
+              description: 'Focal point used to crop/place the banner inside its frame.',
+            },
             actionType: { type: 'string', enum: ['LINKED_PRODUCT', 'LINKED_CATEGORY', 'CUSTOM_URL'] },
             actionTarget: { type: 'string', nullable: true },
             category: {
@@ -651,6 +661,17 @@ export const openApiSpec = swaggerJsdoc({
               nullable: true,
               required: ['id', 'name', 'slug'],
               properties: { id: { type: 'string', format: 'uuid' }, name: { type: 'string' }, slug: { type: 'string' } },
+            },
+            product: {
+              type: 'object',
+              nullable: true,
+              description: 'Resolved target product for LINKED_PRODUCT banners (null otherwise).',
+              required: ['id', 'slug'],
+              properties: {
+                id: { type: 'string', format: 'uuid' },
+                slug: { type: 'string' },
+                categorySlug: { type: 'string', nullable: true },
+              },
             },
             displayOrder: { type: 'integer' },
             startAt: { type: 'string', format: 'date-time', nullable: true },
@@ -676,6 +697,11 @@ export const openApiSpec = swaggerJsdoc({
             title: { type: 'string' },
             subtitle: { type: 'string' },
             imageUrl: { type: 'string', format: 'url' },
+            objectPosition: {
+              type: 'string',
+              enum: ['CENTER', 'TOP', 'TOP_LEFT', 'TOP_RIGHT', 'LEFT', 'RIGHT', 'BOTTOM', 'BOTTOM_LEFT', 'BOTTOM_RIGHT'],
+              description: 'Focal point used to crop/place the banner inside its frame. Defaults to CENTER.',
+            },
             actionType: { type: 'string', enum: ['LINKED_PRODUCT', 'LINKED_CATEGORY', 'CUSTOM_URL'] },
             actionTarget: { type: 'string', description: 'Required unless actionType is LINKED_CATEGORY' },
             categoryId: { type: 'string', format: 'uuid', description: 'Required for LINKED_CATEGORY banners' },

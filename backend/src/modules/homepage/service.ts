@@ -51,7 +51,7 @@ const productViewSelect = {
   shortDescription: true,
   minimumAge: true,
   category: { select: { id: true, name: true, slug: true } },
-  images: { orderBy: { displayOrder: 'asc' as const }, take: 1, select: { url: true, altText: true } },
+  images: { orderBy: { displayOrder: 'asc' as const }, take: 1, select: { url: true, altText: true, objectPosition: true } },
 } satisfies Prisma.ProductSelect;
 
 const categoryViewSelect = {
@@ -75,6 +75,7 @@ function buildProductView(product: Prisma.ProductGetPayload<{ select: typeof pro
     category: product.category,
     image: product.images[0] ? product.images[0].url : null,
     imageAlt: product.images[0]?.altText ?? null,
+    imagePosition: product.images[0]?.objectPosition ?? 'CENTER',
   };
 }
 

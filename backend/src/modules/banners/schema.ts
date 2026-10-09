@@ -2,18 +2,22 @@ import { z } from 'zod';
 import {
   BannerActionType as BannerActionTypeEnum,
   BannerPlacement as BannerPlacementEnum,
+  ImagePosition as ImagePositionEnum,
   type BannerActionType,
   type BannerPlacement,
+  type ImagePosition,
 } from '../../types/enums';
 
 const bannerPlacementValues = Object.values(BannerPlacementEnum) as [BannerPlacement, ...BannerPlacement[]];
 const bannerActionTypeValues = Object.values(BannerActionTypeEnum) as [BannerActionType, ...BannerActionType[]];
+const imagePositionValues = Object.values(ImagePositionEnum) as [ImagePosition, ...ImagePosition[]];
 
 const bannerFields = z.object({
   placement: z.enum(bannerPlacementValues),
   title: z.string().trim().min(1).max(160),
   subtitle: z.string().trim().max(320).optional(),
   imageUrl: z.string().trim().url().max(800),
+  objectPosition: z.enum(imagePositionValues).optional(),
   actionType: z.enum(bannerActionTypeValues),
   actionTarget: z.string().trim().max(500).optional(),
   categoryId: z.string().uuid().optional(),

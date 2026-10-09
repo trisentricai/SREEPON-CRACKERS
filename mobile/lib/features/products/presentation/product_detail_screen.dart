@@ -87,7 +87,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             fit: StackFit.expand,
             children: [
               if (images.isNotEmpty)
-                SriponImage(url: images[_imageIndex.clamp(0, images.length - 1)].url)
+                SriponImage(
+                  url: images[_imageIndex.clamp(0, images.length - 1)].url,
+                  alignment: imagePositionAlignment(
+                    images[_imageIndex.clamp(0, images.length - 1)].objectPosition,
+                  ),
+                )
               else
                 Container(
                   color: scheme.surfaceContainerHighest,

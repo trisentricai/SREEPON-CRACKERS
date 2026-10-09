@@ -83,6 +83,18 @@ enum BannerActionType {
   CUSTOM_URL
 }
 
+enum ImagePosition {
+  CENTER
+  TOP
+  TOP_LEFT
+  TOP_RIGHT
+  LEFT
+  RIGHT
+  BOTTOM
+  BOTTOM_LEFT
+  BOTTOM_RIGHT
+}
+
 enum HomepageSectionType {
   HERO
   CATEGORY_GRID
@@ -214,14 +226,15 @@ model Product {
 }
 
 model ProductImage {
-  id                 String   @id @default(uuid())
+  id                 String        @id @default(uuid())
   productId          String
-  product            Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product            Product       @relation(fields: [productId], references: [id], onDelete: Cascade)
   cloudinaryPublicId String
   url                String
   altText            String?
-  displayOrder       Int      @default(0)
-  createdAt          DateTime @default(now())
+  objectPosition     ImagePosition @default(CENTER)
+  displayOrder       Int           @default(0)
+  createdAt          DateTime      @default(now())
 
   @@unique([productId, displayOrder])
   @@unique([productId, cloudinaryPublicId])
@@ -424,21 +437,22 @@ model CouponUsage {
 // --- Content -------------------------------------------------------------
 
 model Banner {
-  id           String           @id @default(uuid())
-  placement    BannerPlacement
-  title        String
-  subtitle     String?
-  imageUrl     String
-  actionType   BannerActionType
-  actionTarget String?
-  categoryId   String?
-  category     Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  displayOrder Int              @default(0)
-  startAt      DateTime?
-  endAt        DateTime?
-  isActive     Boolean          @default(true)
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  id              String           @id @default(uuid())
+  placement       BannerPlacement
+  title           String
+  subtitle        String?
+  imageUrl        String
+  objectPosition  ImagePosition    @default(CENTER)
+  actionType      BannerActionType
+  actionTarget    String?
+  categoryId      String?
+  category        Category?        @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  displayOrder    Int              @default(0)
+  startAt         DateTime?
+  endAt           DateTime?
+  isActive        Boolean          @default(true)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
 
   @@index([placement, isActive])
 }

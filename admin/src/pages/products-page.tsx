@@ -4,6 +4,7 @@ import { apiClient } from '@/api/client';
 import type {
   ApiEnvelope,
   CreateProductInput,
+  ImagePosition,
   Product,
   ProductImage,
   ProductListResponse,
@@ -24,6 +25,7 @@ import {
   Toggle,
 } from '@/components/admin-ui';
 import { formatMoney, slugify } from '@/lib/format';
+import { IMAGE_POSITIONS } from '@/lib/image-position';
 import { uploadImageFile } from '@/components/image-uploader';
 
 const LIMIT = 20;
@@ -34,6 +36,7 @@ interface ProductImageEntry {
   id?: string;
   url: string;
   cloudinaryPublicId?: string;
+  objectPosition?: ImagePosition;
 }
 
 interface ProductFormState {
@@ -79,7 +82,11 @@ function toForm(product: Product): ProductFormState {
     categoryId: product.category?.id ?? '',
     isActive: product.isActive,
     isFeatured: product.isFeatured,
-    images: product.images.map((image) => ({ id: image.id, url: image.url })),
+    images: product.images.map((image) => ({
+      id: image.id,
+      url: image.url,
+      objectPosition: image.objectPosition ?? 'CENTER',
+    })),
   };
 }
 
@@ -104,6 +111,7 @@ function buildImages(form: ProductFormState): CreateProductInput['images'] {
   return form.images.map((image) => ({
     url: image.url,
     ...(image.cloudinaryPublicId ? { cloudinaryPublicId: image.cloudinaryPublicId } : {}),
+    objectPosition: image.objectPosition ?? 'CENTER',
   }));
 }
 
@@ -147,7 +155,7 @@ export function ProductsPage() {
       queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
     ]);
 
-  /** Attach/remove images on edit via the per-image admin endpoints. */
+  /** Attach/remove/update images on edit via the per-image admin endpoints. */
   async function persistImages(productId: string, original: ProductImage[], next: ProductImageEntry[]) {
     const kept = new Set(next.map((image) => image.id).filter((id): id is string => Boolean(id)));
     await Promise.all(
@@ -156,11 +164,19 @@ export function ProductsPage() {
         .map((image) => apiClient.delete(`/admin/products/${productId}/images/${image.id}`)),
     );
     for (const image of next) {
-      if (image.id) continue;
-      await apiClient.post(`/admin/products/${productId}/images`, {
-        url: image.url,
-        cloudinaryPublicId: image.cloudinaryPublicId,
-      });
+      if (!image.id) {
+        await apiClient.post(`/admin/products/${productId}/images`, {
+          url: image.url,
+          cloudinaryPublicId: image.cloudinaryPublicId,
+          objectPosition: image.objectPosition ?? 'CENTER',
+        });
+        continue;
+      }
+      const before = original.find((o) => o.id === image.id)?.objectPosition ?? 'CENTER';
+      const after = image.objectPosition ?? 'CENTER';
+      if (before !== after) {
+        await apiClient.patch(`/admin/products/${productId}/images/${image.id}`, { objectPosition: after });
+      }
     }
   }
 
@@ -224,7 +240,10 @@ export function ProductsPage() {
       const uploaded = await uploadImageFile(file, 'sripon/products');
       setForm((f) => ({
         ...f,
-        images: [...f.images, { url: uploaded.url, cloudinaryPublicId: uploaded.publicId }],
+        images: [
+          ...f.images,
+          { url: uploaded.url, cloudinaryPublicId: uploaded.publicId, objectPosition: 'CENTER' },
+        ],
       }));
     } catch (err) {
       setUploadError(err instanceof Error ? err.message : 'Upload failed');
@@ -454,21 +473,39 @@ export function ProductsPage() {
           <Field label="Product images" hint="Upload photos of the product — the first one is used as the cover. 5 MB max each.">
             <div className="flex flex-wrap items-start gap-3">
               {form.images.map((image, index) => (
-                <div
-                  key={image.id ?? image.url}
-                  className="relative h-24 w-24 overflow-hidden rounded-lg border border-slate-200"
-                >
-                  <img src={image.url} alt={`Product image ${index + 1}`} className="h-full w-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setForm((f) => ({ ...f, images: f.images.filter((_, i) => i !== index) }))
+                <div key={image.id ?? image.url} className="w-28">
+                  <div className="relative h-24 w-28 overflow-hidden rounded-lg border border-slate-200">
+                    <img src={image.url} alt={`Product image ${index + 1}`} className="h-full w-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setForm((f) => ({ ...f, images: f.images.filter((_, i) => i !== index) }))
+                      }
+                      className="absolute right-1 top-1 rounded-md bg-red-600 px-1.5 py-0.5 text-xs text-white hover:bg-red-700"
+                      aria-label={`Remove image ${index + 1}`}
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <select
+                    value={image.objectPosition ?? 'CENTER'}
+                    onChange={(e) =>
+                      setForm((f) => ({
+                        ...f,
+                        images: f.images.map((img, i) =>
+                          i === index ? { ...img, objectPosition: e.target.value as ImagePosition } : img,
+                        ),
+                      }))
                     }
-                    className="absolute right-1 top-1 rounded-md bg-red-600 px-1.5 py-0.5 text-xs text-white hover:bg-red-700"
-                    aria-label={`Remove image ${index + 1}`}
+                    className="mt-1 w-full rounded border border-slate-200 bg-white px-1 py-0.5 text-[10px] text-slate-600 focus:border-flame-500 focus:outline-none"
+                    aria-label={`Placement for image ${index + 1}`}
                   >
-                    ✕
-                  </button>
+                    {IMAGE_POSITIONS.map((pos) => (
+                      <option key={pos.value} value={pos.value}>
+                        {pos.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               ))}
               <label className="flex h-24 w-36 cursor-pointer items-center justify-center rounded-lg border border-dashed border-slate-300 text-xs text-slate-500 transition-colors hover:border-flame-400 hover:text-flame-600">

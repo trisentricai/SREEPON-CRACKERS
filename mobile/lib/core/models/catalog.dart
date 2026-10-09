@@ -3,6 +3,25 @@ library;
 
 import 'api_envelope.dart';
 
+/// Focal point used to crop/place an image inside its frame.
+enum ImagePosition {
+  center('CENTER'),
+  top('TOP'),
+  topLeft('TOP_LEFT'),
+  topRight('TOP_RIGHT'),
+  left('LEFT'),
+  right('RIGHT'),
+  bottom('BOTTOM'),
+  bottomLeft('BOTTOM_LEFT'),
+  bottomRight('BOTTOM_RIGHT');
+
+  const ImagePosition(this.wire);
+  final String wire;
+
+  static ImagePosition fromWire(String? value) =>
+      ImagePosition.values.firstWhere((p) => p.wire == value, orElse: () => ImagePosition.center);
+}
+
 /// Unit of sale for a product.
 enum ProductUnit {
   box('BOX'),
@@ -67,12 +86,14 @@ class ProductImage {
     required this.id,
     required this.url,
     required this.altText,
+    required this.objectPosition,
     required this.displayOrder,
   });
 
   final String id;
   final String url;
   final String? altText;
+  final ImagePosition objectPosition;
   final int displayOrder;
 
   factory ProductImage.fromJson(dynamic json) {
@@ -83,6 +104,7 @@ class ProductImage {
       id: requiredString(json['id'], 'image.id'),
       url: requiredString(json['url'], 'image.url'),
       altText: optionalString(json['altText']),
+      objectPosition: ImagePosition.fromWire(json['objectPosition'] as String?),
       displayOrder: (json['displayOrder'] as num?)?.toInt() ?? 0,
     );
   }
@@ -152,6 +174,9 @@ class Product {
   final InventoryRef? inventory;
 
   String? get coverUrl => images.isNotEmpty ? images.first.url : null;
+
+  ImagePosition get coverPosition =>
+      images.isNotEmpty ? images.first.objectPosition : ImagePosition.center;
 
   factory Product.fromJson(dynamic json) {
     if (json is! Map<String, dynamic>) {

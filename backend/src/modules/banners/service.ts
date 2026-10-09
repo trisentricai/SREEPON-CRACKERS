@@ -21,6 +21,7 @@ const bannerSelect = {
   title: true,
   subtitle: true,
   imageUrl: true,
+  objectPosition: true,
   actionType: true,
   actionTarget: true,
   categoryId: true,
@@ -42,6 +43,7 @@ function buildBannerView(banner: BannerRow) {
     title: banner.title,
     subtitle: banner.subtitle,
     imageUrl: banner.imageUrl,
+    objectPosition: banner.objectPosition,
     actionType: banner.actionType,
     actionTarget: banner.actionTarget,
     category: banner.category ? { id: banner.category.id, name: banner.category.name, slug: banner.category.slug } : null,
@@ -52,6 +54,28 @@ function buildBannerView(banner: BannerRow) {
     createdAt: banner.createdAt,
     updatedAt: banner.updatedAt,
   };
+}
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Product reference resolved from a LINKED_PRODUCT banner target (id or slug). */
+async function bannerProductRef(actionTarget: string | null): Promise<{ id: string; slug: string; categorySlug: string | null } | null> {
+  if (!actionTarget) return null;
+  const isUuid = UUID_RE.test(actionTarget);
+  const lastSegment = actionTarget.split('/').filter(Boolean).at(-1);
+  if (!isUuid && !lastSegment) return null;
+  const product = await prisma.product.findFirst({
+    where: isUuid ? { id: actionTarget } : { slug: lastSegment! },
+    select: { id: true, slug: true, category: { select: { slug: true } } },
+  });
+  if (!product) return null;
+  return { id: product.id, slug: product.slug, categorySlug: product.category?.slug ?? null };
+}
+
+/** Base banner view plus the resolved product for LINKED_PRODUCT banners. */
+async function buildBannerViewWithLinks(banner: BannerRow) {
+  const product = banner.actionType === 'LINKED_PRODUCT' ? await bannerProductRef(banner.actionTarget) : null;
+  return { ...buildBannerView(banner), product };
 }
 
 function parseDateFilters(input: { startAt?: Date; endAt?: Date }): { startAt?: Date; endAt?: Date } {
@@ -105,7 +129,7 @@ export async function listActiveBanners() {
     select: bannerSelect,
     orderBy: [{ placement: 'asc' }, { displayOrder: 'asc' }],
   });
-  return banners.map(buildBannerView);
+  return Promise.all(banners.map(buildBannerViewWithLinks));
 }
 
 export async function listBannersForPlacement(placement: BannerPlacement) {
@@ -114,7 +138,7 @@ export async function listBannersForPlacement(placement: BannerPlacement) {
     select: bannerSelect,
     orderBy: [{ displayOrder: 'asc' }],
   });
-  return banners.map(buildBannerView);
+  return Promise.all(banners.map(buildBannerViewWithLinks));
 }
 
 export async function listAllBanners(query: AdminListBannersQuery) {
@@ -138,7 +162,7 @@ export async function listAllBanners(query: AdminListBannersQuery) {
   ]);
 
   return {
-    items: items.map(buildBannerView),
+    items: await Promise.all(items.map(buildBannerViewWithLinks)),
     pagination: { page: query.page, limit: query.limit, total, pages: Math.ceil(total / query.limit) },
   };
 }
@@ -152,6 +176,7 @@ export async function createBanner(input: CreateBannerInput, actorId: string | n
         title: input.title,
         subtitle: input.subtitle ?? null,
         imageUrl: input.imageUrl,
+        objectPosition: input.objectPosition ?? 'CENTER',
         actionType: input.actionType,
         actionTarget: input.actionTarget ?? null,
         categoryId: input.categoryId ?? null,
@@ -168,7 +193,7 @@ export async function createBanner(input: CreateBannerInput, actorId: string | n
       summary: `Banner "${banner.title}" created (${banner.placement})`,
       requestId,
     });
-    return buildBannerView(banner);
+    return buildBannerViewWithLinks(banner);
   } catch (err) {
     throw toApiError(err, { resource: 'Banner' });
   }
@@ -177,7 +202,7 @@ export async function createBanner(input: CreateBannerInput, actorId: string | n
 export async function getBanner(id: string) {
   const banner = await prisma.banner.findUnique({ where: { id }, select: bannerSelect });
   if (!banner) throw ApiError.notFound('Banner not found');
-  return buildBannerView(banner);
+  return buildBannerViewWithLinks(banner);
 }
 
 export async function updateBanner(
@@ -198,6 +223,7 @@ export async function updateBanner(
         ...(input.title !== undefined ? { title: input.title } : {}),
         ...(input.subtitle !== undefined ? { subtitle: input.subtitle } : {}),
         ...(input.imageUrl !== undefined ? { imageUrl: input.imageUrl } : {}),
+        ...(input.objectPosition !== undefined ? { objectPosition: input.objectPosition } : {}),
         ...(input.actionType !== undefined ? { actionType: input.actionType } : {}),
         ...(input.actionTarget !== undefined ? { actionTarget: input.actionTarget } : {}),
         ...(input.categoryId !== undefined ? { categoryId: input.categoryId } : {}),
@@ -215,7 +241,7 @@ export async function updateBanner(
       requestId,
       metadata: { fields: Object.keys(input) },
     });
-    return buildBannerView(banner);
+    return buildBannerViewWithLinks(banner);
   } catch (err) {
     throw toApiError(err, { resource: 'Banner' });
   }
@@ -266,7 +292,7 @@ export async function duplicateBanner(id: string, actorId: string | null, reques
     summary: `Banner "${source.title}" duplicated`,
     requestId,
   });
-  return buildBannerView(banner);
+  return buildBannerViewWithLinks(banner);
 }
 
 export async function activateBanner(id: string, input: ActivateBannerInput, actorId: string | null) {
@@ -284,7 +310,7 @@ export async function activateBanner(id: string, input: ActivateBannerInput, act
     bannerId: banner.id,
     summary: `Banner "${banner.title}" ${input.isActive ? 'activated' : 'deactivated'}`,
   });
-  return buildBannerView(banner);
+  return buildBannerViewWithLinks(banner);
 }
 
 export async function reorderBanners(items: ReorderBannersInput['items']) {

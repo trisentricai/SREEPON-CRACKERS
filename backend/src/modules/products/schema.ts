@@ -1,6 +1,12 @@
 import { z } from 'zod';
+import {
+  ImagePosition as ImagePositionEnum,
+  type ImagePosition,
+} from '../../types/enums';
 
 const MAX_PAGE_SIZE = 100;
+
+const imagePositionValues = Object.values(ImagePositionEnum) as [ImagePosition, ...ImagePosition[]];
 
 /** Money accepted as number or numeric string; normalized to a fixed 2dp string. */
 const money = z
@@ -64,6 +70,7 @@ export const createProductSchema = z
             url: z.string().url().max(500),
             cloudinaryPublicId: z.string().trim().max(200).optional(),
             altText: z.string().trim().max(200).optional(),
+            objectPosition: z.enum(imagePositionValues).optional(),
           })
           .strict(),
       )
@@ -102,6 +109,7 @@ export const createProductImageSchema = z
     url: z.string().url().max(500),
     cloudinaryPublicId: z.string().trim().max(200),
     altText: z.string().trim().max(200).optional(),
+    objectPosition: z.enum(imagePositionValues).optional(),
   })
   .strict();
 
@@ -110,6 +118,7 @@ export const updateProductImageSchema = z
     url: z.string().url().max(500).optional(),
     cloudinaryPublicId: z.string().trim().max(200).optional(),
     altText: z.string().trim().max(200).nullable().optional(),
+    objectPosition: z.enum(imagePositionValues).optional(),
     displayOrder: z.number().int().min(0).optional(),
   })
   .strict()

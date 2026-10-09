@@ -11,6 +11,30 @@ import 'widgets.dart';
 
 export 'widgets.dart' show SriPonEmptyState, SriPonSpinner, SriPonMinusIcon, SriPonColors;
 
+/// Map a focal-point preset to a Flutter [Alignment] for image cropping.
+Alignment imagePositionAlignment(ImagePosition position) {
+  switch (position) {
+    case ImagePosition.top:
+      return Alignment.topCenter;
+    case ImagePosition.topLeft:
+      return Alignment.topLeft;
+    case ImagePosition.topRight:
+      return Alignment.topRight;
+    case ImagePosition.left:
+      return Alignment.centerLeft;
+    case ImagePosition.right:
+      return Alignment.centerRight;
+    case ImagePosition.bottom:
+      return Alignment.bottomCenter;
+    case ImagePosition.bottomLeft:
+      return Alignment.bottomLeft;
+    case ImagePosition.bottomRight:
+      return Alignment.bottomRight;
+    case ImagePosition.center:
+      return Alignment.center;
+  }
+}
+
 /// Image with a graceful fallback when [url] is null or fails to load.
 class SriponImage extends StatelessWidget {
   const SriponImage({
@@ -19,6 +43,7 @@ class SriponImage extends StatelessWidget {
     this.width,
     this.height,
     this.fit = BoxFit.cover,
+    this.alignment = Alignment.center,
     this.heroTag,
   });
 
@@ -26,6 +51,7 @@ class SriponImage extends StatelessWidget {
   final double? width;
   final double? height;
   final BoxFit fit;
+  final Alignment alignment;
   final Object? heroTag;
 
   @override
@@ -47,6 +73,7 @@ class SriponImage extends StatelessWidget {
       width: width,
       height: height,
       fit: fit,
+      alignment: alignment,
       errorBuilder: (_, __, ___) => placeholder,
       loadingBuilder: (context, child, progress) {
         if (progress == null) return child;
@@ -103,7 +130,7 @@ class _ProductCardState extends State<ProductCard> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    SriponImage(url: product.coverUrl),
+                    SriponImage(url: product.coverUrl, alignment: imagePositionAlignment(product.coverPosition)),
                     if (discount != null)
                       Positioned(
                         top: 8,

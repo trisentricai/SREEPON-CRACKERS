@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly_plus/flutter_iconly_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/models/models.dart';
 import '../../../core/providers/api_providers.dart';
@@ -109,8 +110,9 @@ class HomeScreen extends ConsumerWidget {
       case HomepageSectionType.trendingProducts:
       case HomepageSectionType.todaysOffers:
       case HomepageSectionType.customCollection:
-      case HomepageSectionType.promotion:
         return _ProductListSection(section: section);
+      case HomepageSectionType.promotion:
+        return _PromoBannersSection(section: section);
     }
   }
 }
@@ -270,60 +272,64 @@ class _HeroSlide extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final imageUrl = banner.imageUrl;
-    return Container(
-      margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [SriPonColors.flame600, SriPonColors.flame700],
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: _bannerHasAction(banner) ? () => _openBanner(context, banner) : null,
+      child: Container(
+        margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: const LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [SriPonColors.flame600, SriPonColors.flame700],
+          ),
         ),
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          if (imageUrl != null)
-            SriponImage(url: imageUrl)
-          else
-            Container(
-              padding: const EdgeInsets.all(20),
-              alignment: Alignment.centerLeft,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    banner.title ?? 'Season’s festive collection',
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                        ),
-                  ),
-                  if (banner.subtitle != null) ...[
-                    const SizedBox(height: 6),
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (imageUrl != null)
+              SriponImage(url: imageUrl, alignment: imagePositionAlignment(banner.objectPosition))
+            else
+              Container(
+                padding: const EdgeInsets.all(20),
+                alignment: Alignment.centerLeft,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      banner.subtitle!,
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                            color: Colors.white.withValues(alpha: 0.85),
+                      banner.title ?? 'Season’s festive collection',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
                           ),
                     ),
+                    if (banner.subtitle != null) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        banner.subtitle!,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Colors.white.withValues(alpha: 0.85),
+                            ),
+                      ),
+                    ],
                   ],
-                ],
+                ),
               ),
+            const Positioned(
+              right: 22,
+              top: 18,
+              child: Icon(IconlyBold.star, size: 18, color: Colors.white),
             ),
-          const Positioned(
-            right: 22,
-            top: 18,
-            child: Icon(IconlyBold.star, size: 18, color: Colors.white),
-          ),
-          const Positioned(
-            right: 40,
-            bottom: 16,
-            child: Icon(IconlyBold.star, size: 14, color: Colors.white70),
-          ),
-        ],
+            const Positioned(
+              right: 40,
+              bottom: 16,
+              child: Icon(IconlyBold.star, size: 14, color: Colors.white70),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -403,6 +409,223 @@ class _HomeFallback extends ConsumerWidget {
       }
     }
     return result;
+  }
+}
+
+/// Internal mobile routes a banner action can target (explicit CUSTOM_URL paths).
+String? _internalBannerPath(String? target) {
+  if (target == null || target.isEmpty) return null;
+  final route = target.startsWith('/') ? target : '/$target';
+  switch (route) {
+    case '/cart':
+    case '/wishlist':
+    case '/profile':
+    case '/orders':
+    case '/checkout':
+      return route;
+    default:
+      return null;
+  }
+}
+
+bool _isExternalUrl(String target) {
+  final uri = Uri.tryParse(target);
+  return uri != null && uri.hasScheme && (uri.scheme == 'http' || uri.scheme == 'https');
+}
+
+/// Whether a banner's action resolves to something the user can tap.
+bool _bannerHasAction(BrandBanner banner) {
+  switch (banner.actionType) {
+    case BannerActionType.linkedCategory:
+      return banner.category != null;
+    case BannerActionType.linkedProduct:
+      if (banner.product != null) return true;
+      return _internalBannerPath(banner.actionTarget) != null;
+    case BannerActionType.customUrl:
+      final target = banner.actionTarget;
+      if (target == null || target.isEmpty) return false;
+      return _isExternalUrl(target) || _internalBannerPath(target) != null;
+  }
+}
+
+/// Navigate to a banner's destination: category list, product page, internal
+/// route, or external URL (opened in the system browser).
+Future<void> _openBanner(BuildContext context, BrandBanner banner) async {
+  switch (banner.actionType) {
+    case BannerActionType.linkedCategory:
+      final category = banner.category;
+      if (category == null) return;
+      await Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => ProductListScreen(categorySlug: category.slug, title: category.name),
+        ),
+      );
+      return;
+    case BannerActionType.linkedProduct:
+      final product = banner.product;
+      if (product != null && product.slug.isNotEmpty) {
+        await Navigator.of(context).push(
+          MaterialPageRoute<void>(builder: (_) => ProductDetailScreen(slug: product.slug)),
+        );
+        return;
+      }
+      final internalRoute = _internalBannerPath(banner.actionTarget);
+      if (internalRoute != null) {
+        await Navigator.of(context).pushNamed(internalRoute);
+      }
+      return;
+    case BannerActionType.customUrl:
+      final target = banner.actionTarget;
+      if (target == null || target.isEmpty) return;
+      if (_isExternalUrl(target)) {
+        final uri = Uri.parse(target);
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+        return;
+      }
+      final internalRoute = _internalBannerPath(target);
+      if (internalRoute != null) {
+        await Navigator.of(context).pushNamed(internalRoute);
+      }
+  }
+}
+
+/// Renders the admin-configured `PROMOTION` section: stacked banner cards,
+/// each tappable via its action.
+class _PromoBannersSection extends StatelessWidget {
+  const _PromoBannersSection({required this.section});
+
+  final HomepageSection section;
+
+  @override
+  Widget build(BuildContext context) {
+    final banners = section.content.banners ?? const <BrandBanner>[];
+    if (banners.isEmpty) return const SizedBox.shrink();
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SectionHeading(title: section.title ?? 'Today’s deals', overline: 'Special offers'),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(
+            children: [
+              for (var i = 0; i < banners.length; i++) ...[
+                _PromoBannerCard(banner: banners[i]),
+                if (i != banners.length - 1) const SizedBox(height: 12),
+              ],
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PromoBannerCard extends StatelessWidget {
+  const _PromoBannerCard({required this.banner});
+
+  final BrandBanner banner;
+
+  @override
+  Widget build(BuildContext context) {
+    final imageUrl = banner.imageUrl;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: _bannerHasAction(banner) ? () => _openBanner(context, banner) : null,
+        child: Container(
+          height: 150,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [SriPonColors.flame600, SriPonColors.flame700],
+            ),
+          ),
+          clipBehavior: Clip.antiAlias,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (imageUrl != null)
+                SriponImage(url: imageUrl, alignment: imagePositionAlignment(banner.objectPosition))
+              else
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          banner.title ?? 'Special offer',
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                              ),
+                        ),
+                        if (banner.subtitle != null) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            banner.subtitle!,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: Colors.white.withValues(alpha: 0.85),
+                                ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              if (imageUrl != null && (banner.title != null || banner.subtitle != null))
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(16, 24, 16, 12),
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.transparent, Colors.black54],
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (banner.title != null)
+                          Text(
+                            banner.title!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                          ),
+                        if (banner.subtitle != null) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            banner.subtitle!,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70),
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
@@ -598,7 +821,7 @@ class _ProductCarouselSection extends ConsumerWidget {
       images: p.image == null
           ? const <ProductImage>[]
           : [
-              ProductImage(id: p.id, url: p.image!, altText: p.imageAlt, displayOrder: 0),
+              ProductImage(id: p.id, url: p.image!, altText: p.imageAlt, objectPosition: p.imagePosition, displayOrder: 0),
             ],
       inventory: null,
     );
@@ -680,7 +903,7 @@ class _ProductListSection extends ConsumerWidget {
       images: p.image == null
           ? const <ProductImage>[]
           : [
-              ProductImage(id: p.id, url: p.image!, altText: p.imageAlt, displayOrder: 0),
+              ProductImage(id: p.id, url: p.image!, altText: p.imageAlt, objectPosition: p.imagePosition, displayOrder: 0),
             ],
       inventory: null,
     );

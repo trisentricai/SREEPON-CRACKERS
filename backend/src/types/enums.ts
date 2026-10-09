@@ -87,6 +87,20 @@ export const HomepageSectionType = {
 export type HomepageSectionType =
   (typeof HomepageSectionType)[keyof typeof HomepageSectionType];
 
+/** Focal point used to crop/place an image inside its frame (object-position). */
+export const ImagePosition = {
+  CENTER: 'CENTER',
+  TOP: 'TOP',
+  TOP_LEFT: 'TOP_LEFT',
+  TOP_RIGHT: 'TOP_RIGHT',
+  LEFT: 'LEFT',
+  RIGHT: 'RIGHT',
+  BOTTOM: 'BOTTOM',
+  BOTTOM_LEFT: 'BOTTOM_LEFT',
+  BOTTOM_RIGHT: 'BOTTOM_RIGHT',
+} as const;
+export type ImagePosition = (typeof ImagePosition)[keyof typeof ImagePosition];
+
 export const NotificationType = {
   ORDER: 'ORDER',
   PAYMENT: 'PAYMENT',

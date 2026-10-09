@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
+import type { ReactNode } from 'react';
 import { Paper, Send, ShieldDone, Star, TicketStar, TickSquare } from 'react-iconly';
 import { Link } from 'react-router-dom';
 import { api } from '@/api/client';
-import type { ApiEnvelope, CategoryTreeNode, HomepageData, HomepageSectionType, PublicSettings } from '@/api/types';
+import type { ApiEnvelope, BrandBanner, CategoryTreeNode, HomepageData, HomepageSectionType, PublicSettings } from '@/api/types';
 import {
   ErrorState,
   ProductCard,
@@ -12,6 +13,7 @@ import {
   SectionHeading,
   Skeleton,
 } from '@/components/storefront-ui';
+import { imagePositionCss } from '@/lib/image-position';
 
 const TRUST_CHIPS = [
   { icon: ShieldDone, label: 'Licensed stock' },
@@ -211,6 +213,55 @@ const PRODUCT_SECTION_META: Partial<
   CUSTOM_COLLECTION: { title: 'Collection', overline: 'Curated for you' },
 };
 
+function isExternalUrl(target: string): boolean {
+  return /^(?:https?:)?\/\//i.test(target);
+}
+
+/** Resolve a banner's action into an internal route or external URL, or null. */
+function bannerHref(banner: BrandBanner): string | null {
+  switch (banner.actionType) {
+    case 'LINKED_CATEGORY':
+      return banner.category?.slug ? `/products/${banner.category.slug}` : '/products';
+    case 'LINKED_PRODUCT':
+      if (banner.product) {
+        return banner.product.categorySlug
+          ? `/products/${banner.product.categorySlug}/${banner.product.slug}`
+          : `/products/slug/${banner.product.slug}`;
+      }
+      return banner.actionTarget?.startsWith('/') ? banner.actionTarget : null;
+    case 'CUSTOM_URL':
+      return banner.actionTarget && (banner.actionTarget.startsWith('/') || isExternalUrl(banner.actionTarget))
+        ? banner.actionTarget
+        : null;
+    default:
+      return null;
+  }
+}
+
+/** Internal routes use <Link>; external URLs need a real anchor. */
+function BannerLink({
+  href,
+  className,
+  children,
+}: {
+  href: string;
+  className?: string;
+  children: ReactNode;
+}) {
+  if (isExternalUrl(href)) {
+    return (
+      <a href={href} target="_blank" rel="noreferrer" className={className}>
+        {children}
+      </a>
+    );
+  }
+  return (
+    <Link to={href} className={className}>
+      {children}
+    </Link>
+  );
+}
+
 function HomeSection({ section }: { section: HomepageData['sections'][number] }) {
   switch (section.type) {
     case 'HERO': {
@@ -288,10 +339,16 @@ function BannerStrip({
   banner: NonNullable<HomepageData['sections'][number]['content']['banners']>[number];
   first: boolean;
 }) {
+  const href = bannerHref(banner);
   return (
     <section className={`relative overflow-hidden ${first ? '' : 'mt-2'}`}>
       {banner.imageUrl && (
-        <img src={banner.imageUrl} alt={banner.title ?? 'Promotion'} className="absolute inset-0 h-full w-full object-cover" />
+        <img
+          src={banner.imageUrl}
+          alt={banner.title ?? 'Promotion'}
+          className="absolute inset-0 h-full w-full object-cover"
+          style={{ objectPosition: imagePositionCss(banner.objectPosition) }}
+        />
       )}
       <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-transparent" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-gold-400 via-flame-400 to-indigo-400" aria-hidden />
@@ -304,13 +361,13 @@ function BannerStrip({
           <h2 className="mt-2 max-w-xl font-display text-3xl font-extrabold sm:text-4xl">{banner.title}</h2>
         )}
         {banner.subtitle && <p className="mt-3 max-w-lg text-ember-100">{banner.subtitle}</p>}
-        {banner.actionTarget && (
-          <Link
-            to={banner.actionTarget}
+        {href && (
+          <BannerLink
+            href={href}
             className="mt-6 inline-block w-fit rounded-full bg-gold-500 px-7 py-2.5 font-semibold text-ink shadow-cta transition duration-300 hover:-translate-y-0.5 hover:bg-gold-400 active:scale-95"
           >
             Shop now
-          </Link>
+          </BannerLink>
         )}
       </div>
     </section>
@@ -322,17 +379,22 @@ function BannerCard({
 }: {
   banner: NonNullable<HomepageData['sections'][number]['content']['banners']>[number];
 }) {
-  const target = banner.actionTarget ?? (banner.category?.slug ? `/products/${banner.category.slug}` : '/products');
-  return (
-    <Link
-      to={target}
-      className="group relative overflow-hidden rounded-xl border border-line bg-paper-strong shadow-card transition duration-300 hover:-translate-y-1 hover:border-flame-200 hover:shadow-lifted"
-    >
+  const href = bannerHref(banner);
+  const className =
+    'group relative overflow-hidden rounded-xl border border-line bg-paper-strong shadow-card transition duration-300 hover:-translate-y-1 hover:border-flame-200 hover:shadow-lifted';
+  const content = (
+    <>
       <div className="pointer-events-none absolute right-3 top-3 h-10 w-10 rounded-full border border-gold-300/70 bg-gold-100/40 flex items-center justify-center" aria-hidden>
         <Star className="h-4 w-4 text-gold-600" />
       </div>
       {banner.imageUrl && (
-        <img src={banner.imageUrl} alt={banner.title ?? 'Promotion'} className="h-40 w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
+        <img
+          src={banner.imageUrl}
+          alt={banner.title ?? 'Promotion'}
+          className="h-40 w-full object-cover transition duration-500 group-hover:scale-105"
+          style={{ objectPosition: imagePositionCss(banner.objectPosition) }}
+          loading="lazy"
+        />
       )}
       <div className="p-5">
         {banner.title && (
@@ -343,7 +405,16 @@ function BannerCard({
           Explore →
         </span>
       </div>
-    </Link>
+    </>
+  );
+
+  if (!href) {
+    return <div className={className}>{content}</div>;
+  }
+  return (
+    <BannerLink href={href} className={className}>
+      {content}
+    </BannerLink>
   );
 }
 

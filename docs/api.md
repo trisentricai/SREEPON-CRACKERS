@@ -137,6 +137,13 @@ registered and guarded, but return `501` until their phase ships.
   - `LINKED_CATEGORY` banners require a `categoryId`; other action types
     require an `actionTarget`. Duplicating creates an inactive copy; every
     create/update/delete/activate writes an `AuditLog` row (actor + request id).
+  - Banner views include a resolved `category` for `LINKED_CATEGORY` and a
+    resolved `product` (`{ id, slug, categorySlug }`) for `LINKED_PRODUCT`
+    (matched by id or slug) so storefronts can build working links.
+  - Banners and product images carry an `objectPosition` focal point
+    (`CENTER | TOP | TOP_LEFT | TOP_RIGHT | LEFT | RIGHT | BOTTOM |
+    BOTTOM_LEFT | BOTTOM_RIGHT`; default `CENTER`) that storefronts apply as
+    the image crop/placement. Homepage card views expose it as `imagePosition`.
 - Homepage: `GET /homepage` (public) composes active sections (with their
   banners, products and categories resolved from live data), groups active
   banners by placement, and merges the `SiteSetting`-backed homepage config.

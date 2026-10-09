@@ -7,6 +7,7 @@ import type { ApiEnvelope, Cart } from '@/api/types';
 import { useAuth } from '@/features/auth/context/auth-context';
 import { isPhaseStubError } from '../pages/phase-state';
 import { discountPercent, formatMoney, formatUnit } from '../lib/format';
+import { imagePositionCss } from '../lib/image-position';
 
 export function cn(...parts: Array<string | false | null | undefined>): string {
   return parts.filter(Boolean).join(' ');
@@ -220,7 +221,14 @@ export type CardProduct = {
   unit: string;
   shortDescription?: string | null;
   image?: string | null;
-  images?: Array<{ id: string; url: string; altText: string | null; displayOrder: number }>;
+  imagePosition?: string | null;
+  images?: Array<{
+    id: string;
+    url: string;
+    altText: string | null;
+    displayOrder: number;
+    objectPosition?: string | null;
+  }>;
   category?: { slug: string; name: string } | { id: string; slug: string; name: string } | null;
   inStock?: boolean | null;
 };
@@ -229,6 +237,12 @@ function imageOf(product: CardProduct): string | null {
   if (product.image) return product.image;
   if (product.images && product.images.length > 0) return product.images[0].url;
   return null;
+}
+
+function positionOf(product: CardProduct): string {
+  if (product.imagePosition) return imagePositionCss(product.imagePosition);
+  if (product.images && product.images.length > 0) return imagePositionCss(product.images[0].objectPosition);
+  return 'center';
 }
 
 function cartUnitOf(unit: string): string {
@@ -293,6 +307,7 @@ export function ProductCard({ product }: { product: CardProduct }) {
               src={image}
               alt={product.name}
               className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+              style={{ objectPosition: positionOf(product) }}
               loading="lazy"
             />
           ) : (

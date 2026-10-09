@@ -7,6 +7,7 @@ import type { ApiEnvelope, Cart, Product } from '@/api/types';
 import { Badge, ErrorState, Reveal, Skeleton } from '@/components/storefront-ui';
 import { useAuth } from '@/features/auth/context/auth-context';
 import { discountPercent, formatMoney, formatUnit } from '@/lib/format';
+import { imagePositionCss } from '@/lib/image-position';
 
 /**
  * Iconly ships no minus/remove glyph, so the quantity stepper draws a single
@@ -135,6 +136,7 @@ export function ProductDetailsPage() {
                 src={images[activeImage]?.url}
                 alt={images[activeImage]?.altText ?? product.name}
                 className="h-full w-full object-cover"
+                style={{ objectPosition: imagePositionCss(images[activeImage]?.objectPosition) }}
               />
             ) : (
               <div className="flex h-full items-center justify-center" aria-hidden>
@@ -150,7 +152,12 @@ export function ProductDetailsPage() {
                   onClick={() => setActiveImage(index)}
                   className={`h-20 w-20 overflow-hidden rounded-lg border-2 transition ${index === activeImage ? 'border-flame-600 shadow-sm' : 'border-transparent hover:border-flame-200'}`}
                 >
-                  <img src={image.url} alt={image.altText ?? ''} className="h-full w-full object-cover" />
+                  <img
+                    src={image.url}
+                    alt={image.altText ?? ''}
+                    className="h-full w-full object-cover"
+                    style={{ objectPosition: imagePositionCss(image.objectPosition) }}
+                  />
                 </button>
               ))}
             </div>

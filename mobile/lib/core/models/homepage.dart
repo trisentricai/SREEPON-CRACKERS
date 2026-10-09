@@ -32,6 +32,26 @@ enum BannerActionType {
       BannerActionType.values.firstWhere((a) => a.wire == value, orElse: () => BannerActionType.customUrl);
 }
 
+/// Resolved target product for `LINKED_PRODUCT` banners (matched by id or slug).
+class BannerProductRef {
+  const BannerProductRef({required this.id, required this.slug, required this.categorySlug});
+
+  final String id;
+  final String slug;
+  final String? categorySlug;
+
+  factory BannerProductRef.fromJson(dynamic json) {
+    if (json is! Map<String, dynamic>) {
+      throw const FormatException('Expected map for banner product');
+    }
+    return BannerProductRef(
+      id: requiredString(json['id'], 'banner.product.id'),
+      slug: requiredString(json['slug'], 'banner.product.slug'),
+      categorySlug: optionalString(json['categorySlug']),
+    );
+  }
+}
+
 class BrandBanner {
   const BrandBanner({
     required this.id,
@@ -39,9 +59,11 @@ class BrandBanner {
     required this.title,
     required this.subtitle,
     required this.imageUrl,
+    required this.objectPosition,
     required this.actionType,
     required this.actionTarget,
     required this.category,
+    required this.product,
     required this.displayOrder,
     required this.startAt,
     required this.endAt,
@@ -53,9 +75,11 @@ class BrandBanner {
   final String? title;
   final String? subtitle;
   final String? imageUrl;
+  final ImagePosition objectPosition;
   final BannerActionType actionType;
   final String? actionTarget;
   final CategoryRef? category;
+  final BannerProductRef? product;
   final int displayOrder;
   final String? startAt;
   final String? endAt;
@@ -71,9 +95,11 @@ class BrandBanner {
       title: optionalString(json['title']),
       subtitle: optionalString(json['subtitle']),
       imageUrl: optionalString(json['imageUrl']),
+      objectPosition: ImagePosition.fromWire(json['objectPosition'] as String?),
       actionType: BannerActionType.fromWire(json['actionType'] as String? ?? ''),
       actionTarget: optionalString(json['actionTarget']),
       category: json['category'] != null ? CategoryRef.fromJson(json['category']) : null,
+      product: json['product'] != null ? BannerProductRef.fromJson(json['product']) : null,
       displayOrder: (json['displayOrder'] as num?)?.toInt() ?? 0,
       startAt: optionalString(json['startAt']),
       endAt: optionalString(json['endAt']),
@@ -116,6 +142,7 @@ class HomepageProduct {
     required this.category,
     required this.image,
     required this.imageAlt,
+    required this.imagePosition,
   });
 
   final String id;
@@ -130,6 +157,7 @@ class HomepageProduct {
   final CategoryRef category;
   final String? image;
   final String? imageAlt;
+  final ImagePosition imagePosition;
 
   factory HomepageProduct.fromJson(dynamic json) {
     if (json is! Map<String, dynamic>) {
@@ -148,6 +176,7 @@ class HomepageProduct {
       category: CategoryRef.fromJson(json['category']),
       image: optionalString(json['image']),
       imageAlt: optionalString(json['imageAlt']),
+      imagePosition: ImagePosition.fromWire(json['imagePosition'] as String?),
     );
   }
 }

@@ -59,6 +59,7 @@ export interface ProductImage {
   id: string;
   url: string;
   altText: string | null;
+  objectPosition: ImagePosition;
   displayOrder: number;
 }
 
@@ -139,21 +140,42 @@ export type BannerPlacement =
 
 export type BannerActionType = 'LINKED_PRODUCT' | 'LINKED_CATEGORY' | 'CUSTOM_URL';
 
+/** Focal point used to crop/place an image inside its frame. */
+export type ImagePosition =
+  | 'CENTER'
+  | 'TOP'
+  | 'TOP_LEFT'
+  | 'TOP_RIGHT'
+  | 'LEFT'
+  | 'RIGHT'
+  | 'BOTTOM'
+  | 'BOTTOM_LEFT'
+  | 'BOTTOM_RIGHT';
+
 export interface BrandBanner {
   id: string;
   placement: BannerPlacement;
   title: string | null;
   subtitle: string | null;
   imageUrl: string | null;
+  objectPosition: ImagePosition;
   actionType: BannerActionType;
   actionTarget: string | null;
   category: CategoryRef | null;
+  product: BannerProductRef | null;
   displayOrder: number;
   startAt: string | null;
   endAt: string | null;
   isActive: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+/** Resolved target product for LINKED_PRODUCT banners (matched by id or slug). */
+export interface BannerProductRef {
+  id: string;
+  slug: string;
+  categorySlug: string | null;
 }
 
 export type HomepageSectionType =
