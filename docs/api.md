@@ -158,6 +158,10 @@ registered and guarded, but return `501` until their phase ships.
     falls back to best sellers), `TODAYS_OFFERS` (products on discount —
     MRP above price — ranked by discount %), `PROMOTION`,
     `CUSTOM_COLLECTION` (uses `config.productIds`).
+  - Banner placement rendering: `HOME_HERO` fills the hero strips; `HOME_SECONDARY`
+    renders in a dedicated row directly beneath the hero on web (card grid) and
+    mobile (promo cards) regardless of sections; `HOME_MIDDLE` + `HOME_BOTTOM`
+    fill the `PROMOTION` section when configured.
 
 ### Engagement (Firebase)
 - Notifications: `GET /notifications`,

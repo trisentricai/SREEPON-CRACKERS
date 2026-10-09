@@ -236,12 +236,10 @@ async function resolveSectionContent(
     case HomepageSectionType.HERO:
       return { banners: bannersForPlacement(banners, [BannerPlacement.HOME_HERO]) };
     case HomepageSectionType.PROMOTION:
+      // HOME_SECONDARY banners get their own dedicated row directly beneath
+      // the hero on both storefronts, so they stay out of this catch-all.
       return {
-        banners: bannersForPlacement(banners, [
-          BannerPlacement.HOME_MIDDLE,
-          BannerPlacement.HOME_SECONDARY,
-          BannerPlacement.HOME_BOTTOM,
-        ]),
+        banners: bannersForPlacement(banners, [BannerPlacement.HOME_MIDDLE, BannerPlacement.HOME_BOTTOM]),
       };
     case HomepageSectionType.CATEGORY_GRID:
       return { categories: await categoriesForSection() };

@@ -87,6 +87,10 @@ export function HomePage() {
   // configured, so a banner saved in admin never silently disappears.
   const heroBanners =
     data?.banners.find((group) => group.placement === 'HOME_HERO')?.items ?? [];
+  // HOME_SECONDARY banners always render in their own row directly beneath the
+  // hero, even when no HERO/PROMOTION section is configured.
+  const secondaryBanners =
+    data?.banners.find((group) => group.placement === 'HOME_SECONDARY')?.items ?? [];
 
   return (
     <div>
@@ -97,8 +101,12 @@ export function HomePage() {
       {!hasSectionHero &&
         heroBanners.map((banner, index) => <BannerStrip key={banner.id} banner={banner} first={index === 0} />)}
 
+      {!hasSectionHero && secondaryBanners.length > 0 && (
+        <SecondaryBannerRow banners={secondaryBanners} />
+      )}
+
       {sections.map((section) => (
-        <HomeSection key={section.id} section={section} />
+        <HomeSection key={section.id} section={section} secondaryBanners={secondaryBanners} />
       ))}
 
       {sections.length === 0 && categories.data && categories.data.length > 0 && (
@@ -262,7 +270,13 @@ function BannerLink({
   );
 }
 
-function HomeSection({ section }: { section: HomepageData['sections'][number] }) {
+function HomeSection({
+  section,
+  secondaryBanners,
+}: {
+  section: HomepageData['sections'][number];
+  secondaryBanners: BrandBanner[];
+}) {
   switch (section.type) {
     case 'HERO': {
       const banners = section.content.banners ?? [];
@@ -272,6 +286,7 @@ function HomeSection({ section }: { section: HomepageData['sections'][number] })
           {banners.map((banner, index) => (
             <BannerStrip key={banner.id} banner={banner} first={index === 0} />
           ))}
+          {secondaryBanners.length > 0 && <SecondaryBannerRow banners={secondaryBanners} />}
         </div>
       );
     }
@@ -415,6 +430,20 @@ function BannerCard({
     <BannerLink href={href} className={className}>
       {content}
     </BannerLink>
+  );
+}
+
+/** HOME_SECONDARY banners: a responsive card row right beneath the hero. */
+function SecondaryBannerRow({ banners }: { banners: BrandBanner[] }) {
+  if (banners.length === 0) return null;
+  return (
+    <section className="mx-auto max-w-7xl px-4 pt-8">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {banners.map((banner) => (
+          <BannerCard key={banner.id} banner={banner} />
+        ))}
+      </div>
+    </section>
   );
 }
 

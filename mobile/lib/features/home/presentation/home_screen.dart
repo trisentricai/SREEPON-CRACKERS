@@ -90,12 +90,16 @@ class HomeScreen extends ConsumerWidget {
     final sections = data.sections.where((section) => section.isActive).toList()
       ..sort((a, b) => a.displayOrder.compareTo(b.displayOrder));
     final hero = data.bannersFor(BannerPlacement.homeHero);
+    // HOME_SECONDARY banners get their own row directly beneath the hero
+    // (parity with the web home page), independent of any PROMOTION section.
+    final secondary = data.bannersFor(BannerPlacement.homeSecondary);
 
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       children: [
         const _TrustChips(),
         if (hero.isNotEmpty) _HeroBanner(banners: hero),
+        if (secondary.isNotEmpty) _SecondaryBannersRow(banners: secondary),
         ...sections.map((section) => _buildSection(context, section)),
         if (sections.isEmpty) const _HomeFallback(),
         const SizedBox(height: 24),
@@ -522,6 +526,29 @@ class _PromoBannersSection extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// HOME_SECONDARY banners: full-width promo cards shown directly beneath the
+/// hero, in admin-configured display order.
+class _SecondaryBannersRow extends StatelessWidget {
+  const _SecondaryBannersRow({required this.banners});
+
+  final List<BrandBanner> banners;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+      child: Column(
+        children: [
+          for (var i = 0; i < banners.length; i++) ...[
+            _PromoBannerCard(banner: banners[i]),
+            if (i != banners.length - 1) const SizedBox(height: 12),
+          ],
+        ],
+      ),
     );
   }
 }
