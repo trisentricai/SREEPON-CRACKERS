@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_iconly_plus/flutter_iconly_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/models/models.dart';
@@ -20,7 +21,7 @@ class WishlistScreen extends ConsumerWidget {
       return Scaffold(
         appBar: AppBar(title: const Text('Wishlist')),
         body: SriPonEmptyState(
-          icon: Icons.favorite_outline,
+          icon: IconlyLight.heart,
           title: 'Sign in required',
           message: 'Sign in to see and manage your wishlist.',
           action: FilledButton(
@@ -43,7 +44,7 @@ class WishlistScreen extends ConsumerWidget {
         data: (items) {
           if (items.isEmpty) {
             return const SriPonEmptyState(
-              icon: Icons.favorite_outline,
+              icon: IconlyLight.heart,
               title: 'Wishlist is empty',
               message: 'Tap the heart on a product to save it here.',
             );
@@ -147,7 +148,7 @@ class _WishlistTile extends ConsumerWidget {
                         const Spacer(),
                         IconButton(
                           tooltip: 'Remove',
-                          icon: const Icon(Icons.delete_outline),
+                          icon: const Icon(IconlyLight.delete),
                           onPressed: () => _remove(ref),
                         ),
                       ],

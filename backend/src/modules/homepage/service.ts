@@ -155,6 +155,61 @@ async function bestSellers(limit: number) {
     .map(buildProductView);
 }
 
+const TRENDING_WINDOW_DAYS = 30;
+
+/** Discount as a percentage of MRP; 0 when there is no genuine markdown. */
+function discountPercent(view: { basePrice: string; mrpPrice: string | null }): number {
+  if (!view.mrpPrice) return 0;
+  const mrp = Number(view.mrpPrice);
+  const price = Number(view.basePrice);
+  if (!Number.isFinite(mrp) || mrp <= 0 || !Number.isFinite(price) || price >= mrp) return 0;
+  return Math.round(((mrp - price) / mrp) * 100);
+}
+
+/** Best sellers within the recent window, falling back to all-time best sellers. */
+async function trendingProducts(limit: number) {
+  const since = new Date(Date.now() - TRENDING_WINDOW_DAYS * 24 * 60 * 60 * 1000);
+  const grouped = await prisma.orderItem.groupBy({
+    by: ['productId'],
+    where: {
+      productId: { not: null },
+      order: { status: { not: 'CANCELLED' as const }, createdAt: { gte: since } },
+    },
+    _sum: { quantity: true },
+    orderBy: { _sum: { quantity: 'desc' as const } },
+    take: limit * 2,
+  });
+  const productIds = grouped.map((group) => group.productId).filter((id): id is string => id !== null);
+  if (productIds.length === 0) return bestSellers(limit);
+  const products = await prisma.product.findMany({
+    where: { id: { in: productIds }, isActive: true, isApproved: true },
+    select: productViewSelect,
+  });
+  const byId = new Map(products.map((product) => [product.id, product]));
+  const ranked = productIds
+    .map((id) => byId.get(id))
+    .filter((product): product is NonNullable<typeof product> => product !== undefined)
+    .map(buildProductView)
+    .slice(0, limit);
+  return ranked.length > 0 ? ranked : bestSellers(limit);
+}
+
+/** Products currently on markdown (MRP above selling price), biggest saving first. */
+async function todaysOffers(limit: number) {
+  const candidates = await prisma.product.findMany({
+    where: { isActive: true, isApproved: true, mrpPrice: { not: null } },
+    select: productViewSelect,
+    orderBy: [{ updatedAt: 'desc' as const }],
+    take: Math.max(limit * 4, 40),
+  });
+  const offers = candidates
+    .map(buildProductView)
+    .filter((view) => discountPercent(view) > 0)
+    .sort((a, b) => discountPercent(b) - discountPercent(a))
+    .slice(0, limit);
+  return offers.length > 0 ? offers : featuredProducts(limit);
+}
+
 function bannersForPlacement(banners: Awaited<ReturnType<typeof listActiveBanners>>, placements: BannerPlacement[]) {
   return banners.filter((banner) => placements.includes(banner.placement));
 }
@@ -197,6 +252,10 @@ async function resolveSectionContent(
       return { products: await featuredProducts(limit) };
     case HomepageSectionType.BEST_SELLERS:
       return { products: await bestSellers(limit) };
+    case HomepageSectionType.TRENDING_PRODUCTS:
+      return { products: await trendingProducts(limit) };
+    case HomepageSectionType.TODAYS_OFFERS:
+      return { products: await todaysOffers(limit) };
     case HomepageSectionType.NEW_ARRIVALS:
       return { products: await newArrivals(limit) };
     default:

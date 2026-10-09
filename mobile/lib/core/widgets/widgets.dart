@@ -177,3 +177,31 @@ class SriPonEmptyState extends StatelessWidget {
     );
   }
 }
+
+/// Iconly ships no minus/remove glyph, so quantity steppers draw this single
+/// dash instead. It inherits the ambient [IconTheme] colour and occupies the
+/// same square box as a Material [Icon] so it drops into stepper buttons.
+class SriPonMinusIcon extends StatelessWidget {
+  const SriPonMinusIcon({super.key, this.size = 24});
+
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = IconTheme.of(context).color ?? Theme.of(context).colorScheme.onSurface;
+    return SizedBox(
+      width: size,
+      height: size,
+      child: Center(
+        child: Container(
+          width: size * 0.5,
+          height: 1.6,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(1),
+          ),
+        ),
+      ),
+    );
+  }
+}

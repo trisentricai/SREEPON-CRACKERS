@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_iconly_plus/flutter_iconly_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/models/models.dart';
@@ -56,7 +57,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
                     textInputAction: TextInputAction.search,
                     decoration: InputDecoration(
                       hintText: 'Search products…',
-                      prefixIcon: const Icon(Icons.search),
+                      prefixIcon: const Icon(IconlyLight.search),
                       isDense: true,
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                     ),
@@ -70,7 +71,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
                 ),
                 const SizedBox(width: 8),
                 PopupMenuButton<ProductSort>(
-                  icon: const Icon(Icons.sort),
+                  icon: const Icon(IconlyLight.filter),
                   tooltip: 'Sort',
                   initialValue: _sort,
                   onSelected: (value) => setState(() {
@@ -177,7 +178,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
                     children: [
                       IconButton(
                         tooltip: 'Previous page',
-                        icon: const Icon(Icons.chevron_left),
+                        icon: const Icon(IconlyLight.arrow_left_2),
                         onPressed: _page <= 1
                             ? null
                             : () => setState(() => _page -= 1),
@@ -185,7 +186,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
                       Text('${response.pagination.page} / ${response.pagination.pages}'),
                       IconButton(
                         tooltip: 'Next page',
-                        icon: const Icon(Icons.chevron_right),
+                        icon: const Icon(IconlyLight.arrow_right_2),
                         onPressed: _page >= response.pagination.pages
                             ? null
                             : () => setState(() => _page += 1),
@@ -221,7 +222,7 @@ class _EmptyCatalogue extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.search_off, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            Icon(IconlyLight.search, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
             const SizedBox(height: 12),
             Text('No products found', style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 6),

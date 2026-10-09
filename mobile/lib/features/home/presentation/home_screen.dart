@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_iconly_plus/flutter_iconly_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/models/models.dart';
@@ -38,7 +39,7 @@ class HomeScreen extends ConsumerWidget {
                 ),
                 borderRadius: BorderRadius.circular(9),
               ),
-              child: const Icon(Icons.local_fire_department, color: Colors.white, size: 17),
+              child: const Icon(IconlyBold.ticket_star, color: Colors.white, size: 17),
             ),
             const SizedBox(width: 10),
             Text(
@@ -50,7 +51,7 @@ class HomeScreen extends ConsumerWidget {
         actions: [
           IconButton(
             tooltip: 'Wishlist',
-            icon: const Icon(Icons.favorite_outline),
+            icon: const Icon(IconlyLight.heart),
             onPressed: () => Navigator.of(context).pushNamed('/wishlist'),
           ),
           IconButton(
@@ -59,7 +60,7 @@ class HomeScreen extends ConsumerWidget {
             icon: Badge.count(
               count: cartCount,
               isLabelVisible: cartCount > 0,
-              child: const Icon(Icons.shopping_bag_outlined),
+              child: const Icon(IconlyLight.bag_2),
             ),
           ),
         ],
@@ -105,6 +106,8 @@ class HomeScreen extends ConsumerWidget {
       case HomepageSectionType.featuredProducts:
       case HomepageSectionType.bestSellers:
       case HomepageSectionType.newArrivals:
+      case HomepageSectionType.trendingProducts:
+      case HomepageSectionType.todaysOffers:
       case HomepageSectionType.customCollection:
       case HomepageSectionType.promotion:
         return _ProductListSection(section: section);
@@ -117,10 +120,10 @@ class _TrustChips extends StatelessWidget {
   const _TrustChips();
 
   static const _items = <(IconData, String)>[
-    (Icons.security, 'Licensed stock'),
-    (Icons.local_shipping_outlined, '24–48h dispatch'),
-    (Icons.receipt_long_outlined, 'GST invoice'),
-    (Icons.verified_outlined, 'CE / ISI'),
+    (IconlyLight.shield_done, 'Licensed stock'),
+    (IconlyLight.send, '24–48h dispatch'),
+    (IconlyLight.paper, 'GST invoice'),
+    (IconlyLight.tick_square, 'CE / ISI'),
   ];
 
   @override
@@ -313,12 +316,12 @@ class _HeroSlide extends StatelessWidget {
           const Positioned(
             right: 22,
             top: 18,
-            child: Icon(Icons.auto_awesome, size: 18, color: Colors.white),
+            child: Icon(IconlyBold.star, size: 18, color: Colors.white),
           ),
           const Positioned(
             right: 40,
             bottom: 16,
-            child: Icon(Icons.auto_awesome, size: 14, color: Colors.white70),
+            child: Icon(IconlyBold.star, size: 14, color: Colors.white70),
           ),
         ],
       ),
@@ -378,7 +381,7 @@ class _HomeFallback extends ConsumerWidget {
               onPressed: () => Navigator.of(context).push(
                 MaterialPageRoute<void>(builder: (_) => const ProductListScreen()),
               ),
-              icon: const Icon(Icons.grid_view),
+              icon: const Icon(IconlyLight.category),
               label: const Text('Browse all products'),
             ),
           ),
@@ -437,7 +440,7 @@ class _FallbackHero extends StatelessWidget {
               ),
             ],
           ),
-          const Positioned(right: 14, top: 14, child: Icon(Icons.auto_awesome, size: 18, color: Colors.white)),
+          const Positioned(right: 14, top: 14, child: Icon(IconlyBold.star, size: 18, color: Colors.white)),
         ],
       ),
     );
@@ -482,6 +485,52 @@ class _CategoryGridSection extends ConsumerWidget {
   }
 }
 
+/// Storefront heading defaults for each section type (overridable from the
+/// admin editor through `section.title`).
+String _sectionTitle(HomepageSectionType type) {
+  switch (type) {
+    case HomepageSectionType.trendingProducts:
+      return 'Trending products';
+    case HomepageSectionType.todaysOffers:
+      return "Today's offers";
+    case HomepageSectionType.bestSellers:
+      return 'Best sellers';
+    case HomepageSectionType.newArrivals:
+      return 'New arrivals';
+    case HomepageSectionType.featuredProducts:
+      return 'Featured products';
+    case HomepageSectionType.productCarousel:
+    case HomepageSectionType.customCollection:
+      return 'Collection';
+    case HomepageSectionType.categoryGrid:
+      return 'Shop by category';
+    case HomepageSectionType.hero:
+      return 'Featured';
+    case HomepageSectionType.promotion:
+      return 'Offers';
+  }
+}
+
+String _sectionOverline(HomepageSectionType type) {
+  switch (type) {
+    case HomepageSectionType.trendingProducts:
+      return 'Trending now';
+    case HomepageSectionType.todaysOffers:
+      return 'Deals on today';
+    case HomepageSectionType.bestSellers:
+      return 'Loved by buyers';
+    case HomepageSectionType.newArrivals:
+      return 'Fresh in stock';
+    case HomepageSectionType.categoryGrid:
+    case HomepageSectionType.hero:
+    case HomepageSectionType.promotion:
+    case HomepageSectionType.productCarousel:
+    case HomepageSectionType.customCollection:
+    case HomepageSectionType.featuredProducts:
+      return 'Handpicked for you';
+  }
+}
+
 class _ProductCarouselSection extends ConsumerWidget {
   const _ProductCarouselSection({required this.section});
 
@@ -494,7 +543,11 @@ class _ProductCarouselSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionHeading(title: section.title ?? 'Featured', overline: 'Handpicked for you'),
+        SectionHeading(
+          title: section.title ??
+              (section.type == HomepageSectionType.productCarousel ? 'Featured' : _sectionTitle(section.type)),
+          overline: _sectionOverline(section.type),
+        ),
         SizedBox(
           height: 230,
           child: ListView.separated(
@@ -564,7 +617,10 @@ class _ProductListSection extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionHeading(title: section.title ?? 'Collection', overline: 'Handpicked for you'),
+        SectionHeading(
+          title: section.title ?? _sectionTitle(section.type),
+          overline: _sectionOverline(section.type),
+        ),
         GridView.builder(
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),

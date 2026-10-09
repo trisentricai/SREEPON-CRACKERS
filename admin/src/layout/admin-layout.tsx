@@ -11,6 +11,7 @@ const NAV_ITEMS = [
   { to: '/inventory', label: 'Inventory' },
   { to: '/coupons', label: 'Coupons' },
   { to: '/banners', label: 'Banners' },
+  { to: '/homepage', label: 'Homepage' },
   { to: '/settings', label: 'Settings' },
 ];
 

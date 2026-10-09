@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_iconly_plus/flutter_iconly_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/models/models.dart';
@@ -39,7 +40,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         actions: [
           IconButton(
             tooltip: 'Add to wishlist',
-            icon: Icon(_inWishlist ? Icons.favorite : Icons.favorite_outline),
+            icon: Icon(_inWishlist ? IconlyBold.heart : IconlyLight.heart),
             onPressed: _savingWishlist || !auth.isAuthenticated
                 ? null
                 : () => _toggleWishlist(product.value),
@@ -90,7 +91,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               else
                 Container(
                   color: scheme.surfaceContainerHighest,
-                  child: Icon(Icons.local_fire_department, size: 64, color: scheme.primary.withValues(alpha: 0.4)),
+                  child: Icon(IconlyLight.ticket_star, size: 64, color: scheme.primary.withValues(alpha: 0.4)),
                 ),
               if (discount != null)
                 Positioned(
@@ -148,7 +149,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   padding: const EdgeInsets.only(top: 8),
                   child: Row(
                     children: [
-                      Icon(Icons.verified_user_outlined, size: 16, color: scheme.primary),
+                      Icon(IconlyLight.shield_done, size: 16, color: scheme.primary),
                       const SizedBox(width: 6),
                       Text(
                         'Age-restricted: 18+',
@@ -225,7 +226,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         const Spacer(),
         IconButton.outlined(
           tooltip: 'Decrease',
-          icon: const Icon(Icons.remove),
+          icon: const SriPonMinusIcon(),
           onPressed: _quantity <= 1 ? null : () => setState(() => _quantity -= 1),
         ),
         Padding(
@@ -234,7 +235,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         ),
         IconButton.outlined(
           tooltip: 'Increase',
-          icon: const Icon(Icons.add),
+          icon: const Icon(IconlyLight.plus),
           onPressed: maxQty != null && _quantity >= maxQty
               ? null
               : () => setState(() => _quantity += 1),
@@ -249,7 +250,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         width: double.infinity,
         child: FilledButton.icon(
           onPressed: () => Navigator.of(context).pushNamed('/profile'),
-          icon: const Icon(Icons.lock_outline),
+          icon: const Icon(IconlyLight.lock),
           label: const Text('Sign in to add to cart'),
         ),
       );
@@ -261,7 +262,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           onPressed: outOfStock || _savingCart ? null : _addToCart,
           icon: _savingCart
               ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-              : const Icon(Icons.add_shopping_cart),
+              : const Icon(IconlyBold.bag_2),
           label: Text(outOfStock ? 'Out of stock' : 'Add to cart'),
         ),
         if (_savingCart)

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_iconly_plus/flutter_iconly_plus.dart';
 
 import '../../../core/theme/sripon_theme.dart';
 import '../../auth/presentation/profile_screen.dart';
@@ -79,28 +80,28 @@ class _MainTabsState extends State<MainTabs> {
         onDestinationSelected: _onDestinationSelected,
         destinations: const [
           NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home),
+            icon: Icon(IconlyLight.home),
+            selectedIcon: Icon(IconlyBold.home),
             label: 'Home',
           ),
           NavigationDestination(
-            icon: Icon(Icons.category_outlined),
-            selectedIcon: Icon(Icons.category),
+            icon: Icon(IconlyLight.category),
+            selectedIcon: Icon(IconlyBold.category),
             label: 'Shop',
           ),
           NavigationDestination(
-            icon: Icon(Icons.shopping_cart_outlined),
-            selectedIcon: Icon(Icons.shopping_cart),
+            icon: Icon(IconlyLight.bag_2),
+            selectedIcon: Icon(IconlyBold.bag_2),
             label: 'Cart',
           ),
           NavigationDestination(
-            icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon: Icon(Icons.receipt_long),
+            icon: Icon(IconlyLight.paper),
+            selectedIcon: Icon(IconlyBold.paper),
             label: 'Orders',
           ),
           NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
+            icon: Icon(IconlyLight.user),
+            selectedIcon: Icon(IconlyBold.user_2),
             label: 'Account',
           ),
         ],

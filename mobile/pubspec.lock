@@ -166,6 +166,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_iconly_plus:
+    dependency: "direct main"
+    description:
+      name: flutter_iconly_plus
+      sha256: "8c56676b4990e7bfe2e559674348e6ef96e3698f123524c6737e7d15df52a545"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   flutter_lints:
     dependency: "direct dev"
     description:

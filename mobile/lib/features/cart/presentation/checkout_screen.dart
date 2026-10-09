@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_iconly_plus/flutter_iconly_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/models/models.dart';
@@ -89,7 +90,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   Widget _buildCheckout(BuildContext context, Cart cart, List<Address> addresses) {
     if (cart.items.isEmpty) {
       return const SriPonEmptyState(
-        icon: Icons.shopping_cart_outlined,
+        icon: IconlyLight.bag_2,
         title: 'Your cart is empty',
         message: 'Add products before checking out.',
       );
@@ -136,8 +137,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       children: [
                         Icon(
                           address == effectiveDefault
-                              ? Icons.radio_button_checked
-                              : Icons.radio_button_unchecked,
+                              ? IconlyBold.tick_square
+                              : IconlyLight.tick_square,
                           color: address == effectiveDefault
                               ? Theme.of(context).colorScheme.primary
                               : Theme.of(context).colorScheme.outline,
@@ -159,7 +160,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                             ],
                           ),
                         ),
-                        if (address.isDefault) const Icon(Icons.star, size: 18),
+                        if (address.isDefault) const Icon(IconlyBold.star, size: 18),
                       ],
                     ),
                   ),
@@ -196,7 +197,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               padding: const EdgeInsets.only(top: 6),
               child: Row(
                 children: [
-                  const Icon(Icons.check_circle, size: 16, color: SriPonColors.success),
+                  const Icon(IconlyBold.tick_square, size: 16, color: SriPonColors.success),
                   const SizedBox(width: 6),
                   Text('Coupon $_couponApplied applied', style: const TextStyle(color: SriPonColors.success)),
                 ],

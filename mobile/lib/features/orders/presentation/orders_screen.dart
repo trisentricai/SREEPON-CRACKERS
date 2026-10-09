@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_iconly_plus/flutter_iconly_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/models/models.dart';
@@ -34,7 +35,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
       return Scaffold(
         appBar: AppBar(title: const Text('Orders')),
         body: SriPonEmptyState(
-          icon: Icons.receipt_long_outlined,
+          icon: IconlyLight.paper,
           title: 'Sign in required',
           message: 'Sign in to view your orders.',
           action: FilledButton(
@@ -57,7 +58,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
         data: (response) {
           if (response.items.isEmpty) {
             return const SriPonEmptyState(
-              icon: Icons.receipt_long_outlined,
+              icon: IconlyLight.paper,
               title: 'No orders yet',
               message: 'Your placed orders will show up here.',
             );

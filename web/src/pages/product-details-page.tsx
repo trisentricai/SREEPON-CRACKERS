@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { BadgeCheck, Minus, PartyPopper, Plus, ShieldCheck, Truck } from 'lucide-react';
+import { Paper, Plus, Send, ShieldDone, TicketStar } from 'react-iconly';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { api } from '@/api/client';
@@ -7,6 +7,18 @@ import type { ApiEnvelope, Cart, Product } from '@/api/types';
 import { Badge, ErrorState, Reveal, Skeleton } from '@/components/storefront-ui';
 import { useAuth } from '@/features/auth/context/auth-context';
 import { discountPercent, formatMoney, formatUnit } from '@/lib/format';
+
+/**
+ * Iconly ships no minus/remove glyph, so the quantity stepper draws a single
+ * 24px-grid dash that inherits `currentColor` like the Iconly icons around it.
+ */
+function MinusIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path d="M5 12h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
 
 /** Product detail with gallery, add-to-cart, and wishlist actions. */
 export function ProductDetailsPage() {
@@ -126,7 +138,7 @@ export function ProductDetailsPage() {
               />
             ) : (
               <div className="flex h-full items-center justify-center" aria-hidden>
-                <PartyPopper className="h-16 w-16 text-ember-300" />
+                <TicketStar className="h-16 w-16 text-ember-300" />
               </div>
             )}
           </div>
@@ -215,7 +227,7 @@ export function ProductDetailsPage() {
                   aria-label="Decrease quantity"
                   className="flex h-9 w-9 items-center justify-center rounded-l-full text-ember-800 transition hover:bg-flame-50 active:scale-95 disabled:opacity-40"
                 >
-                  <Minus className="h-4 w-4" />
+                  <MinusIcon className="h-4 w-4" />
                 </button>
                 <span className="w-9 text-center text-sm font-bold tabular-nums text-ember-900" aria-live="polite">
                   {quantity}
@@ -249,13 +261,13 @@ export function ProductDetailsPage() {
 
           <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-line bg-paper-strong p-4 text-sm text-ember-900/70 shadow-card">
             <span className="inline-flex items-center gap-1.5">
-              <Truck className="h-4 w-4 text-indigo-600" /> Ships in 24–48h
+              <Send className="h-4 w-4 text-indigo-600" /> Ships in 24–48h
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <ShieldCheck className="h-4 w-4 text-indigo-600" /> Licensed &amp; insured
+              <ShieldDone className="h-4 w-4 text-indigo-600" /> Licensed &amp; insured
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <BadgeCheck className="h-4 w-4 text-indigo-600" /> GST invoice included
+              <Paper className="h-4 w-4 text-indigo-600" /> GST invoice included
             </span>
           </div>
 

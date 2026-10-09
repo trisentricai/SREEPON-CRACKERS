@@ -163,6 +163,8 @@ export type HomepageSectionType =
   | 'FEATURED_PRODUCTS'
   | 'BEST_SELLERS'
   | 'NEW_ARRIVALS'
+  | 'TRENDING_PRODUCTS'
+  | 'TODAYS_OFFERS'
   | 'PROMOTION'
   | 'CUSTOM_COLLECTION';
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_iconly_plus/flutter_iconly_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/models/models.dart';
@@ -248,21 +249,21 @@ class _ProfileViewState extends ConsumerState<_ProfileView> {
             _section(context, 'Your activity', Column(
               children: [
                 ListTile(
-                  leading: const Icon(Icons.receipt_long_outlined),
+                  leading: const Icon(IconlyLight.paper),
                   title: const Text('Orders'),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const Icon(IconlyLight.arrow_right_2),
                   onTap: () => Navigator.of(context).pushNamed('/orders'),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.favorite_outline),
+                  leading: const Icon(IconlyLight.heart),
                   title: const Text('Wishlist'),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const Icon(IconlyLight.arrow_right_2),
                   onTap: () => Navigator.of(context).pushNamed('/wishlist'),
                 ),
                 ListTile(
-                  leading: const Icon(Icons.shopping_cart_outlined),
+                  leading: const Icon(IconlyLight.bag_2),
                   title: const Text('Cart'),
-                  trailing: const Icon(Icons.chevron_right),
+                  trailing: const Icon(IconlyLight.arrow_right_2),
                   onTap: () => Navigator.of(context).pop(),
                 ),
               ],
@@ -285,7 +286,7 @@ class _ProfileViewState extends ConsumerState<_ProfileView> {
                     alignment: Alignment.centerLeft,
                     child: TextButton.icon(
                       onPressed: () => setState(() => _addressEditorOpen = true),
-                      icon: const Icon(Icons.add),
+                      icon: const Icon(IconlyLight.plus),
                       label: const Text('Add address'),
                     ),
                   ),
@@ -316,12 +317,12 @@ class _ProfileViewState extends ConsumerState<_ProfileView> {
             if (!address.isDefault)
               IconButton(
                 tooltip: 'Set default',
-                icon: const Icon(Icons.star_outline, size: 20),
+                icon: const Icon(IconlyLight.star, size: 20),
                 onPressed: () => _setDefault(address),
               ),
             IconButton(
               tooltip: 'Remove',
-              icon: const Icon(Icons.delete_outline, size: 20),
+              icon: const Icon(IconlyLight.delete, size: 20),
               onPressed: () => _removeAddress(address),
             ),
           ],

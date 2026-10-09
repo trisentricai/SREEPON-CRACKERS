@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_iconly_plus/flutter_iconly_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/models/models.dart';
@@ -77,7 +78,7 @@ class OrderDetailScreen extends ConsumerWidget {
           if (order.coupon != null)
             _section(context, 'Coupon', Row(
               children: [
-                const Icon(Icons.local_offer_outlined, size: 16),
+                const Icon(IconlyLight.discount, size: 16),
                 const SizedBox(width: 6),
                 Text('${order.coupon!.code} applied'),
               ],
@@ -134,18 +135,18 @@ class OrderDetailScreen extends ConsumerWidget {
       if (canCancel)
         OutlinedButton.icon(
           onPressed: () => _requestCancel(context, ref, order),
-          icon: const Icon(Icons.close_outlined),
+          icon: const Icon(IconlyLight.close_square),
           label: const Text('Request cancellation'),
         ),
       if (canReturn)
         OutlinedButton.icon(
           onPressed: () => _requestReturn(context, ref, order),
-          icon: const Icon(Icons.assignment_return_outlined),
+          icon: const Icon(IconlyLight.swap),
           label: const Text('Request return'),
         ),
       TextButton.icon(
         onPressed: () => _downloadInvoice(context, ref, order),
-        icon: const Icon(Icons.receipt_outlined),
+        icon: const Icon(IconlyLight.paper),
         label: const Text('Download invoice'),
       ),
     ];

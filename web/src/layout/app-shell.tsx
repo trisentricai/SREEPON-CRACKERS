@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { ArrowUp, Heart, LogOut, ShoppingBag, Sparkles, User } from 'lucide-react';
+import { ArrowUp, Bag2, Heart, Logout, Star, User } from 'react-iconly';
 import { useEffect, useState } from 'react';
 import { Link, NavLink, Outlet } from 'react-router-dom';
 import { api } from '@/api/client';
@@ -39,7 +39,7 @@ function USPRibbon() {
       <div className="marquee-track items-center py-1.5 text-xs font-semibold">
         {items.map((text, index) => (
           <span key={index} className="flex items-center gap-2 px-6" aria-hidden={index >= USPS.length}>
-            <Sparkles className="h-3 w-3 text-gold-300" />
+            <Star className="h-3 w-3 text-gold-300" />
             <span className="tracking-wide">{text}</span>
           </span>
         ))}
@@ -98,7 +98,7 @@ function SiteHeader() {
             className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-flame-50 hover:text-flame-600 md:hidden"
             aria-label="Cart"
           >
-            <ShoppingBag className="h-5 w-5" />
+            <Bag2 className="h-5 w-5" />
             {!isLoading && isAuthenticated && (cartCount.data?.totalQuantity ?? 0) > 0 && (
               <span
                 key={cartCount.data?.totalQuantity ?? 0}
@@ -121,7 +121,7 @@ function SiteHeader() {
             className="relative hidden h-10 w-10 items-center justify-center rounded-full hover:bg-flame-50 hover:text-flame-600 md:flex"
             aria-label="Cart"
           >
-            <ShoppingBag className="h-5 w-5" />
+            <Bag2 className="h-5 w-5" />
             {!isLoading && isAuthenticated && (cartCount.data?.totalQuantity ?? 0) > 0 && (
               <span
                 key={cartCount.data?.totalQuantity ?? 0}
@@ -144,7 +144,7 @@ function SiteHeader() {
                 onClick={() => void logout()}
                 className="inline-flex h-10 items-center gap-2 rounded-full px-3 font-medium text-ember-700 hover:bg-flame-50 hover:text-flame-600"
               >
-                <LogOut className="h-4 w-4" />
+                <Logout className="h-4 w-4" />
                 <span className="hidden sm:inline">Log out</span>
               </button>
             </>
@@ -194,7 +194,7 @@ function SiteFooter() {
                   key={usp}
                   className="inline-flex items-center gap-1.5 rounded-full border border-ember-200 bg-paper-strong px-3 py-1 text-xs font-medium text-ember-800"
                 >
-                  <Sparkles className="h-3 w-3 text-gold-600" />
+                  <Star className="h-3 w-3 text-gold-600" />
                   {usp}
                 </span>
               ))}

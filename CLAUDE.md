@@ -24,7 +24,7 @@
 |---|---|---|---|---|
 | Customer storefront | `web/` | React 19 + Vite 8 + TS 5.9 + Tailwind v4 + Firebase Auth | `npm run build` (tsc + vite) | Netlify (auto from master) + Firebase Hosting |
 | Admin dashboard | `admin/` | React 19 + Vite + TS + Tailwind v4 + Supabase Auth | `npm run build` | Netlify |
-| Mobile app | `mobile/` | Flutter (Material 3, google_fonts) | `flutter test` / `flutter analyze` | App stores |
+| Mobile app | `mobile/` | Flutter (Material 3, google_fonts, Iconly) | `flutter test` / `flutter analyze` | App stores |
 | Backend API | `backend/` | Node + Express + Prisma + Zod | `npm run build` | Render |
 | API contract | `docs/api.md` | OpenAPI — source of truth for `web/src/api/types.ts` | — | — |
 
@@ -195,7 +195,7 @@ Admin styling uses slate/flame utilities.
 
 ### 3.3 Mobile — `mobile/lib/core/widgets/widgets.dart` + `storefront.dart`
 
-`SriPonColors` (tokens), `SriPonSpinner`, `SriPonEmptyState`; Material 3 theme in
+`SriPonColors` (tokens), `SriPonSpinner`, `SriPonEmptyState`, `SriPonMinusIcon` (Iconly has no minus); Material 3 theme in
 `sripon_theme.dart`. Feature screens live in `mobile/lib/features/<feature>/presentation/`.
 
 ### 3.4 Component governance for Figma integration
@@ -214,7 +214,7 @@ Admin styling uses slate/flame utilities.
 - Vite 8 (build+trancing), `@vitejs/plugin-react`, `@tailwindcss/vite`
 - Tailwind CSS **v4** (CSS-first config — never add `tailwind.config.js`)
 - TanStack Query 5 (`QueryClient` in `src/main.tsx`, default `retry: 1, staleTime: 30_000`)
-- axios 1.x (single instance, see §6 API patterns), zod 3 (env + validation), `lucide-react` icons, `firebase` 12 (auth)
+- axios 1.x (single instance, see §6 API patterns), zod 3 (env + validation), `react-iconly` icons, `firebase` 12 (auth)
 
 Path alias: `@/` → `src/` (set in `vite.config.ts`):
 ```ts
@@ -223,7 +223,7 @@ resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } }
 
 ### Admin (`admin/package.json`) — same React/Vite/Tailwind stack, plus `@supabase/supabase-js`.
 
-### Mobile — Flutter (Material 3), `google_fonts`, `riverpod`, Dio-based `api_client.dart`.
+### Mobile — Flutter (Material 3), `google_fonts`, `flutter_iconly_plus` icons, `riverpod`, Dio-based `api_client.dart`.
 
 ### Backend — Express + Prisma + Zod; module pattern in §7.
 
@@ -257,11 +257,17 @@ resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } }
 
 ## 6. Icon System
 
-- **Web/admin:** `lucide-react`, imported by name — `import { PartyPopper, Sparkles } from 'lucide-react'` (see `home-page.tsx:2`). Icons are inline SVG, inherit `currentColor`, sized via `h-*/w-*`, tinted with text tokens (`text-ember-600/40`).
-- **Usage restraint:** lucide is used only for decoration/ambient sparkle today. Only add icons where the design calls for them; keep the same file-level import style.
-- **Spinners** are custom inline SVG or Tailwind ring animation (`animate-spin rounded-full border-2 border-t-orange-600` in admin `Spinner`) — not lucide.
-- **Mobile:** Flutter Material `IconData` (party/category glyphs) passed into `SriPonEmptyState`.
-- **No image-icon / SVG-file sprite system exists.** Do not introduce one — use lucide for new icons.
+- **Web:** `react-iconly` (Iconly v2), imported by name — `import { Bag2, Heart, Star } from 'react-iconly'` (see `home-page.tsx:2`). Icons inherit `currentColor` (Iconly defaults `primaryColor`/`secondaryColor` to `currentColor`), are sized with `h-*/w-*` utilities and tinted with text tokens (`text-ember-600/40`).
+- **`className` support:** Iconly's published `IconProps` omits `className`, but the runtime spreads unknown props onto the root `<svg>`. `web/src/types/iconly.d.ts` augments `IconProps` with `className?: string` so Tailwind sizing/colour works and typechecks — do not remove it.
+- **Props used:** `set` (default `light`; also `bold | bulk | two-tone | broken | curved`), `stroke` (`light | regular | bold` — replaces lucide's `strokeWidth={n}`), `filled` (shorthand for `set="bold"`, e.g. the wishlisted heart), `size` (only when a utility class isn't used).
+- **Admin:** ships **no icons** today — add Iconly the same way if the design calls for them.
+- **Mobile:** `flutter_iconly_plus` (Iconly v2.3 — 100 glyphs × `IconlyLight`/`IconlyBold`/`IconlyBroken`), imported via `import 'package:flutter_iconly_plus/flutter_iconly_plus.dart';`. Outline state = `IconlyLight.x`, selected/active = `IconlyBold.x` (e.g. bottom-nav `icon`/`selectedIcon`). Glyphs are `const IconData`, so they drop into `Icon(...)` anywhere and inherit `IconTheme` colour + `size`. The package ships the font; the repo stays asset-free.
+- **Mobile glyph mapping (Material → Iconly):** `home`→`home`, `category`→`category`, `shopping_bag`/`shopping_cart`→`bag_2`, `favorite`→`heart`, `star`→`star`, `add`→`plus`, `receipt_long`→`paper`, `chevron_left`/`chevron_right`→`arrow_left_2`/`arrow_right_2`, `verified`/`check_circle`/`radio_button`→`tick_square`, `security`/`verified_user`→`shield_done`, `local_shipping`→`send`, `refresh`/`assignment_return`→`swap`, `local_offer`→`discount`, `close`→`close_square`, `sort`→`filter`, `grid_view`→`category`, `auto_awesome`→`star`. `IconlyBold` has no plain `user` — use `IconlyBold.user_2`.
+- **Web missing glyphs:** Iconly has no minus/remove icon, so the quantity stepper draws a one-line inline SVG (`MinusIcon` in `product-details-page.tsx`). Spinners stay custom inline SVG / Tailwind ring animation — not Iconly.
+- **Mobile missing glyphs:** no minus (`SriPonMinusIcon` in `widgets.dart` draws a single dash) and no logo/Google glyph (`Icons.g_mobiledata` is kept as the sole Material icon, for the Google sign-in button). `IconlyBroken` (hand-drawn) is available but unused.
+- **Glyph mapping (lucide → Iconly):** `ArrowUp`/`ArrowRight`/`Heart`/`Plus`/`User` → same names; `LogOut` → `Logout`; `ShoppingBag` → `Bag2`; `ShieldCheck` → `ShieldDone`; `BadgeCheck` → `TickSquare` (certification) or `Paper` (invoice); `ReceiptIndianRupee` → `Paper`; `Truck` → `Send`; `PartyPopper` → `TicketStar`; `Sparkles` → `Star`.
+- **Coverage:** 103 icons across 6 sets. No truck, minus, sparkle, party-popper, badge-check or rupee glyph exists — pick the nearest by *meaning*, not shape.
+- **Bundle note:** `react-iconly` is a single non-tree-shakeable bundle (~467 kB min) that ships every set; keep icon usage intentional and prefer CSS/utility decoration for ambient art.
 
 ---
 
@@ -289,7 +295,8 @@ className="relative overflow-hidden bg-gradient-to-br from-flame-500 via-flame-6
 // Form / input styling (profile-page + checkout) uses `rounded-lg border border-line bg-paper-strong px-3 py-2`
 // Focus ring is handled globally (ember-600 outline)
 // Quantity stepper (product-details): rounded-full container, − / count / + with
-//   `disabled:opacity-40`, hover:bg-flame-50, active:scale-95, Minus/Plus lucide icons
+//   `disabled:opacity-40`, hover:bg-flame-50, active:scale-95, Minus/Plus Iconly icons
+//   (minus is the local inline dash — Iconly has no minus glyph)
 // Hero trust chips: `border-t border-white/15 pt-6` row of icon + label under the CTAs
 // Engaging motion: `.animate-float` (7s drift for hero accents), `.animate-pop` (badge pop-in),
 //   `.marquee-track` (26s ribbon) — all killed under `prefers-reduced-motion`
@@ -370,7 +377,7 @@ When the user pastes a Figma URL or asks for design work, follow this order:
 - Do keep white text off `#ff8a3d`/`#544fd8` (contrast) — use deep variants `flame-600/700`.
 - Do lazy-load images, preserve `alt`, honor `prefers-reduced-motion`.
 - Don’t introduce Tailwind colors not defined in `@theme`.
-- Don’t create new icon SVGs when lucide has the glyph.
+- Don’t create new icon SVGs when Iconly has the glyph (or a near-meaning match).
 - Don’t break envelope/`ApiEnvelope` unwrapping in new data reads.
 
 ---

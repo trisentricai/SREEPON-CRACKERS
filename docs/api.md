@@ -147,7 +147,10 @@ registered and guarded, but return `501` until their phase ships.
   `PATCH /admin/homepage/sections/:id`, `DELETE /admin/homepage/sections/:id`
   - Section types: `HERO`, `CATEGORY_GRID`, `PRODUCT_CAROUSEL`,
     `FEATURED_PRODUCTS`, `BEST_SELLERS` (by order-item quantity),
-    `NEW_ARRIVALS`, `PROMOTION`, `CUSTOM_COLLECTION` (uses `config.productIds`).
+    `NEW_ARRIVALS`, `TRENDING_PRODUCTS` (best-selling in the last 30 days,
+    falls back to best sellers), `TODAYS_OFFERS` (products on discount —
+    MRP above price — ranked by discount %), `PROMOTION`,
+    `CUSTOM_COLLECTION` (uses `config.productIds`).
 
 ### Engagement (Firebase)
 - Notifications: `GET /notifications`,

@@ -3,12 +3,13 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_iconly_plus/flutter_iconly_plus.dart';
 
 import '../models/models.dart';
 import '../utils/format.dart';
 import 'widgets.dart';
 
-export 'widgets.dart' show SriPonEmptyState, SriPonSpinner, SriPonColors;
+export 'widgets.dart' show SriPonEmptyState, SriPonSpinner, SriPonMinusIcon, SriPonColors;
 
 /// Image with a graceful fallback when [url] is null or fails to load.
 class SriponImage extends StatelessWidget {
@@ -35,7 +36,7 @@ class SriponImage extends StatelessWidget {
       height: height,
       color: scheme.surfaceContainerHighest,
       alignment: Alignment.center,
-      child: Icon(Icons.local_fire_department, color: scheme.primary.withValues(alpha: 0.4)),
+      child: Icon(IconlyLight.ticket_star, color: scheme.primary.withValues(alpha: 0.4)),
     );
 
     final value = url;
@@ -185,7 +186,7 @@ class CategoryTile extends StatelessWidget {
               child: imageUrl == null
                   ? Container(
                       color: scheme.surfaceContainerHighest,
-                      child: Icon(Icons.category_outlined, color: scheme.primary),
+                      child: Icon(IconlyLight.category, color: scheme.primary),
                     )
                   : SriponImage(url: imageUrl, fit: BoxFit.cover),
             ),
@@ -304,7 +305,7 @@ class ErrorView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.cloud_off, size: 40, color: scheme.error),
+            Icon(IconlyLight.danger, size: 40, color: scheme.error),
             const SizedBox(height: 12),
             Text(
               error.toString(),
@@ -313,7 +314,7 @@ class ErrorView extends StatelessWidget {
             ),
             if (onRetry != null) ...[
               const SizedBox(height: 16),
-              FilledButton.tonalIcon(onPressed: onRetry, icon: const Icon(Icons.refresh), label: const Text('Retry')),
+              FilledButton.tonalIcon(onPressed: onRetry, icon: const Icon(IconlyLight.swap), label: const Text('Retry')),
             ],
           ],
         ),

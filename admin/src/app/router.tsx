@@ -10,6 +10,7 @@ import { CustomersPage } from '@/pages/customers-page';
 import { InventoryPage } from '@/pages/inventory-page';
 import { CouponsPage } from '@/pages/coupons-page';
 import { BannersPage } from '@/pages/banners-page';
+import { HomepagePage } from '@/pages/homepage-page';
 import { SettingsPage } from '@/pages/settings-page';
 import { AdminNotFoundPage } from '@/pages/not-found-page';
 
@@ -48,6 +49,7 @@ export const adminRouter = createBrowserRouter([
           { path: 'inventory', element: <InventoryPage /> },
           { path: 'coupons', element: <CouponsPage /> },
           { path: 'banners', element: <BannersPage /> },
+          { path: 'homepage', element: <HomepagePage /> },
           { path: 'settings', element: <SettingsPage /> },
         ],
       },

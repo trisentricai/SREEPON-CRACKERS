@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_iconly_plus/flutter_iconly_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/models/models.dart';
@@ -64,7 +65,7 @@ class CartScreen extends ConsumerWidget {
                   onPressed: value.outOfStockCount > 0
                       ? null
                       : () => Navigator.of(context).pushNamed('/checkout'),
-                  icon: const Icon(Icons.lock_outline),
+                  icon: const Icon(IconlyLight.lock),
                   label: Text(
                     value.outOfStockCount > 0
                         ? 'Remove out-of-stock items to continue'
@@ -74,7 +75,7 @@ class CartScreen extends ConsumerWidget {
                 const SizedBox(height: 8),
                 OutlinedButton.icon(
                   onPressed: () => _clearCart(context, ref),
-                  icon: const Icon(Icons.delete_outline),
+                  icon: const Icon(IconlyLight.delete),
                   label: const Text('Clear cart'),
                 ),
                 const SizedBox(height: 24),
@@ -170,7 +171,7 @@ class _CartItemTile extends ConsumerWidget {
                     children: [
                       IconButton.outlined(
                         visualDensity: VisualDensity.compact,
-                        icon: const Icon(Icons.remove, size: 18),
+                        icon: const SriPonMinusIcon(size: 18),
                         onPressed: item.quantity <= 1 || item.isOutOfStock
                             ? null
                             : () => _updateQuantity(ref, item.quantity - 1),
@@ -181,7 +182,7 @@ class _CartItemTile extends ConsumerWidget {
                       ),
                       IconButton.outlined(
                         visualDensity: VisualDensity.compact,
-                        icon: const Icon(Icons.add, size: 18),
+                        icon: const Icon(IconlyLight.plus, size: 18),
                         onPressed: item.quantity >= item.availableStock
                             ? null
                             : () => _updateQuantity(ref, item.quantity + 1),
@@ -189,7 +190,7 @@ class _CartItemTile extends ConsumerWidget {
                       const Spacer(),
                       IconButton(
                         tooltip: 'Remove',
-                        icon: const Icon(Icons.delete_outline),
+                        icon: const Icon(IconlyLight.delete),
                         onPressed: () => _removeItem(ref),
                       ),
                     ],
@@ -236,7 +237,7 @@ class _EmptyCart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const SriPonEmptyState(
-      icon: Icons.shopping_cart_outlined,
+      icon: IconlyLight.bag_2,
       title: 'Your cart is empty',
       message: 'Browse the catalogue and add some crackers to get started.',
     );
@@ -251,7 +252,7 @@ class _SignInPrompt extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SriPonEmptyState(
-      icon: Icons.lock_outline,
+      icon: IconlyLight.lock,
       title: 'Sign in required',
       message: 'Sign in to view your cart and check out.',
       action: FilledButton(onPressed: onPressed, child: const Text('Sign in')),

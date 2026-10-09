@@ -89,6 +89,8 @@ enum HomepageSectionType {
   featuredProducts('FEATURED_PRODUCTS'),
   bestSellers('BEST_SELLERS'),
   newArrivals('NEW_ARRIVALS'),
+  trendingProducts('TRENDING_PRODUCTS'),
+  todaysOffers('TODAYS_OFFERS'),
   promotion('PROMOTION'),
   customCollection('CUSTOM_COLLECTION');
 

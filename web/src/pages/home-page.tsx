@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { BadgeCheck, PartyPopper, ReceiptIndianRupee, ShieldCheck, Sparkles, Truck } from 'lucide-react';
+import { Paper, Send, ShieldDone, Star, TicketStar, TickSquare } from 'react-iconly';
 import { Link } from 'react-router-dom';
 import { api } from '@/api/client';
-import type { ApiEnvelope, CategoryTreeNode, HomepageData, PublicSettings } from '@/api/types';
+import type { ApiEnvelope, CategoryTreeNode, HomepageData, HomepageSectionType, PublicSettings } from '@/api/types';
 import {
   ErrorState,
   ProductCard,
@@ -14,10 +14,10 @@ import {
 } from '@/components/storefront-ui';
 
 const TRUST_CHIPS = [
-  { icon: ShieldCheck, label: 'Licensed stock' },
-  { icon: Truck, label: '24–48h dispatch' },
-  { icon: ReceiptIndianRupee, label: 'GST invoice' },
-  { icon: BadgeCheck, label: 'CE / ISI compliant' },
+  { icon: ShieldDone, label: 'Licensed stock' },
+  { icon: Send, label: '24–48h dispatch' },
+  { icon: Paper, label: 'GST invoice' },
+  { icon: TickSquare, label: 'CE / ISI compliant' },
 ];
 
 /** Storefront landing page composed from the backend-designed homepage. */
@@ -136,15 +136,15 @@ function HeroFallback({ storeName, tagline }: { storeName?: string; tagline?: st
       <div className="pointer-events-none absolute inset-0" aria-hidden>
         <div className="absolute -right-16 -top-24 h-80 w-80 rounded-full bg-gold-400/30 blur-3xl animate-float" />
         <div className="absolute -bottom-28 -left-20 h-80 w-80 rounded-full bg-ember-400/30 blur-3xl animate-float" style={{ animationDelay: '2.4s' }} />
-        <Sparkles className="absolute left-10 top-12 h-6 w-6 text-gold-300/80 animate-float" />
-        <Sparkles className="absolute bottom-16 right-1/4 h-5 w-5 text-white/70 animate-float" style={{ animationDelay: '1.2s' }} />
-        <Sparkles className="absolute right-14 top-24 h-4 w-4 text-indigo-300/80 animate-float" style={{ animationDelay: '3.6s' }} />
+        <Star className="absolute left-10 top-12 h-6 w-6 text-gold-300/80 animate-float" />
+        <Star className="absolute bottom-16 right-1/4 h-5 w-5 text-white/70 animate-float" style={{ animationDelay: '1.2s' }} />
+        <Star className="absolute right-14 top-24 h-4 w-4 text-indigo-300/80 animate-float" style={{ animationDelay: '3.6s' }} />
       </div>
 
       <div className="relative mx-auto max-w-7xl px-4 py-24 text-center sm:py-28">
         <Reveal>
           <span className="inline-flex items-center gap-2 rounded-full border border-gold-300/50 bg-gold-400/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-gold-100 backdrop-blur-sm">
-            <Sparkles className="h-3.5 w-3.5" />
+            <Star className="h-3.5 w-3.5" />
             Festive crackers &amp; fireworks
           </span>
         </Reveal>
@@ -191,6 +191,26 @@ function HeroFallback({ storeName, tagline }: { storeName?: string; tagline?: st
 }
 
 /** Render one backend-driven homepage section by type. */
+const PRODUCT_SECTION_META: Partial<
+  Record<HomepageSectionType, { title: string; overline: string; subtitle?: string }>
+> = {
+  FEATURED_PRODUCTS: { title: 'Featured products', overline: 'Handpicked for you', subtitle: 'Sealed boxes, genuine stock.' },
+  BEST_SELLERS: { title: 'Best sellers', overline: 'Loved by buyers', subtitle: 'Sealed boxes, genuine stock.' },
+  NEW_ARRIVALS: { title: 'New arrivals', overline: 'Fresh in stock' },
+  TRENDING_PRODUCTS: {
+    title: 'Trending products',
+    overline: 'Trending now',
+    subtitle: 'The most-wanted picks this week.',
+  },
+  TODAYS_OFFERS: {
+    title: "Today's offers",
+    overline: 'Deals on today',
+    subtitle: 'Everything on markdown, biggest savings first.',
+  },
+  PRODUCT_CAROUSEL: { title: 'Collection', overline: 'Curated for you' },
+  CUSTOM_COLLECTION: { title: 'Collection', overline: 'Curated for you' },
+};
+
 function HomeSection({ section }: { section: HomepageData['sections'][number] }) {
   switch (section.type) {
     case 'HERO': {
@@ -230,16 +250,20 @@ function HomeSection({ section }: { section: HomepageData['sections'][number] })
     case 'FEATURED_PRODUCTS':
     case 'BEST_SELLERS':
     case 'NEW_ARRIVALS':
+    case 'TRENDING_PRODUCTS':
+    case 'TODAYS_OFFERS':
     case 'PRODUCT_CAROUSEL':
     case 'CUSTOM_COLLECTION': {
       const products = section.content.products ?? [];
       if (products.length === 0) return null;
+      const meta =
+        PRODUCT_SECTION_META[section.type] ?? PRODUCT_SECTION_META.PRODUCT_CAROUSEL!;
       return (
         <section className="mx-auto max-w-7xl px-4 py-10">
           <SectionHeading
-            title={section.title ?? 'Featured products'}
-            subtitle="Sealed boxes, genuine stock."
-            overline="Handpicked for you"
+            title={section.title ?? meta.title}
+            subtitle={meta.subtitle}
+            overline={meta.overline}
             to="/products"
           />
           <Reveal>
@@ -273,7 +297,7 @@ function BannerStrip({
       <div className="pointer-events-none absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-gold-400 via-flame-400 to-indigo-400" aria-hidden />
       <div className="relative z-10 mx-auto flex min-h-[320px] max-w-7xl flex-col justify-center px-4 py-16 text-white">
         <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-eyebrow text-gold-300">
-          <Sparkles className="h-3.5 w-3.5" />
+          <Star className="h-3.5 w-3.5" />
           Featured deal
         </span>
         {banner.title && (
@@ -305,7 +329,7 @@ function BannerCard({
       className="group relative overflow-hidden rounded-xl border border-line bg-paper-strong shadow-card transition duration-300 hover:-translate-y-1 hover:border-flame-200 hover:shadow-lifted"
     >
       <div className="pointer-events-none absolute right-3 top-3 h-10 w-10 rounded-full border border-gold-300/70 bg-gold-100/40 flex items-center justify-center" aria-hidden>
-        <Sparkles className="h-4 w-4 text-gold-600" />
+        <Star className="h-4 w-4 text-gold-600" />
       </div>
       {banner.imageUrl && (
         <img src={banner.imageUrl} alt={banner.title ?? 'Promotion'} className="h-40 w-full object-cover transition duration-500 group-hover:scale-105" loading="lazy" />
@@ -338,9 +362,9 @@ function CategoryGrid({
         >
           <div className="relative" aria-hidden>
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-flame-100 to-gold-100 text-flame-600 transition duration-300 group-hover:scale-105">
-              <PartyPopper className="h-7 w-7" />
+              <TicketStar className="h-7 w-7" />
             </div>
-            <Sparkles className="absolute -right-1 -top-1 h-4 w-4 text-gold-500 transition-transform duration-300 group-hover:rotate-45" />
+            <Star className="absolute -right-1 -top-1 h-4 w-4 text-gold-500 transition-transform duration-300 group-hover:rotate-45" />
           </div>
           <p className="font-display font-semibold text-ember-900 group-hover:text-flame-600">{category.name}</p>
         </Link>

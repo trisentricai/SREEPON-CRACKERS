@@ -472,6 +472,52 @@ export interface UpdateBannerInput {
 }
 
 /* ------------------------------------------------------------------ */
+/* Homepage                                                            */
+/* ------------------------------------------------------------------ */
+export type HomepageSectionType =
+  | 'HERO'
+  | 'CATEGORY_GRID'
+  | 'PRODUCT_CAROUSEL'
+  | 'FEATURED_PRODUCTS'
+  | 'BEST_SELLERS'
+  | 'NEW_ARRIVALS'
+  | 'TRENDING_PRODUCTS'
+  | 'TODAYS_OFFERS'
+  | 'PROMOTION'
+  | 'CUSTOM_COLLECTION';
+
+export interface HomepageSection {
+  id: string;
+  type: HomepageSectionType;
+  title: string | null;
+  config: Record<string, unknown> | null;
+  displayOrder: number;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateHomepageSectionInput {
+  type: HomepageSectionType;
+  title?: string;
+  config?: Record<string, unknown>;
+  displayOrder?: number;
+  isActive?: boolean;
+}
+
+export type UpdateHomepageSectionInput = Partial<CreateHomepageSectionInput>;
+
+export interface HomepageConfig {
+  heroTitle?: string;
+  heroTagline?: string;
+  [key: string]: unknown;
+}
+
+export interface HomepageConfigResponse {
+  config: HomepageConfig;
+}
+
+/* ------------------------------------------------------------------ */
 /* Settings                                                            */
 /* ------------------------------------------------------------------ */
 export interface StoreSettings {

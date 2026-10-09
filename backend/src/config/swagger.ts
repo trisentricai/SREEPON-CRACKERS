@@ -710,7 +710,7 @@ export const openApiSpec = swaggerJsdoc({
           required: ['id', 'type', 'displayOrder', 'isActive'],
           properties: {
             id: { type: 'string', format: 'uuid' },
-            type: { type: 'string', enum: ['HERO', 'CATEGORY_GRID', 'PRODUCT_CAROUSEL', 'FEATURED_PRODUCTS', 'BEST_SELLERS', 'NEW_ARRIVALS', 'PROMOTION', 'CUSTOM_COLLECTION'] },
+            type: { type: 'string', enum: ['HERO', 'CATEGORY_GRID', 'PRODUCT_CAROUSEL', 'FEATURED_PRODUCTS', 'BEST_SELLERS', 'NEW_ARRIVALS', 'TRENDING_PRODUCTS', 'TODAYS_OFFERS', 'PROMOTION', 'CUSTOM_COLLECTION'] },
             title: { type: 'string', nullable: true },
             config: { type: 'object', nullable: true },
             displayOrder: { type: 'integer' },
@@ -755,7 +755,7 @@ export const openApiSpec = swaggerJsdoc({
           type: 'object',
           required: ['type'],
           properties: {
-            type: { type: 'string', enum: ['HERO', 'CATEGORY_GRID', 'PRODUCT_CAROUSEL', 'FEATURED_PRODUCTS', 'BEST_SELLERS', 'NEW_ARRIVALS', 'PROMOTION', 'CUSTOM_COLLECTION'] },
+            type: { type: 'string', enum: ['HERO', 'CATEGORY_GRID', 'PRODUCT_CAROUSEL', 'FEATURED_PRODUCTS', 'BEST_SELLERS', 'NEW_ARRIVALS', 'TRENDING_PRODUCTS', 'TODAYS_OFFERS', 'PROMOTION', 'CUSTOM_COLLECTION'] },
             title: { type: 'string' },
             config: { type: 'object' },
             displayOrder: { type: 'integer', default: 0 },

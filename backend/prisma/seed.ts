@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { HomepageSectionType, PrismaClient } from '@prisma/client';
 
 /**
  * Phase 2 seed: a small, safe-for-offline catalog of categories and products.
@@ -235,7 +235,37 @@ async function main() {
     productCount += 1;
   }
 
-  console.log(`Seed complete: ${categoryCount} categories, ${productCount} products.`);
+  // Homepage sections — a sensible default storefront, seeded only when the
+  // content team hasn't configured any sections yet (idempotent).
+  const existingSections = await prisma.homepageSection.count();
+  let sectionCount = 0;
+  if (existingSections === 0) {
+    const defaultSections: Array<{
+      type: HomepageSectionType;
+      title: string;
+      config?: { limit: number };
+    }> = [
+      { type: HomepageSectionType.TRENDING_PRODUCTS, title: 'Trending products', config: { limit: 8 } },
+      { type: HomepageSectionType.TODAYS_OFFERS, title: "Today's offers", config: { limit: 8 } },
+      { type: HomepageSectionType.CATEGORY_GRID, title: 'Shop by category' },
+      { type: HomepageSectionType.FEATURED_PRODUCTS, title: 'Featured for the festival', config: { limit: 8 } },
+      { type: HomepageSectionType.NEW_ARRIVALS, title: 'New arrivals', config: { limit: 8 } },
+    ];
+    for (const [index, section] of defaultSections.entries()) {
+      await prisma.homepageSection.create({
+        data: {
+          type: section.type,
+          title: section.title,
+          ...(section.config ? { config: section.config } : {}),
+          displayOrder: index,
+          isActive: true,
+        },
+      });
+      sectionCount += 1;
+    }
+  }
+
+  console.log(`Seed complete: ${categoryCount} categories, ${productCount} products, ${sectionCount} homepage sections.`);
 }
 
 main()
