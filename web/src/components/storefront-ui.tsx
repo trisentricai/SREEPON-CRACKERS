@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { ArrowRight, Heart, Plus, Star, TicketStar } from 'react-iconly';
+import { ArrowRight, Heart, Plus, TicketStar } from 'react-iconly';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { api } from '@/api/client';
@@ -94,10 +94,11 @@ export function ProductGridSkeleton({ count = 8 }: { count?: number }) {
 export function BrandMark({ name, to = '/', light = false }: { name: string; to?: string; light?: boolean }) {
   return (
     <Link to={to} className="group inline-flex items-center gap-2.5" aria-label={name}>
-      <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-flame-500 to-flame-700 shadow-cta transition duration-300 group-hover:scale-105">
-        <TicketStar className="h-5 w-5 text-white" />
-        <Star className="absolute -right-1.5 -top-1.5 h-3.5 w-3.5 text-gold-500" stroke="bold" />
-      </span>
+      <img
+        src="/logo.webp"
+        alt=""
+        className="h-9 w-9 rounded-lg object-contain ring-1 ring-black/5 transition duration-300 group-hover:scale-105"
+      />
       <span className={cn('font-display text-xl font-bold tracking-display', light ? 'text-white' : 'text-flame-600')}>
         {name}
       </span>

@@ -49,7 +49,22 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           const SizedBox(height: 8),
-          Text('SriPon', style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800)),
+          Row(
+            children: [
+              Image.asset(
+                'assets/brand/logo.webp',
+                width: 32,
+                height: 32,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                'SriPon',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
+              ),
+            ],
+          ),
           const SizedBox(height: 4),
           Text(
             'Sign in to track orders and manage your address book.',

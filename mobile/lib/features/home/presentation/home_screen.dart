@@ -29,18 +29,24 @@ class HomeScreen extends ConsumerWidget {
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
+            Image.asset(
+              'assets/brand/logo.webp',
               width: 30,
               height: 30,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [SriPonColors.flame500, SriPonColors.flame700],
+              fit: BoxFit.contain,
+              errorBuilder: (_, __, ___) => Container(
+                width: 30,
+                height: 30,
+                decoration: BoxDecoration(
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [SriPonColors.flame500, SriPonColors.flame700],
+                  ),
+                  borderRadius: BorderRadius.circular(9),
                 ),
-                borderRadius: BorderRadius.circular(9),
+                child: const Icon(IconlyBold.ticket_star, color: Colors.white, size: 17),
               ),
-              child: const Icon(IconlyBold.ticket_star, color: Colors.white, size: 17),
             ),
             const SizedBox(width: 10),
             Text(
