@@ -10,10 +10,13 @@ let initialized = false;
  * Initialize the Firebase Admin SDK from environment configuration.
  * Called lazily so the server can boot before Firebase is configured.
  *
- * The Admin SDK is loaded with a dynamic `require` inside this function: it is
- * not supported on Cloudflare Workers, but the API must still boot there — when
- * the SDK cannot load, customer-auth endpoints fail closed exactly as they do
- * when Firebase is unconfigured.
+ * The Admin SDK is loaded with a dynamic `require` inside this function. On
+ * Cloudflare Workers the modules load, but the SDK's network operations
+ * (fetching Google's signing certs, Identity Toolkit calls) use Node's HTTP
+ * client, which workerd does not support for outbound requests. The Workers
+ * request paths therefore bypass the SDK: ID tokens are verified by
+ * `firebase-verify.ts` (jose + fetch) and refresh tokens are revoked by
+ * `firebase-rest.ts`. This function remains the implementation on Node/Render.
  */
 export function getFirebaseAuth(): Auth | null {
   if (auth) return auth;

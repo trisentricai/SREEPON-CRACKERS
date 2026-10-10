@@ -69,6 +69,14 @@ from Render:
   fallbacks take over.
 - **Rate limiting** uses a timer-free `WorkersMemoryStore` when Upstash is not
   configured (per-isolate), or the Upstash-backed store when it is.
+- **Firebase ID tokens are verified with `jose`, not the Admin SDK.** The Admin
+  SDK fetches Google's signing certificates through Node's `http` client, which
+  Workers does not implement for outbound requests, so `adminAuth.verifyIdToken()`
+  always fails on Workers. `src/infrastructure/firebase-verify.ts` verifies the
+  RS256 signature, issuer, audience and expiry against Google's public JWKS over
+  `fetch` instead. Revocation checking (`checkRevoked`) is Node-only — a revoked
+  ID token stays valid on Workers until it expires (≤1 hour) — but refresh tokens
+  are still revoked on logout through `src/infrastructure/firebase-rest.ts`.
 - **Swagger UI** (`/api/docs`) is Node-only and not mounted on Workers;
   `/api/openapi.json` still serves the spec.
 

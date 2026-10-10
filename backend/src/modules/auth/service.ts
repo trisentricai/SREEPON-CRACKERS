@@ -1,7 +1,8 @@
 import { UserStatus } from '@prisma/client';
 import { Prisma } from '@prisma/client';
-import { env, isDev } from '../../config/env';
+import { env, isDev, isWorkers } from '../../config/env';
 import { getFirebaseAuth } from '../../infrastructure/firebase';
+import { revokeFirebaseRefreshTokens } from '../../infrastructure/firebase-rest';
 import { prisma } from '../../infrastructure/prisma';
 import { ApiError } from '../../utils/http';
 
@@ -160,6 +161,12 @@ export async function requestPasswordReset(email: string): Promise<{ resetLink?:
 
 /** Revoke a customer's refresh tokens (full sign-out). */
 export async function revokeRefreshTokens(uid: string): Promise<void> {
+  // Workers cannot use the Admin SDK (Node HTTP client); the REST helper mints
+  // the same revocation via `fetch`.
+  if (isWorkers) {
+    await revokeFirebaseRefreshTokens(uid);
+    return;
+  }
   const auth = getFirebaseAuth();
   if (!auth) {
     throw ApiError.serviceUnavailable('Firebase authentication is not configured on this server');

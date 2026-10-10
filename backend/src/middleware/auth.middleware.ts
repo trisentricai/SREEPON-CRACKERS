@@ -1,6 +1,8 @@
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
 import type { DecodedIdToken } from 'firebase-admin/auth';
+import { isWorkers } from '../config/env';
 import { getFirebaseAuth } from '../infrastructure/firebase';
+import { verifyFirebaseIdToken } from '../infrastructure/firebase-verify';
 import { getSupabaseAdmin, verifySupabaseToken, type SupabaseClaims } from '../infrastructure/supabase';
 import { ADMIN_ROLES, AdminRole } from '../types/enums';
 import { ApiError, asyncHandler } from '../utils/http';
@@ -35,6 +37,21 @@ export const requireFirebase = (): RequestHandler =>
     if (!token) {
       throw ApiError.unauthorized('Missing bearer token');
     }
+
+    // Cloudflare Workers cannot use the Admin SDK's verifier: it fetches
+    // Google's signing certs through Node's `http` client, which workerd does
+    // not support for outbound requests. Verify with `jose` + `fetch` instead.
+    if (isWorkers) {
+      try {
+        req.user = (await verifyFirebaseIdToken(token)) as unknown as DecodedIdToken;
+      } catch (err) {
+        logger.warn({ err, component: 'auth' }, 'Firebase token verification failed');
+        throw ApiError.unauthorized('Invalid or expired token');
+      }
+      next();
+      return;
+    }
+
     const firebaseAuth = getFirebaseAuth();
     if (!firebaseAuth) {
       throw ApiError.serviceUnavailable('Firebase authentication is not configured on this server');
