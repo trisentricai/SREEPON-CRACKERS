@@ -1,10 +1,25 @@
 import { RedisStore, type RedisReply } from 'rate-limit-redis';
-import rateLimit, { type Options } from 'express-rate-limit';
+import rateLimit, { MemoryStore, type Options } from 'express-rate-limit';
 import { getRedis } from '../infrastructure/redis';
 import { env } from '../config/env';
 import { logger } from '../utils/logger';
 
 export type RateLimitConfig = Partial<Options> & { minutes?: number; limit?: number };
+
+/**
+ * In-memory store for Cloudflare Workers.
+ *
+ * express-rate-limit's built-in `MemoryStore` starts a `setInterval` cleanup
+ * timer when it initialises, and Workers forbid timers (and other async I/O) in
+ * the global scope — the module-level limiters would crash the isolate at boot.
+ * Expiry is already handled lazily per key on `increment`, so the periodic sweep
+ * is not needed here; this store simply omits the timer.
+ */
+class WorkersMemoryStore extends MemoryStore {
+  override init(options: Options): void {
+    this.windowMs = options.windowMs;
+  }
+}
 
 /**
  * Build an express-rate-limit instance.
@@ -13,7 +28,7 @@ export type RateLimitConfig = Partial<Options> & { minutes?: number; limit?: num
  */
 export function createRateLimiter(name: string, { minutes = 10, limit = 100, ...rest }: RateLimitConfig = {}) {
   const client = getRedis();
-  let store: RedisStore | undefined;
+  let store: RedisStore | WorkersMemoryStore | undefined;
   if (client && client.status === 'ready') {
     try {
       const rawCall = client.call.bind(client) as (...all: string[]) => Promise<unknown>;
@@ -26,6 +41,9 @@ export function createRateLimiter(name: string, { minutes = 10, limit = 100, ...
   }
 
   if (!store) {
+    // Only swap the default store on Workers: the built-in MemoryStore is fine
+    // (and periodically prunes) on a long-running Node process.
+    if (env.DEPLOY_TARGET === 'workers') store = new WorkersMemoryStore();
     logger.warn({ name }, `Rate limiter '${name}' using in-memory store (Redis unavailable)`);
   }
 

@@ -11,6 +11,7 @@
 #   npx wrangler secret put <NAME>
 #
 # Required secrets: DATABASE_URL, DIRECT_DATABASE_URL, REDIS_URL, JWT_SECRET,
+#   UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN,
 #   FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY,
 #   SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY,
 #   CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET,
@@ -18,7 +19,8 @@
 #   PAYMENT_CLIENT_SECRET, PAYMENT_SALT_KEY, RAZORPAY_KEY_ID,
 #   RAZORPAY_KEY_SECRET, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
 
-name = "sripon-api"
+name = "sreepon-crackers"
+
 # Pre-bundled by `npm run build` (scripts/build-worker.mjs). We bundle with
 # esbuild ourselves (platform-neutral + workerd conditions) because Wrangler's
 # own bundler stops iconv-lite's `./lib/streams` from loading, which crashes
@@ -41,3 +43,9 @@ DEPLOY_TARGET = "workers"
 # Browser origins allowed to call the API (comma-separated). Override with the
 # real production origins in the dashboard or via a secret of the same name.
 CORS_ORIGINS = ""
+
+# Cloudflare KV namespace used as the Redis replacement on Workers (Workers
+# cannot open TCP connections to Redis). Bound as `KV`; see src/infrastructure.
+[[kv_namespaces]]
+binding = "KV"
+id = "87bf7e00883b4b109ad58d6203ed4793"

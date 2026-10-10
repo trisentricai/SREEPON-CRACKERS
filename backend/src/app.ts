@@ -2,7 +2,6 @@ import cors from 'cors';
 import express, { type Express } from 'express';
 import helmet from 'helmet';
 import { pinoHttp } from 'pino-http';
-import swaggerUi from 'swagger-ui-express';
 import { corsOrigins, env, isProduction } from './config/env';
 import { openApiSpec } from './config/swagger';
 import { errorHandler } from './middleware/error.middleware';
@@ -88,7 +87,13 @@ export function createApp(): Express {
   // Swagger UI serves static assets from disk, which Cloudflare Workers does
   // not provide — keep the OpenAPI JSON endpoint everywhere, but only mount
   // the interactive UI on Node (Render / local dev).
+  //
+  // It is required lazily (not imported at the top) because merely importing
+  // `swagger-ui-express` evaluates `__dirname` at module scope, which is not
+  // defined in the ESM Worker bundle and fails deploys (Cloudflare error 10021).
   if (env.DEPLOY_TARGET !== 'workers') {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const swaggerUi = require('swagger-ui-express') as typeof import('swagger-ui-express');
     app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openApiSpec, {
       customSiteTitle: `${APP.name} API Documentation`,
     }));

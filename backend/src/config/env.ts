@@ -27,6 +27,12 @@ const envSchema = z.object({
 
   REDIS_URL: z.string().default(''),
 
+  // Upstash Redis REST credentials. Used on Cloudflare Workers, where raw TCP
+  // Redis is unavailable (ioredis cannot open sockets); Node/Render keeps using
+  // REDIS_URL. Both back the same narrow client surface (see infrastructure/redis).
+  UPSTASH_REDIS_REST_URL: z.string().optional(),
+  UPSTASH_REDIS_REST_TOKEN: z.string().optional(),
+
   FIREBASE_PROJECT_ID: z.string().optional(),
   FIREBASE_CLIENT_EMAIL: z.string().optional(),
   FIREBASE_PRIVATE_KEY: z.string().optional(),
@@ -77,5 +83,8 @@ export const isProduction = env.NODE_ENV === 'production';
 
 /** True when running automated tests. */
 export const isTest = env.NODE_ENV === 'test';
+
+/** True when running on Cloudflare Workers (not Node/Render). */
+export const isWorkers = env.DEPLOY_TARGET === 'workers';
 
 export const isDev = env.NODE_ENV === 'development';

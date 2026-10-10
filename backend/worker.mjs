@@ -16,6 +16,7 @@ import './worker-env.mjs';
 import { createServer } from 'node:http';
 import { httpServerHandler } from 'cloudflare:node';
 import { createApp } from './dist/app.js';
+import { runWithRequestPrisma } from './dist/infrastructure/prisma.js';
 import { APP } from './dist/config/constants.js';
 import { env } from './dist/config/env.js';
 import { logger } from './dist/utils/logger.js';
@@ -31,4 +32,13 @@ logger.info(
   'SriPon API worker ready',
 );
 
-export default httpServerHandler({ port: 8080 });
+const handler = httpServerHandler({ port: 8080 });
+
+// Each request gets its own Prisma client (see src/infrastructure/prisma.ts):
+// Workers closes idle sockets between requests, so a shared client's connection
+// would be dead by the next request and every query would hang.
+export default {
+  fetch(request, env, ctx) {
+    return runWithRequestPrisma(() => handler.fetch(request, env, ctx), ctx);
+  },
+};

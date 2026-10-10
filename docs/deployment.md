@@ -20,6 +20,62 @@ domains via environment variables.
 The service role key (`SUPABASE_SERVICE_ROLE_KEY`), Firebase private key and
 Cloudinary secret must **never** reach browsers — they stay as server env vars.
 
+## Backend on Cloudflare Workers (alternative to Render)
+
+The same Express app also runs on Cloudflare Workers through the
+`cloudflare:node` HTTP bridge, deployed from the `backend` directory:
+
+```bash
+cd backend
+npm ci
+npx prisma generate
+npm run build        # tsc -> dist/, then scripts/build-worker.mjs -> dist/worker.bundle.mjs
+npx wrangler deploy
+```
+
+Wrangler config lives in `backend/wrangler.toml` (`main` points at the
+pre-bundled `dist/worker.bundle.mjs`, `compatibility_flags = ["nodejs_compat"]`).
+The Worker name is `sreepon-crackers` and the throwaway `*.workers.dev` URL stays
+enabled. Cloudflare Workers Builds runs the same steps; `dist/` is rebuilt on
+every run and is not committed.
+
+**Secrets** are not stored in `wrangler.toml`. Set every secret from
+`.env.example` in the dashboard (Workers Builds → Settings → Variables and
+Secrets) or with `npx wrangler secret put <NAME>` — `DATABASE_URL`,
+`DIRECT_DATABASE_URL`, `JWT_SECRET`, `UPSTASH_REDIS_REST_URL`,
+`UPSTASH_REDIS_REST_TOKEN`, the Firebase/Supabase/Cloudinary/payment keys, etc.
+Only `NODE_ENV`, `DEPLOY_TARGET=workers` and `CORS_ORIGINS` live in `[vars]`.
+
+**KV binding.** A KV namespace (`sreeponredis`) is bound as `KV` for the
+Redis-replacement role on Workers.
+
+### Workers limitations
+
+Workers has no local filesystem and no raw TCP sockets, so a few things differ
+from Render:
+
+- **Database connections are per-request.** Workers closes idle sockets when a
+  request finishes, so a shared `pg` pool would hand a dead connection to the
+  next query and the request would hang. `src/infrastructure/prisma.ts`
+  therefore creates a Prisma client per request (opened inside the request's I/O
+  context) and disconnects it afterwards (`runWithRequestPrisma`, wired in
+  `worker.mjs`). Node/Render keeps the ordinary single-instance client.
+- **Redis uses Upstash over HTTP.** `ioredis` needs `node:net` sockets Workers
+  does not expose, so on Workers `src/infrastructure/redis.ts` returns an
+  Upstash REST client (`@upstash/redis`) when `UPSTASH_REDIS_REST_URL` and
+  `UPSTASH_REDIS_REST_TOKEN` are set — caching, the audit trail and
+  Redis-backed rate limiting all work through it. Node/Render keeps using
+  `REDIS_URL` (ioredis). Without Upstash credentials on Workers the in-memory
+  fallbacks take over.
+- **Rate limiting** uses a timer-free `WorkersMemoryStore` when Upstash is not
+  configured (per-isolate), or the Upstash-backed store when it is.
+- **Swagger UI** (`/api/docs`) is Node-only and not mounted on Workers;
+  `/api/openapi.json` still serves the spec.
+
+Verify a deployment with: `GET /health` (DB `connected: true`),
+`/api/v1/categories`, `/api/v1/products?page=1&limit=1`, `/api/v1/homepage`,
+`/api/openapi.json`.
+
 ## Database (Supabase)
 
 1. Create a Supabase project.
