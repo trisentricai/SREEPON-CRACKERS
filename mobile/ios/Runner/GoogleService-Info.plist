@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>883028401432-e5aclb806j499ldcmq262d6jvj5s03pu.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.883028401432-e5aclb806j499ldcmq262d6jvj5s03pu</string>
+	<key>ANDROID_CLIENT_ID</key>
+	<string>883028401432-esc73p8in39ogivog29ep1iaaqkmm1qu.apps.googleusercontent.com</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDWofMvppSrBu3CyeUECqELOLaCEMdqi54</string>
+	<key>GCM_SENDER_ID</key>
+	<string>883028401432</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.trisentricai.sreepon</string>
+	<key>PROJECT_ID</key>
+	<string>sripon-c303b</string>
+	<key>STORAGE_BUCKET</key>
+	<string>sripon-c303b.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:883028401432:ios:f5a4b2ee9201fdb9c9126d</string>
+</dict>
+</plist>

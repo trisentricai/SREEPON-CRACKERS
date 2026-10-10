@@ -79,18 +79,20 @@ jobs:
       - name: Test
         run: flutter test
 
-      # Firebase reads its config from ios/Runner/GoogleService-Info.plist, which
-      # is environment-specific and NOT committed. Supply it as a base64-encoded
-      # repository secret to give the built app a working Firebase Auth.
-      - name: Write GoogleService-Info.plist (optional)
+      # Firebase reads its config from ios/Runner/GoogleService-Info.plist. A copy
+      # is committed, but you can override it per-deployment with a base64-encoded
+      # repository secret (useful when dev/prod use different Firebase projects).
+      - name: Ensure GoogleService-Info.plist (optional override)
         env:
           GOOGLE_SERVICE_INFO_PLIST_B64: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_B64 }}
         run: |
           if [ -n "$GOOGLE_SERVICE_INFO_PLIST_B64" ]; then
             printf '%s' "$GOOGLE_SERVICE_INFO_PLIST_B64" | tr -d '\n\r ' | openssl base64 -d -A > ios/Runner/GoogleService-Info.plist
-            echo "Wrote ios/Runner/GoogleService-Info.plist"
+            echo "Wrote ios/Runner/GoogleService-Info.plist from GOOGLE_SERVICE_INFO_PLIST_B64"
+          elif [ -f ios/Runner/GoogleService-Info.plist ]; then
+            echo "Using committed ios/Runner/GoogleService-Info.plist"
           else
-            echo "::warning::GOOGLE_SERVICE_INFO_PLIST_B64 is not set — Firebase Auth will be unconfigured at runtime."
+            echo "::warning::No GoogleService-Info.plist (neither committed nor provided via GOOGLE_SERVICE_INFO_PLIST_B64) — Firebase will be unconfigured at runtime."
           fi
 
       - name: Build iOS (release, unsigned)
