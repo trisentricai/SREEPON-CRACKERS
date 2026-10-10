@@ -35,7 +35,7 @@ npx wrangler deploy
 
 Wrangler config lives in `backend/wrangler.toml` (`main` points at the
 pre-bundled `dist/worker.bundle.mjs`, `compatibility_flags = ["nodejs_compat"]`).
-The Worker name is `sreepon-crackers` and the throwaway `*.workers.dev` URL stays
+The Worker name is `sreepon-api` and the throwaway `*.workers.dev` URL stays
 enabled. Cloudflare Workers Builds runs the same steps; `dist/` is rebuilt on
 every run and is not committed.
 

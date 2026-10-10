@@ -19,7 +19,7 @@
 #   PAYMENT_CLIENT_SECRET, PAYMENT_SALT_KEY, RAZORPAY_KEY_ID,
 #   RAZORPAY_KEY_SECRET, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
 
-name = "sreepon-crackers"
+name = "sreepon-api"
 
 # Pre-bundled by `npm run build` (scripts/build-worker.mjs). We bundle with
 # esbuild ourselves (platform-neutral + workerd conditions) because Wrangler's
