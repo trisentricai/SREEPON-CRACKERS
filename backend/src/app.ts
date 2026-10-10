@@ -3,7 +3,7 @@ import express, { type Express } from 'express';
 import helmet from 'helmet';
 import { pinoHttp } from 'pino-http';
 import swaggerUi from 'swagger-ui-express';
-import { corsOrigins, isProduction } from './config/env';
+import { corsOrigins, env, isProduction } from './config/env';
 import { openApiSpec } from './config/swagger';
 import { errorHandler } from './middleware/error.middleware';
 import { notFoundHandler } from './middleware/not-found.middleware';
@@ -81,12 +81,18 @@ export function createApp(): Express {
   });
 
   // --- API documentation (OpenAPI/Swagger) -----------------------------
-  app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openApiSpec, {
-    customSiteTitle: `${APP.name} API Documentation`,
-  }));
   app.get('/api/openapi.json', (_req, res) => {
     res.json(openApiSpec);
   });
+
+  // Swagger UI serves static assets from disk, which Cloudflare Workers does
+  // not provide — keep the OpenAPI JSON endpoint everywhere, but only mount
+  // the interactive UI on Node (Render / local dev).
+  if (env.DEPLOY_TARGET !== 'workers') {
+    app.use('/api/docs', swaggerUi.serve, swaggerUi.setup(openApiSpec, {
+      customSiteTitle: `${APP.name} API Documentation`,
+    }));
+  }
 
   // --- Health ----------------------------------------------------------
   app.use(healthRouter);

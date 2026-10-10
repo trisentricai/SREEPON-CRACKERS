@@ -21,6 +21,6 @@
     "sourceMap": true,
     "types": ["node"]
   },
-  "include": ["src/**/*.ts", "tests/**/*.ts", "prisma/**/*.ts"],
+  "include": ["src/**/*.ts", "tests/**/*.ts", "prisma/**/*.ts", "worker-configuration.d.ts"],
   "exclude": ["node_modules", "dist"]
 }

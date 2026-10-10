@@ -17,6 +17,8 @@ build/
 backend/.env
 backend/.env.production
 backend/.env.staging
+backend/.dev.vars
+backend/.wrangler/tmp/
 web/.env
 web/.env.local
 admin/.env

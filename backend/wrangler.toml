@@ -1,0 +1,43 @@
+# Cloudflare Workers configuration for the SriPon API.
+#
+# Deploy (from the `backend` directory):
+#   npm i
+#   npx wrangler types          # regenerates worker type definitions
+#   npm run build               # compiles src/ -> dist/
+#   npx wrangler deploy
+#
+# Secrets are NOT stored in this file. Set them in the Cloudflare dashboard
+# (Workers Builds -> Settings -> Variables and Secrets) or with:
+#   npx wrangler secret put <NAME>
+#
+# Required secrets: DATABASE_URL, DIRECT_DATABASE_URL, REDIS_URL, JWT_SECRET,
+#   FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY,
+#   SUPABASE_URL, SUPABASE_ANON_KEY, SUPABASE_SERVICE_ROLE_KEY,
+#   CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET,
+#   PAYMENT_PROVIDER, PAYMENT_MERCHANT_ID, PAYMENT_CLIENT_ID,
+#   PAYMENT_CLIENT_SECRET, PAYMENT_SALT_KEY, RAZORPAY_KEY_ID,
+#   RAZORPAY_KEY_SECRET, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
+
+name = "sripon-api"
+# Pre-bundled by `npm run build` (scripts/build-worker.mjs). We bundle with
+# esbuild ourselves (platform-neutral + workerd conditions) because Wrangler's
+# own bundler stops iconv-lite's `./lib/streams` from loading, which crashes
+# body-parser at boot. Node builtins stay external (nodejs_compat) and the
+# Prisma query engine wasm is emitted next to the bundle for Wrangler to pick up.
+main = "dist/worker.bundle.mjs"
+
+# >= 2026-08-04 enables nodejs_compat (+ nodejs_compat_v2) by default, which
+# the Express-on-Workers HTTP bridge (httpServerHandler) requires.
+compatibility_date = "2026-08-04"
+compatibility_flags = ["nodejs_compat"]
+
+# Keep the throwaway *.workers.dev URL active for quick testing.
+workers_dev = true
+
+[vars]
+# Public runtime configuration (non-secret). Secrets go through `secret put`.
+NODE_ENV = "production"
+DEPLOY_TARGET = "workers"
+# Browser origins allowed to call the API (comma-separated). Override with the
+# real production origins in the dashboard or via a secret of the same name.
+CORS_ORIGINS = ""

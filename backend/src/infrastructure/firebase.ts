@@ -1,5 +1,4 @@
-import { cert, getApps, initializeApp } from 'firebase-admin/app';
-import { getAuth, type Auth } from 'firebase-admin/auth';
+import type { Auth } from 'firebase-admin/auth';
 import { env } from '../config/env';
 import { resolveFirebaseCredential } from '../utils/credentials';
 import { logger } from '../utils/logger';
@@ -10,6 +9,11 @@ let initialized = false;
 /**
  * Initialize the Firebase Admin SDK from environment configuration.
  * Called lazily so the server can boot before Firebase is configured.
+ *
+ * The Admin SDK is loaded with a dynamic `require` inside this function: it is
+ * not supported on Cloudflare Workers, but the API must still boot there — when
+ * the SDK cannot load, customer-auth endpoints fail closed exactly as they do
+ * when Firebase is unconfigured.
  */
 export function getFirebaseAuth(): Auth | null {
   if (auth) return auth;
@@ -31,14 +35,19 @@ export function getFirebaseAuth(): Auth | null {
   }
 
   try {
-    if (getApps().length === 0) {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const firebaseApp = require('firebase-admin/app') as typeof import('firebase-admin/app');
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    const firebaseAuth = require('firebase-admin/auth') as typeof import('firebase-admin/auth');
+
+    if (firebaseApp.getApps().length === 0) {
       if (cred.type === 'file') {
         // eslint-disable-next-line @typescript-eslint/no-require-imports
         const serviceAccount = require(cred.path) as object;
-        initializeApp({ credential: cert(serviceAccount) });
+        firebaseApp.initializeApp({ credential: firebaseApp.cert(serviceAccount) });
       } else {
-        initializeApp({
-          credential: cert({
+        firebaseApp.initializeApp({
+          credential: firebaseApp.cert({
             projectId: cred.projectId,
             clientEmail: cred.clientEmail,
             privateKey: cred.privateKey,
@@ -46,7 +55,7 @@ export function getFirebaseAuth(): Auth | null {
         });
       }
     }
-    auth = getAuth();
+    auth = firebaseAuth.getAuth();
     logger.info({ projectId: env.FIREBASE_PROJECT_ID }, 'Firebase Admin initialized');
   } catch (err) {
     logger.error({ err, component: 'firebase' }, 'Firebase Admin initialization failed; auth will fail closed');

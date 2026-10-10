@@ -1,5 +1,12 @@
-import 'dotenv/config';
 import { z } from 'zod';
+
+// Cloudflare Workers has no local filesystem — the environment arrives via
+// Worker bindings (copied into process.env by `src/worker-env.ts`), so dotenv
+// must not run there. On Node (Render, tests, local dev) dotenv loads `.env`.
+if (process.env.DEPLOY_TARGET !== 'workers') {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  require('dotenv/config');
+}
 
 /**
  * Centralized, validated environment configuration.
@@ -9,6 +16,8 @@ import { z } from 'zod';
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive().default(5000),
+  /** Hosting platform marker: `''`/unset on Node, `'workers'` on Cloudflare. */
+  DEPLOY_TARGET: z.string().default(''),
 
   CORS_ORIGINS: z.string().default(''),
   JWT_SECRET: z.string().default(''),
