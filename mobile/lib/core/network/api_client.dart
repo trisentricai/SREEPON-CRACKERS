@@ -64,8 +64,11 @@ class ApiClient {
             if (token != null && token.isNotEmpty) {
               options.headers['Authorization'] = 'Bearer $token';
             }
-          } on DioException {
-            // Proceed unauthenticated if the token lookup fails.
+          } catch (_) {
+            // Proceed unauthenticated if the token lookup fails for any
+            // reason (expired session, Firebase/network error, platform
+            // exception). Public endpoints must still load; gated endpoints
+            // surface their own 401.
           }
           handler.next(options);
         },

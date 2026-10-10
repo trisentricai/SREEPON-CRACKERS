@@ -1,4 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Required for the app to reach the SriPon API in release builds.
+         The debug/profile manifests only grant this for development, so a
+         release APK/AAB has no network access unless it is declared here. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
         android:label="sripon"
         android:name="${applicationName}"
