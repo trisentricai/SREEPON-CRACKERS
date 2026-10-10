@@ -1,0 +1,135 @@
+name: iOS
+
+# Builds the SriPon Flutter app for iOS whenever anything under `mobile/`
+# changes. The build is UNSIGNED — it needs no Apple certificate or
+# provisioning profile — so it validates compilation and produces an
+# installable `.ipa` for internal testing / side-loading tooling.
+#
+# To publish to TestFlight/App Store later, add signing (see the notes at the
+# bottom) and switch the build step to `flutter build ipa`.
+
+on:
+  push:
+    branches: [master, main]
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/ios.yml'
+  pull_request:
+    paths:
+      - 'mobile/**'
+      - '.github/workflows/ios.yml'
+  workflow_dispatch:
+    inputs:
+      api_base_url:
+        description: 'API base URL baked into the build (overrides the repository variable)'
+        required: false
+        default: ''
+
+# One iOS build per branch; cancel superseded runs.
+concurrency:
+  group: ios-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  FLUTTER_VERSION: '3.41.4'
+  # Used when neither the workflow_dispatch input nor the `MOBILE_API_BASE_URL`
+  # repository variable is set. Change the app's backend without editing code by
+  # setting that repository variable (Settings → Secrets and variables →
+  # Actions → Variables).
+  DEFAULT_API_BASE_URL: 'https://sreepon-api.trisentricai.workers.dev/api/v1'
+
+defaults:
+  run:
+    working-directory: mobile
+
+jobs:
+  build:
+    name: Build iOS (unsigned)
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+
+      - name: Resolve app API base URL
+        id: config
+        run: |
+          url='${{ github.event.inputs.api_base_url }}'
+          if [ -z "$url" ]; then
+            url='${{ vars.MOBILE_API_BASE_URL }}'
+          fi
+          if [ -z "$url" ]; then
+            url="$DEFAULT_API_BASE_URL"
+          fi
+          echo "Using API_BASE_URL=$url"
+          echo "api_base_url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      # Firebase reads its config from ios/Runner/GoogleService-Info.plist, which
+      # is environment-specific and NOT committed. Supply it as a base64-encoded
+      # repository secret to give the built app a working Firebase Auth.
+      - name: Write GoogleService-Info.plist (optional)
+        env:
+          GOOGLE_SERVICE_INFO_PLIST_B64: ${{ secrets.GOOGLE_SERVICE_INFO_PLIST_B64 }}
+        run: |
+          if [ -n "$GOOGLE_SERVICE_INFO_PLIST_B64" ]; then
+            printf '%s' "$GOOGLE_SERVICE_INFO_PLIST_B64" | tr -d '\n\r ' | openssl base64 -d -A > ios/Runner/GoogleService-Info.plist
+            echo "Wrote ios/Runner/GoogleService-Info.plist"
+          else
+            echo "::warning::GOOGLE_SERVICE_INFO_PLIST_B64 is not set — Firebase Auth will be unconfigured at runtime."
+          fi
+
+      - name: Build iOS (release, unsigned)
+        run: |
+          flutter build ios --release --no-codesign \
+            --dart-define=API_BASE_URL=${{ steps.config.outputs.api_base_url }}
+
+      - name: Package unsigned IPA
+        run: |
+          cd build/ios/iphoneos
+          mkdir -p Payload
+          cp -R Runner.app Payload/
+          zip -qry SriPon-unsigned.ipa Payload
+          ls -lh SriPon-unsigned.ipa
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sripon-ios-unsigned-ipa
+          path: mobile/build/ios/iphoneos/SriPon-unsigned.ipa
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Upload dSYMs
+        uses: actions/upload-artifact@v4
+        with:
+          name: sripon-ios-dsyms
+          path: mobile/build/ios/iphoneos/Runner.app.dSYM
+          if-no-files-found: ignore
+          retention-days: 14
+
+# ---------------------------------------------------------------------------
+# Enabling signed builds (TestFlight / App Store)
+#
+# Upload the Apple Distribution certificate (base64 .p12), its password, a
+# provisioning profile (base64 .mobileprovision) and your Team ID as repository
+# secrets, then either add `runs-on: macos-15` signing steps or use a dedicated
+# action (e.g. `apple-actions/import-codesign-certs`), and change the build step
+# to:
+#     flutter build ipa --release --dart-define=API_BASE_URL=...
+# which emits build/ios/ipa/*.ipa ready for `xcrun altool`/`notarytool`/Transporter.
+# ---------------------------------------------------------------------------
