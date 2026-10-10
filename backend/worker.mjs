@@ -39,6 +39,23 @@ const handler = httpServerHandler({ port: 8080 });
 // would be dead by the next request and every query would hang.
 export default {
   fetch(request, env, ctx) {
+    // Capture the request-scoped bindings (which always include secrets) so the
+    // `/health?debug=1` endpoint can compare them with what `src/config/env`
+    // parsed at module load. String bindings only — no object bindings/values.
+    try {
+      globalThis.__cfEnvDebug = {
+        stringKeys: Object.keys(env).filter((k) => typeof env[k] === 'string'),
+        hasDatabaseUrl: typeof env.DATABASE_URL === 'string' && env.DATABASE_URL.length > 0,
+        hasUpstashUrl:
+          typeof env.UPSTASH_REDIS_REST_URL === 'string' && env.UPSTASH_REDIS_REST_URL.length > 0,
+        hasUpstashToken:
+          typeof env.UPSTASH_REDIS_REST_TOKEN === 'string' && env.UPSTASH_REDIS_REST_TOKEN.length > 0,
+        hasJwtSecret: typeof env.JWT_SECRET === 'string' && env.JWT_SECRET.length > 0,
+      };
+    } catch {
+      // Never let diagnostics affect request handling.
+    }
+
     return runWithRequestPrisma(() => handler.fetch(request, env, ctx), ctx);
   },
 };

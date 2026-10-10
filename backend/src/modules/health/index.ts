@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import { APP } from '../../config/constants';
+import { env } from '../../config/env';
 import { pingDatabase } from '../../infrastructure/prisma';
 import { pingRedis } from '../../infrastructure/redis';
 import { asyncHandler, ok } from '../../utils/http';
@@ -14,7 +15,7 @@ export const healthRouter = Router();
 
 healthRouter.get(
   '/health',
-  asyncHandler(async (_req, res) => {
+  asyncHandler(async (req, res) => {
     const [db, redis] = await Promise.allSettled([pingDatabase(), pingRedis()]);
 
     const database =
@@ -27,6 +28,24 @@ healthRouter.get(
       logger.warn({ component: 'health', error: database.error }, 'Database health check failed');
     }
 
+    // Opt-in diagnostics (`/health?debug=1`): report which keys the app parsed
+    // at module load vs. which string bindings the request actually carried.
+    // Booleans/key names only — never values.
+    const debug =
+      String(req.query.debug) === '1'
+        ? {
+            parsedEnv: {
+              hasDatabaseUrl: Boolean(env.DATABASE_URL),
+              hasUpstashUrl: Boolean(env.UPSTASH_REDIS_REST_URL),
+              hasUpstashToken: Boolean(env.UPSTASH_REDIS_REST_TOKEN),
+              hasJwtSecret: Boolean(env.JWT_SECRET),
+              deployTarget: env.DEPLOY_TARGET,
+            },
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            requestEnv: (globalThis as any).__cfEnvDebug ?? null,
+          }
+        : undefined;
+
     res.status(200).json(
       ok(
         {
@@ -38,6 +57,7 @@ healthRouter.get(
             database,
             redis: redisResult,
           },
+          ...(debug ? { debug } : {}),
         },
         'SriPon API is healthy',
       ),
