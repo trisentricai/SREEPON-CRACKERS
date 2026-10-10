@@ -90,7 +90,7 @@ export async function revokeFirebaseRefreshTokens(uid: string): Promise<void> {
   const res = await fetch(`${IDENTITY_TOOLKIT_URL}/projects/${projectId}/accounts:update`, {
     method: 'POST',
     headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
-    body: JSON.stringify({ localId: uid, validSince: String(Math.floor(Date.now() / 1000)) }),
+    body: JSON.stringify({ localId: uid, validSince: Math.floor(Date.now() / 1000) }),
   });
 
   if (!res.ok) {
