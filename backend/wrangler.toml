@@ -6,9 +6,12 @@
 #   npm run build               # compiles src/ -> dist/
 #   npx wrangler deploy
 #
-# Secrets are NOT stored in this file. Set them in the Cloudflare dashboard
-# (Workers Builds -> Settings -> Variables and Secrets) or with:
+# Secrets are NOT stored in this file. Set them as ENCRYPTED secrets in the
+# Cloudflare dashboard (Worker -> Settings -> Variables and Secrets -> type
+# "Secret") or with:
 #   npx wrangler secret put <NAME>
+# They must be Secrets (not plaintext Variables): plaintext dashboard values are
+# removed on every `wrangler deploy`. `keep_vars = true` below prevents that.
 #
 # Required secrets: DATABASE_URL, DIRECT_DATABASE_URL, REDIS_URL, JWT_SECRET,
 #   UPSTASH_REDIS_REST_URL, UPSTASH_REDIS_REST_TOKEN,
@@ -35,6 +38,12 @@ compatibility_flags = ["nodejs_compat"]
 
 # Keep the throwaway *.workers.dev URL active for quick testing.
 workers_dev = true
+
+# This Worker is deployed by Workers Builds on every push to the production
+# branch. By default `wrangler deploy` deletes any variables/secrets on the
+# Worker that are not declared in this file — which silently wipes values set
+# in the Cloudflare dashboard (see cloudflare/workers-sdk#8871). Keep them.
+keep_vars = true
 
 [vars]
 # Public runtime configuration (non-secret). Secrets go through `secret put`.
