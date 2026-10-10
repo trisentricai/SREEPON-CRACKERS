@@ -51,7 +51,7 @@ NODE_ENV = "production"
 DEPLOY_TARGET = "workers"
 # Browser origins allowed to call the API (comma-separated). Add every deployed
 # frontend origin here (web/admin); preview URLs need their own entries.
-CORS_ORIGINS = "https://sreepon-crackers.pages.dev"
+CORS_ORIGINS = "https://sreepon-crackers.pages.dev,https://sreepon-admin.netlify.app"
 
 # Cloudflare KV namespace used as the Redis replacement on Workers (Workers
 # cannot open TCP connections to Redis). Bound as `KV`; see src/infrastructure.
