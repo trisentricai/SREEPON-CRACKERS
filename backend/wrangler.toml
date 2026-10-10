@@ -49,9 +49,9 @@ keep_vars = true
 # Public runtime configuration (non-secret). Secrets go through `secret put`.
 NODE_ENV = "production"
 DEPLOY_TARGET = "workers"
-# Browser origins allowed to call the API (comma-separated). Override with the
-# real production origins in the dashboard or via a secret of the same name.
-CORS_ORIGINS = ""
+# Browser origins allowed to call the API (comma-separated). Add every deployed
+# frontend origin here (web/admin); preview URLs need their own entries.
+CORS_ORIGINS = "https://sreepon-crackers.pages.dev"
 
 # Cloudflare KV namespace used as the Redis replacement on Workers (Workers
 # cannot open TCP connections to Redis). Bound as `KV`; see src/infrastructure.
