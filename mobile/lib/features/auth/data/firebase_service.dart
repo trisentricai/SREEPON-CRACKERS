@@ -1,8 +1,9 @@
 /// Firebase Auth helpers for the SriPon Flutter app.
 ///
-/// The SDK reads its config from the platform files each engine ships
-/// (`google-services.json` / `GoogleService-Info.plist`), so nothing here is a
-/// secret. These wrappers keep the UI and API layers free of Firebase plumbing.
+/// Configuration comes from the generated [DefaultFirebaseOptions]
+/// (`lib/firebase_options.dart`), so Firebase is initialised explicitly on every
+/// platform. These wrappers keep the UI and API layers free of Firebase
+/// plumbing.
 ///
 /// IMPORTANT: call [initializeFirebase] once at startup (see `main.dart`)
 /// before any screen touches auth, otherwise the SDK throws.
@@ -12,10 +13,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+import '../../../firebase_options.dart';
+
 /// Initializes Firebase core. Idempotent.
 Future<void> initializeFirebase() async {
   if (Firebase.apps.isEmpty) {
-    await Firebase.initializeApp();
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
   }
 }
 

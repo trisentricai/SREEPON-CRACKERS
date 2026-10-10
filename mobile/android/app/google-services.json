@@ -37,6 +37,13 @@
             {
               "client_id": "883028401432-o8lo5b5iigsa59inuu9hn4pv10ebaf2i.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "883028401432-e5aclb806j499ldcmq262d6jvj5s03pu.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.trisentricai.sreepon"
+              }
             }
           ]
         }
