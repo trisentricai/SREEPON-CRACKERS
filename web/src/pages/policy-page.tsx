@@ -1,7 +1,9 @@
 import { Link, useParams } from 'react-router-dom';
 import { ErrorState, Skeleton } from '@/components/storefront-ui';
+import { SITE } from '@/config/env';
 import { LEGAL_LINKS } from '@/lib/legal';
 import { usePublicLegal, usePublicSettings } from '@/lib/queries';
+import { usePageMeta } from '@/lib/seo';
 
 /** Renders admin-authored policy text as paragraphs, preserving single line breaks. */
 function PolicyBody({ body, supportEmail }: { body: string; supportEmail?: string }) {
@@ -45,6 +47,15 @@ export function PolicyPage() {
   const { policyKey } = useParams<{ policyKey: string }>();
   const legal = usePublicLegal();
   const settings = usePublicSettings();
+
+  const policyTitle = policyKey ? legal.data?.policies[policyKey]?.title : undefined;
+  usePageMeta({
+    title: policyTitle ?? 'Policies & terms',
+    description: policyTitle
+      ? `${policyTitle} for orders placed on ${SITE.name}.`
+      : 'Shipping, returns, refunds, privacy and terms for shopping with SriPon.',
+    path: policyKey ? `/policies/${policyKey}` : '/policies',
+  });
 
   if (legal.isLoading) {
     return (
@@ -124,6 +135,12 @@ export function PolicyPage() {
 /** `/policies` — index of every policy page. */
 export function PoliciesIndexPage() {
   const legal = usePublicLegal();
+
+  usePageMeta({
+    title: 'Policies & terms',
+    description: 'Shipping, returns, refunds, privacy and terms for shopping with SriPon.',
+    path: '/policies',
+  });
 
   return (
     <section className="mx-auto max-w-3xl px-4 py-12">

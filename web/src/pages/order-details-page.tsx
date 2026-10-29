@@ -6,6 +6,7 @@ import type { ApiEnvelope, InvoiceData, Order, OrderItem } from '@/api/types';
 import { Badge, EmptyState, ErrorState, SectionHeading, Spinner } from '@/components/storefront-ui';
 import { useAuth } from '@/features/auth/context/auth-context';
 import { formatDateTime, formatMoney } from '@/lib/format';
+import { usePageMeta } from '@/lib/seo';
 import { OrderStatusBadge, PaymentBadge } from './orders-page';
 
 const CANCELABLE = ['PENDING', 'CONFIRMED', 'PROCESSING'];
@@ -15,6 +16,8 @@ export function OrderDetailsPage() {
   const params = useParams();
   const orderId = params.orderId!;
   const { isAuthenticated, isLoading } = useAuth();
+
+  usePageMeta({ title: 'Order details', path: `/orders/${orderId}`, noindex: true });
 
   const [cancelReason, setCancelReason] = useState('');
   const [showCancel, setShowCancel] = useState(false);

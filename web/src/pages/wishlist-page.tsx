@@ -6,10 +6,13 @@ import type { ApiEnvelope, Cart, WishlistItem } from '@/api/types';
 import { AuthGate, EmptyState, ErrorState, Spinner } from '@/components/storefront-ui';
 import { useAuth } from '@/features/auth/context/auth-context';
 import { formatMoney, formatUnit } from '@/lib/format';
+import { usePageMeta } from '@/lib/seo';
 
 /** The signed-in customer's wishlist with move-to-cart actions. */
 export function WishlistPage() {
   const { isAuthenticated, isLoading } = useAuth();
+
+  usePageMeta({ title: 'Your wishlist', path: '/wishlist', noindex: true });
 
   return (
     <AuthGate isAuthenticated={isAuthenticated} isLoading={isLoading} title="Sign in to view your wishlist">

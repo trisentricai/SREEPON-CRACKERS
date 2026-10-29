@@ -19,6 +19,7 @@ import { SITE } from '@/config/env';
 import { useAuth } from '@/features/auth/context/auth-context';
 import { formatMoney } from '@/lib/format';
 import { loadRazorpay, readRazorpayPayload, waitForPaidPayment } from '@/lib/razorpay';
+import { usePageMeta } from '@/lib/seo';
 
 const FALLBACK_PROVIDERS: AvailablePaymentProvider[] = [
   { name: 'razorpay', label: 'UPI, cards & netbanking' },
@@ -30,6 +31,8 @@ type CheckoutStep = 'review' | 'placing' | 'created';
 /** Checkout: address → order → payment. Backend-authoritative pricing. */
 export function CheckoutPage() {
   const { isAuthenticated, isLoading } = useAuth();
+
+  usePageMeta({ title: 'Secure checkout', path: '/checkout', noindex: true });
 
   return (
     <AuthGate isAuthenticated={isAuthenticated} isLoading={isLoading} title="Sign in to check out">

@@ -5,9 +5,11 @@ import { Link, useParams } from 'react-router-dom';
 import { api } from '@/api/client';
 import type { ApiEnvelope, Cart, Product } from '@/api/types';
 import { Badge, ErrorState, Reveal, Skeleton } from '@/components/storefront-ui';
+import { SITE } from '@/config/env';
 import { useAuth } from '@/features/auth/context/auth-context';
 import { discountPercent, formatMoney, formatUnit } from '@/lib/format';
 import { imagePositionCss } from '@/lib/image-position';
+import { useJsonLd, usePageMeta } from '@/lib/seo';
 
 /**
  * Iconly ships no minus/remove glyph, so the quantity stepper draws a single
@@ -74,11 +76,53 @@ export function ProductDetailsPage() {
     onError: (err) => setError(err instanceof Error ? err.message : 'Could not add to wishlist'),
   });
 
+  // Route-level head tags and schema. Called before the early returns so the
+  // hook order stays stable across loading/error/success renders.
+  const productData = productQuery.data;
+  const productInStock = (productData?.inventory?.quantity ?? 0) > 0;
+
+  usePageMeta({
+    title: productData?.name,
+    description: productData?.shortDescription ?? productData?.description?.slice(0, 160),
+    path: productData ? `/products/slug/${productData.slug}` : undefined,
+    image: productData?.images[0]?.url ?? null,
+    type: 'product',
+    noindex: productQuery.isError,
+  });
+
+  useJsonLd(
+    'ld-product',
+    productData
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'Product',
+          name: productData.name,
+          description: productData.description ?? productData.shortDescription ?? undefined,
+          sku: productData.sku,
+          image: productData.images.map((image) => image.url),
+          brand: { '@type': 'Brand', name: SITE.name },
+          ...(productData.category ? { category: productData.category.name } : {}),
+          ...(productData.minimumAge
+            ? { audience: { '@type': 'PeopleAudience', suggestedMinAge: productData.minimumAge } }
+            : {}),
+          offers: {
+            '@type': 'Offer',
+            price: productData.basePrice,
+            priceCurrency: 'INR',
+            availability: productInStock
+              ? 'https://schema.org/InStock'
+              : 'https://schema.org/OutOfStock',
+            url: `${SITE.baseUrl}/products/slug/${productData.slug}`,
+            seller: { '@type': 'Organization', name: SITE.name },
+          },
+        }
+      : null,
+  );
+
   if (productQuery.isLoading) {
     return (
       <section className="mx-auto max-w-7xl px-4 py-12">
-        <Skeleton className="h-4 w-64 rounded-lg" />
-        <div className="mt-8 grid gap-10 lg:grid-cols-2">
+        <Skeleton className="h-4 w-64 rounded-lg" />        <div className="mt-8 grid gap-10 lg:grid-cols-2">
           <div>
             <Skeleton className="aspect-square rounded-xl" />
             <div className="mt-3 flex gap-2">
@@ -109,7 +153,7 @@ export function ProductDetailsPage() {
   const product = productQuery.data;
   const images = product.images.length > 0 ? product.images : null;
   const discount = discountPercent(product.basePrice, product.mrpPrice);
-  const inStock = (product.inventory?.quantity ?? 0) > 0;
+  const inStock = productInStock;
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-8">

@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+
+# Private, account-specific screens — no value in the index.
+Disallow: /cart
+Disallow: /checkout
+Disallow: /orders
+Disallow: /profile
+Disallow: /wishlist
+
+Sitemap: https://sreepon.in/sitemap.xml

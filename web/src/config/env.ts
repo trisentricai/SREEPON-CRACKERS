@@ -9,7 +9,7 @@ export const env = envSchema.parse(import.meta.env);
 export const SITE = {
   name: 'SriPon',
   tagline: 'Celebrate responsibly',
-  baseUrl: 'https://www.sripon.example', // replaced by a real domain in deployment
+  baseUrl: 'https://sreepon.in',
   currency: 'INR',
 } as const;
 

@@ -8,6 +8,7 @@ import { Badge, EmptyState, ErrorState, Spinner } from '@/components/storefront-
 import { useAuth } from '@/features/auth/context/auth-context';
 import { loginWithGoogle, resetPassword } from '@/services/firebase/auth';
 import { formatDate } from '@/lib/format';
+import { usePageMeta } from '@/lib/seo';
 
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
   'auth/invalid-login-credentials': 'Invalid email or password.',
@@ -38,6 +39,8 @@ export function ProfilePage() {
   const [error, setError] = useState<string | null>(null);
   const [info, setInfo] = useState<string | null>(null);
   const queryClient = useQueryClient();
+
+  usePageMeta({ title: 'Your account', path: '/profile', noindex: true });
 
   const profile = useQuery({
     queryKey: ['profile'],

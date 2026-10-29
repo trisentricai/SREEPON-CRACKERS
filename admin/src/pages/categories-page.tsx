@@ -2,19 +2,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/client';
 import type { ApiEnvelope, Category, CreateCategoryInput } from '@/api/types';
-import {
-  Badge,
-  Button,
-  Card,
-  EmptyState,
-  ErrorState,
-  Field,
-  Modal,
-  Select,
-  Spinner,
-  TextInput,
-  Toggle,
-} from '@/components/admin-ui';
+import { Badge, Button, Card, EmptyState, ErrorState, Field, Modal, Select, Spinner, TextInput, Toggle } from '@/components/admin-ui';
+import { ImageUploadButton } from '@/components/image-uploader';
 import { slugify } from '@/lib/format';
 
 interface CategoryFormState {
@@ -22,6 +11,7 @@ interface CategoryFormState {
   slug: string;
   parentId: string;
   description: string;
+  bannerImageUrl: string;
   isActive: boolean;
   isFeatured: boolean;
 }
@@ -31,6 +21,7 @@ const EMPTY_FORM: CategoryFormState = {
   slug: '',
   parentId: '',
   description: '',
+  bannerImageUrl: '',
   isActive: true,
   isFeatured: false,
 };
@@ -41,6 +32,7 @@ function toForm(category: Category): CategoryFormState {
     slug: category.slug,
     parentId: category.parentId ?? '',
     description: category.description ?? '',
+    bannerImageUrl: category.bannerImageUrl ?? '',
     isActive: category.isActive,
     isFeatured: category.isFeatured,
   };
@@ -52,6 +44,7 @@ function buildPayload(form: CategoryFormState): CreateCategoryInput {
     slug: form.slug || undefined,
     parentId: form.parentId || null,
     description: form.description || undefined,
+    bannerImageUrl: form.bannerImageUrl || null,
     isActive: form.isActive,
     isFeatured: form.isFeatured,
   };
@@ -173,8 +166,23 @@ export function CategoriesPage() {
                 return (
                   <tr key={category.id} className="hover:bg-slate-50">
                     <td className="px-4 py-3">
-                      <p className="font-medium text-slate-800">{category.name}</p>
-                      <p className="text-xs text-slate-400">{category.slug}</p>
+                      <div className="flex items-center gap-3">
+                        {category.bannerImageUrl ? (
+                          <img
+                            src={category.bannerImageUrl}
+                            alt=""
+                            className="h-9 w-9 rounded-md border border-slate-200 object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-9 w-9 items-center justify-center rounded-md border border-dashed border-slate-200 text-[10px] text-slate-400">
+                            —
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-medium text-slate-800">{category.name}</p>
+                          <p className="text-xs text-slate-400">{category.slug}</p>
+                        </div>
+                      </div>
                     </td>
                     <td className="px-4 py-3 text-slate-600">{parent?.name ?? '—'}</td>
                     <td className="px-4 py-3 text-slate-600">{category.productCount}</td>
@@ -244,6 +252,32 @@ export function CategoriesPage() {
               value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
             />
+          </Field>
+          <Field label="Category image" hint="Shown on the storefront category tile. Square or 4:3, up to 5 MB.">
+            <div className="flex items-center gap-3">
+              {form.bannerImageUrl ? (
+                <img
+                  src={form.bannerImageUrl}
+                  alt=""
+                  className="h-20 w-20 rounded-lg border border-slate-200 object-cover"
+                />
+              ) : (
+                <div className="flex h-20 w-20 items-center justify-center rounded-lg border border-dashed border-slate-300 text-xs text-slate-400">
+                  No image
+                </div>
+              )}
+              <ImageUploadButton
+                folder="sripon/categories"
+                label={form.bannerImageUrl ? 'Replace' : '+ Add image'}
+                onUploaded={(image) => setForm((f) => ({ ...f, bannerImageUrl: image.url }))}
+                onError={(message) => setFormError(message)}
+              />
+              {form.bannerImageUrl && (
+                <Button variant="ghost" className="text-red-600 hover:bg-red-50" onClick={() => setForm((f) => ({ ...f, bannerImageUrl: '' }))}>
+                  Remove
+                </Button>
+              )}
+            </div>
           </Field>
           <div className="flex gap-6">
             <div className="flex items-center gap-2 text-sm text-slate-700">

@@ -6,10 +6,13 @@ import type { ApiEnvelope, Cart } from '@/api/types';
 import { AuthGate, EmptyState, ErrorState, Spinner } from '@/components/storefront-ui';
 import { useAuth } from '@/features/auth/context/auth-context';
 import { formatMoney, formatUnit } from '@/lib/format';
+import { usePageMeta } from '@/lib/seo';
 
 /** Server-side shopping cart for the signed-in customer. */
 export function CartPage() {
   const { isAuthenticated, isLoading } = useAuth();
+
+  usePageMeta({ title: 'Your cart', path: '/cart', noindex: true });
 
   return (
     <AuthGate isAuthenticated={isAuthenticated} isLoading={isLoading} title="Sign in to view your cart">

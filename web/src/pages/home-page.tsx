@@ -13,7 +13,10 @@ import {
   SectionHeading,
   Skeleton,
 } from '@/components/storefront-ui';
+import { SITE } from '@/config/env';
 import { imagePositionCss } from '@/lib/image-position';
+import { useJsonLd, usePageMeta } from '@/lib/seo';
+import { visibleCategorySlugs, visibleCategoryTree } from '@/lib/categories';
 
 const TRUST_CHIPS = [
   { icon: ShieldDone, label: 'Licensed stock' },
@@ -48,6 +51,54 @@ export function HomePage() {
     },
   });
 
+  const store = settings.data?.store;
+  const socialLinks = [
+    settings.data?.social.instagramUrl,
+    settings.data?.social.facebookUrl,
+    settings.data?.social.youtubeUrl,
+    settings.data?.social.tiktokUrl,
+  ].filter((url): url is string => Boolean(url));
+
+  usePageMeta({ path: '/' });
+  useJsonLd(
+    'ld-store',
+    settings.data
+      ? {
+          '@context': 'https://schema.org',
+          '@graph': [
+            {
+              '@type': 'Store',
+              name: store?.name ?? SITE.name,
+              url: SITE.baseUrl,
+              image: `${SITE.baseUrl}/logo.webp`,
+              ...(store?.tagline ? { description: store.tagline } : {}),
+              ...(socialLinks.length > 0 ? { sameAs: socialLinks } : {}),
+              ...(store?.supportEmail || store?.supportPhone
+                ? {
+                    contactPoint: {
+                      '@type': 'ContactPoint',
+                      contactType: 'customer service',
+                      ...(store.supportEmail ? { email: store.supportEmail } : {}),
+                      ...(store.supportPhone ? { telephone: store.supportPhone } : {}),
+                    },
+                  }
+                : {}),
+            },
+            {
+              '@type': 'WebSite',
+              name: store?.name ?? SITE.name,
+              url: SITE.baseUrl,
+              potentialAction: {
+                '@type': 'SearchAction',
+                target: `${SITE.baseUrl}/products?q={search_term_string}`,
+                'query-input': 'required name=search_term_string',
+              },
+            },
+          ],
+        }
+      : null,
+  );
+
   if (homepage.isLoading || settings.isLoading) {
     return (
       <div>
@@ -78,8 +129,11 @@ export function HomePage() {
   }
 
   const data = homepage.data;
-  const store = settings.data?.store;
   const sections = data?.sections ?? [];
+  // Hidden until the tree arrives: an empty store should not advertise empty
+  // categories, but a missing/failed tree should not hide everything either.
+  const visibleCategories = categories.data ? visibleCategoryTree(categories.data) : [];
+  const visibleSlugs = categories.data ? visibleCategorySlugs(categories.data) : undefined;
   const hasSectionHero = sections.some(
     (section) => section.type === 'HERO' && (section.content.banners?.length ?? 0) > 0,
   );
@@ -106,13 +160,18 @@ export function HomePage() {
       )}
 
       {sections.map((section) => (
-        <HomeSection key={section.id} section={section} secondaryBanners={secondaryBanners} />
+        <HomeSection
+          key={section.id}
+          section={section}
+          secondaryBanners={secondaryBanners}
+          visibleSlugs={visibleSlugs}
+        />
       ))}
 
-      {sections.length === 0 && categories.data && categories.data.length > 0 && (
+      {sections.length === 0 && visibleCategories.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 py-12">
           <SectionHeading title="Shop by category" overline="Curated for you" />
-          <CategoryGrid categories={categories.data} />
+          <CategoryGrid categories={visibleCategories} />
         </section>
       )}
 
@@ -273,9 +332,12 @@ function BannerLink({
 function HomeSection({
   section,
   secondaryBanners,
+  visibleSlugs,
 }: {
   section: HomepageData['sections'][number];
   secondaryBanners: BrandBanner[];
+  /** Slugs of categories with stock; `undefined` means "no tree yet, show all". */
+  visibleSlugs?: Set<string>;
 }) {
   switch (section.type) {
     case 'HERO': {
@@ -304,7 +366,9 @@ function HomeSection({
       );
     }
     case 'CATEGORY_GRID': {
-      const categories = section.content.categories ?? [];
+      const categories = (section.content.categories ?? []).filter(
+        (category) => !visibleSlugs || visibleSlugs.has(category.slug),
+      );
       if (categories.length === 0) return null;
       return (
         <section className="mx-auto max-w-7xl px-4 py-10">
@@ -460,12 +524,25 @@ function CategoryGrid({
           to={`/products/${category.slug}`}
           className="group flex flex-col items-center gap-3 rounded-xl border border-line bg-paper-strong p-6 text-center shadow-card transition duration-300 hover:-translate-y-1 hover:border-flame-200 hover:shadow-lifted"
         >
-          <div className="relative" aria-hidden>
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-flame-100 to-gold-100 text-flame-600 transition duration-300 group-hover:scale-105">
-              <TicketStar className="h-7 w-7" />
+          {category.bannerImageUrl ? (
+            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-ember-50">
+              <img
+                src={category.bannerImageUrl}
+                alt=""
+                aria-hidden
+                loading="lazy"
+                decoding="async"
+                className="h-full w-full object-cover transition duration-300 group-hover:scale-105"
+              />
             </div>
-            <Star className="absolute -right-1 -top-1 h-4 w-4 text-gold-500 transition-transform duration-300 group-hover:rotate-45" />
-          </div>
+          ) : (
+            <div className="relative" aria-hidden>
+              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-flame-100 to-gold-100 text-flame-600 transition duration-300 group-hover:scale-105">
+                <TicketStar className="h-7 w-7" />
+              </div>
+              <Star className="absolute -right-1 -top-1 h-4 w-4 text-gold-500 transition-transform duration-300 group-hover:rotate-45" />
+            </div>
+          )}
           <p className="font-display font-semibold text-ember-900 group-hover:text-flame-600">{category.name}</p>
         </Link>
       ))}

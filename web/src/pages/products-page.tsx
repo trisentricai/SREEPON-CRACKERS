@@ -4,6 +4,8 @@ import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { api } from '@/api/client';
 import type { ApiEnvelope, CategoryTreeNode, Product, ProductListResponse, ProductSort } from '@/api/types';
 import { EmptyState, ErrorState, ProductCard, ProductGrid, Spinner } from '@/components/storefront-ui';
+import { visibleCategoryTree } from '@/lib/categories';
+import { usePageMeta } from '@/lib/seo';
 
 const LIMIT = 24;
 
@@ -36,6 +38,15 @@ export function ProductsPage() {
 
   const activeCategory = categorySlug ? findCategory(categories.data ?? [], categorySlug) : undefined;
 
+  usePageMeta({
+    title: activeCategory ? `${activeCategory.name} — crackers & fireworks` : 'Shop crackers & gift boxes',
+    description: activeCategory
+      ? activeCategory.description ??
+        `Buy ${activeCategory.name.toLowerCase()} online from SriPon. Licensed stock, GST invoice, dispatch in 24–48h.`
+      : 'Browse licensed, CE/ISI-compliant crackers and gift boxes. GST invoice on every order and dispatch in 24–48h across India.',
+    path: categorySlug ? `/products/${categorySlug}` : '/products',
+  });
+
   return (
     <section className="mx-auto max-w-7xl px-4 py-8">
       <header>
@@ -52,7 +63,7 @@ export function ProductsPage() {
       <div className="mt-6 grid gap-8 lg:grid-cols-[240px_1fr]">
         <aside className="hidden lg:block">
           <p className="mb-3 text-sm font-semibold text-ember-800">Categories</p>
-          <CategoryRail categories={categories.data ?? []} active={activeCategory?.slug} />
+          <CategoryRail categories={visibleCategoryTree(categories.data ?? [])} active={activeCategory?.slug} />
         </aside>
 
         <ProductList

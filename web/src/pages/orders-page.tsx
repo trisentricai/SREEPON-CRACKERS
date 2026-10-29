@@ -6,12 +6,15 @@ import type { ApiEnvelope, OrderListResponse, OrderStatus, PaymentStatusValue } 
 import { AuthGate, Badge, EmptyState, ErrorState, Spinner } from '@/components/storefront-ui';
 import { useAuth } from '@/features/auth/context/auth-context';
 import { formatDateTime, formatMoney } from '@/lib/format';
+import { usePageMeta } from '@/lib/seo';
 
 const LIMIT = 15;
 
 /** The signed-in customer's order history. */
 export function OrdersPage() {
   const { isAuthenticated, isLoading } = useAuth();
+
+  usePageMeta({ title: 'Your orders', path: '/orders', noindex: true });
 
   return (
     <AuthGate isAuthenticated={isAuthenticated} isLoading={isLoading} title="Sign in to view your orders">
