@@ -8,6 +8,7 @@ import { HomePage } from '../pages/home-page';
 import { NotFoundPage } from '../pages/not-found-page';
 import { OrderDetailsPage } from '../pages/order-details-page';
 import { OrdersPage } from '../pages/orders-page';
+import { PoliciesIndexPage, PolicyPage } from '../pages/policy-page';
 import { ProductDetailsPage } from '../pages/product-details-page';
 import { ProductsPage } from '../pages/products-page';
 import { ProfilePage } from '../pages/profile-page';
@@ -30,6 +31,8 @@ export const router = createBrowserRouter([
       { path: 'orders', element: <OrdersPage /> },
       { path: 'orders/:orderId', element: <OrderDetailsPage /> },
       { path: 'profile', element: <ProfilePage /> },
+      { path: 'policies', element: <PoliciesIndexPage /> },
+      { path: 'policies/:policyKey', element: <PolicyPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

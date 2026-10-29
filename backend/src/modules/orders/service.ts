@@ -8,6 +8,8 @@ import {
 } from '../../types/enums';
 import { ApiError } from '../../utils/http';
 import { toApiError } from '../../utils/prisma-errors';
+import { getPublicSettings } from '../settings/service';
+import { computeOrderTotals } from './pricing';
 import type {
   AddAdminNoteInput,
   AdminListOrdersQuery,
@@ -301,6 +303,7 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
   }
 
   const addressSnapshot = await resolveAddressSnapshot(userId, input);
+  const settings = await getPublicSettings();
 
   try {
     const orderId = await prisma.$transaction(async (tx) => {
@@ -347,8 +350,6 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
       }
 
       const subtotal = lines.reduce((acc, line) => acc.add(line.lineTotal), new Prisma.Decimal(0));
-      const tax = new Prisma.Decimal(0);
-      const deliveryFee = new Prisma.Decimal(0);
 
       let couponId: string | null = null;
       let discount = new Prisma.Decimal(0);
@@ -359,8 +360,9 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
         discount = computeCouponDiscount(coupon, subtotal).discount;
       }
 
-      let grandTotal = subtotal.sub(discount).add(tax).add(deliveryFee);
-      if (grandTotal.lt(0)) grandTotal = new Prisma.Decimal(0);
+      // Tax, shipping and the free-shipping threshold are store settings, never
+      // client input. Computed in one place and unit-tested in pricing.test.ts.
+      const { tax, deliveryFee, grandTotal } = computeOrderTotals({ subtotal, discount, settings });
 
       let order: { id: string } | undefined;
       for (let attempt = 0; attempt < 3; attempt += 1) {
@@ -421,6 +423,66 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
   } catch (err) {
     throw toApiError(err, { resource: 'Order' });
   }
+}
+
+/**
+ * Live checkout breakdown for the current cart. Mirrors `createOrder`'s maths
+ * (same coupon rules, same settings) so the customer sees the authoritative
+ * total before paying — including GST and shipping. Nothing is reserved.
+ */
+export async function estimateOrder(userId: string, input: { couponCode?: string }) {
+  const cart = await prisma.cart.findUnique({
+    where: { userId },
+    select: { items: { select: { productId: true, quantity: true } } },
+  });
+  if (!cart || cart.items.length === 0) {
+    throw ApiError.conflict('Cart is empty');
+  }
+
+  const products = await prisma.product.findMany({
+    where: { id: { in: cart.items.map((item) => item.productId) } },
+    select: { id: true, name: true, basePrice: true, isActive: true, isApproved: true },
+  });
+  const productById = new Map(products.map((product) => [product.id, product]));
+
+  let subtotal = new Prisma.Decimal(0);
+  for (const item of cart.items) {
+    const product = productById.get(item.productId);
+    if (!product || !product.isActive || !product.isApproved) {
+      throw ApiError.conflict('One or more products are no longer available for purchase');
+    }
+    subtotal = subtotal.add(new Prisma.Decimal(product.basePrice).mul(item.quantity));
+  }
+
+  let discount = new Prisma.Decimal(0);
+  let appliedCoupon: string | null = null;
+  if (input.couponCode) {
+    const coupon = await loadValidCoupon(prisma, input.couponCode);
+    await assertCouponEligible(prisma, coupon, userId, subtotal);
+    discount = computeCouponDiscount(coupon, subtotal).discount;
+    appliedCoupon = coupon.code;
+  }
+
+  const settings = await getPublicSettings();
+  const totals = computeOrderTotals({ subtotal, discount, settings });
+  const freeShippingAbove = settings.delivery.freeShippingAbove;
+
+  return {
+    currency: 'INR',
+    subtotal: totals.taxableBase.add(discount).toFixed(2),
+    discount: discount.toFixed(2),
+    taxableBase: totals.taxableBase.toFixed(2),
+    tax: totals.tax.toFixed(2),
+    taxInclusive: settings.tax.taxInclusive,
+    deliveryFee: totals.deliveryFee.toFixed(2),
+    grandTotal: totals.grandTotal.toFixed(2),
+    couponCode: appliedCoupon,
+    freeShippingAbove,
+    amountToFreeShipping:
+      freeShippingAbove !== null
+        ? Prisma.Decimal.max(0, new Prisma.Decimal(freeShippingAbove).sub(totals.taxableBase)).toFixed(2)
+        : null,
+  };
 }
 
 export async function listMyOrders(userId: string, query: PaginationQuery) {

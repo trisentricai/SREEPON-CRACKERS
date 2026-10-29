@@ -19,6 +19,8 @@ paymentsRouter.post(
   validate({ body: createPaymentSchema }),
   controller.createPayment,
 );
+// Must precede `/payments/:id` so "providers" is not read as a payment id.
+paymentsRouter.get('/payments/providers', requireFirebase(), controller.getProviders);
 paymentsRouter.get('/payments/:id', requireFirebase(), controller.getPaymentStatus);
 
 // Provider webhooks — verified by gateway signature, NOT by bearer token.

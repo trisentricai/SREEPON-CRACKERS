@@ -4,16 +4,31 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/api/client';
 import type {
   ApiEnvelope,
+  LegalPage,
+  LegalPolicyKey,
   SettingsView,
 } from '@/api/types';
-import { Button, Card, ErrorState, Field, Spinner, TextInput, Toggle } from '@/components/admin-ui';
+import { LEGAL_POLICY_KEYS } from '@/api/types';
+import { Button, Card, ErrorState, Field, Spinner, TextArea, TextInput, Toggle } from '@/components/admin-ui';
+
+const LEGAL_LABELS: Record<LegalPolicyKey, string> = {
+  privacy: 'Privacy policy',
+  terms: 'Terms of service',
+  shipping: 'Shipping policy',
+  returns: 'Returns policy',
+  refund: 'Refund policy',
+  cancellation: 'Cancellation policy',
+};
 
 interface FormState {
   store: StoreForm;
   delivery: DeliveryForm;
   tax: TaxForm;
   social: SocialForm;
+  legal: LegalForm;
 }
+
+type LegalForm = Record<string, LegalPage>;
 
 interface StoreForm {
   name: string;
@@ -76,6 +91,11 @@ function hydrate(data: SettingsView): FormState {
       tiktokUrl: data.social.tiktokUrl ?? '',
       whatsappNumber: data.social.whatsappNumber ?? '',
     },
+    legal: LEGAL_POLICY_KEYS.reduce<LegalForm>((acc, key) => {
+      const page = data.legal.policies[key];
+      acc[key] = { title: page?.title ?? LEGAL_LABELS[key], body: page?.body ?? '' };
+      return acc;
+    }, {}),
   };
 }
 
@@ -104,6 +124,8 @@ function SettingsForm({ data }: { data: SettingsView }) {
   const [delivery, setDelivery] = useState<DeliveryForm>(initial.delivery);
   const [tax, setTax] = useState<TaxForm>(initial.tax);
   const [social, setSocial] = useState<SocialForm>(initial.social);
+  const [legal, setLegal] = useState<LegalForm>(initial.legal);
+  const [activePolicy, setActivePolicy] = useState<LegalPolicyKey>('privacy');
   const [saved, setSaved] = useState<string | null>(null);
 
   const saveSettings = useMutation({
@@ -144,6 +166,9 @@ function SettingsForm({ data }: { data: SettingsView }) {
           whatsappNumber: social.whatsappNumber || null,
         };
       }
+      if (payload.legal && legal) {
+        body.legal = { policies: legal };
+      }
       const { data } = await apiClient.patch('/admin/settings', body);
       return data;
     },
@@ -155,8 +180,15 @@ function SettingsForm({ data }: { data: SettingsView }) {
     onError: (e) => setSaved(e instanceof Error ? e.message : 'Save failed'),
   });
 
-  function submit(group: keyof FormState) {
-    return (e: FormEvent) => {
+  /** Merge a partial edit into one policy without losing the other fields. */
+  function updatePolicy(key: string, patch: Partial<LegalPage>) {
+    setLegal((s) => {
+      const current = s[key] ?? { title: '', body: '' };
+      return { ...s, [key]: { ...current, ...patch } };
+    });
+  }
+
+  function submit(group: keyof FormState) {    return (e: FormEvent) => {
       e.preventDefault();
       setSaved(null);
       saveSettings.mutate({ [group]: true } as Partial<FormState>);
@@ -314,6 +346,55 @@ function SettingsForm({ data }: { data: SettingsView }) {
             </Field>
             <div className="sm:col-span-2 flex justify-end">
               <Button type="submit" disabled={saveSettings.isPending}>Save social</Button>
+            </div>
+          </form>
+        </Card>
+      )}
+
+      {legal && (
+        <Card>
+          <h2 className="mb-1 text-sm font-semibold text-slate-700">Legal pages</h2>
+          <p className="mb-4 text-xs text-slate-500">
+            Published at <span className="font-mono">/policies/&lt;slug&gt;</span> and linked from the storefront
+            footer. Blank pages show a &ldquo;being finalised&rdquo; notice — write each one before taking live
+            payments.
+          </p>
+          <form onSubmit={submit('legal')} className="space-y-4">
+            <Field label="Policy">
+              <select
+                value={activePolicy}
+                onChange={(e) => setActivePolicy(e.target.value as LegalPolicyKey)}
+                className="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-flame-600 focus:outline-none"
+              >
+                {LEGAL_POLICY_KEYS.map((key) => (
+                  <option key={key} value={key}>
+                    {legal[key]?.title || LEGAL_LABELS[key]}
+                  </option>
+                ))}
+              </select>
+            </Field>
+            <Field label="Page title" hint="Shown in the storefront footer, page heading and sidebar.">
+              <TextInput
+                value={legal[activePolicy]?.title ?? ''}
+                onChange={(e) => updatePolicy(activePolicy, { title: e.target.value })}
+              />
+            </Field>
+            <Field
+              label="Body"
+              hint="Plain text. Separate paragraphs with a blank line; line breaks inside a paragraph are preserved."
+            >
+              <TextArea
+                rows={14}
+                value={legal[activePolicy]?.body ?? ''}
+                onChange={(e) => updatePolicy(activePolicy, { body: e.target.value })}
+                placeholder={`Write the ${LEGAL_LABELS[activePolicy].toLowerCase()} here…`}
+              />
+            </Field>
+            <div className="flex items-center justify-between">
+              <p className="text-xs text-slate-400">
+                Saves all six policies, so unsaved edits to other tabs are kept too.
+              </p>
+              <Button type="submit" disabled={saveSettings.isPending}>Save policies</Button>
             </div>
           </form>
         </Card>

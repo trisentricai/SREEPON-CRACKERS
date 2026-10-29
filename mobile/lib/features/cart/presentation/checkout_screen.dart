@@ -313,10 +313,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       );
       ref.invalidate(ordersProvider(1));
 
-      // Create a payment. Cash = all set; mock = test-mode success.
+      // Create a payment intent. Mobile ships cash-on-delivery only; online
+      // payment lands with the Razorpay Flutter SDK (see docs/launch-plan.md).
       await api.post<dynamic>(
         '/payments',
-        body: {'orderId': order.id, 'provider': 'mock'},
+        body: {'orderId': order.id, 'provider': 'cash'},
         fromJson: (json) => json,
       );
 

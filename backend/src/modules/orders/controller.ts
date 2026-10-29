@@ -2,7 +2,7 @@ import type { Request, Response } from 'express';
 import { getValidatedQuery } from '../../middleware/validation.middleware';
 import { asyncHandler, HttpStatus, ok, routeParam } from '../../utils/http';
 import { getProfileByUid } from '../auth/service';
-import type { AdminListOrdersQuery, PaginationQuery } from './schema';
+import type { AdminListOrdersQuery, EstimateOrderQuery, PaginationQuery } from './schema';
 import * as service from './service';
 
 function resolveUserId(req: Request): Promise<string> {
@@ -22,6 +22,12 @@ export const listMyOrders = asyncHandler(async (req: Request, res: Response) => 
   const query = getValidatedQuery<PaginationQuery>(req);
   const result = await service.listMyOrders(await resolveUserId(req), query);
   res.json(ok(result, `${result.pagination.total} order(s)`));
+});
+
+export const estimate = asyncHandler(async (req: Request, res: Response) => {
+  const query = getValidatedQuery<EstimateOrderQuery>(req);
+  const estimate = await service.estimateOrder(await resolveUserId(req), query);
+  res.json(ok(estimate, 'Checkout estimate'));
 });
 
 export const getMyOrder = asyncHandler(async (req: Request, res: Response) => {

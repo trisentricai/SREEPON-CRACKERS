@@ -1,16 +1,28 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '@/api/client';
-import type { Address, ApiEnvelope, Cart, CreateOrderInput, Order, Payment, PaymentProvider } from '@/api/types';
+import type {
+  Address,
+  ApiEnvelope,
+  AvailablePaymentProvider,
+  Cart,
+  CreateOrderInput,
+  Order,
+  OrderEstimate,
+  Payment,
+  PaymentProvider,
+} from '@/api/types';
 import { asArray } from '@/api/normalize';
 import { AuthGate, Badge, EmptyState, ErrorState, Spinner } from '@/components/storefront-ui';
+import { SITE } from '@/config/env';
 import { useAuth } from '@/features/auth/context/auth-context';
 import { formatMoney } from '@/lib/format';
+import { loadRazorpay, readRazorpayPayload, waitForPaidPayment } from '@/lib/razorpay';
 
-const PROVIDERS: { value: PaymentProvider; label: string }[] = [
-  { value: 'cash', label: 'Cash on delivery' },
-  { value: 'mock', label: 'Test gateway' },
+const FALLBACK_PROVIDERS: AvailablePaymentProvider[] = [
+  { name: 'razorpay', label: 'UPI, cards & netbanking' },
+  { name: 'cash', label: 'Cash on delivery' },
 ];
 
 type CheckoutStep = 'review' | 'placing' | 'created';
@@ -33,7 +45,7 @@ function CheckoutContent() {
   const [selectedAddressId, setSelectedAddressId] = useState<string>('new');
   const [useSavedAddress, setUseSavedAddress] = useState(false);
   const [couponCode, setCouponCode] = useState('');
-  const [provider, setProvider] = useState<PaymentProvider>('cash');
+  const [appliedCoupon, setAppliedCoupon] = useState('');
   const [error, setMessage] = useState<string | null>(null);
   const setError = setMessage;
   const [createdOrder, setCreatedOrder] = useState<Order | null>(null);
@@ -67,6 +79,49 @@ function CheckoutContent() {
     },
   });
 
+  const providers = useQuery({
+    queryKey: ['payment-providers'],
+    queryFn: async () => {
+      const { data } = await api.get<ApiEnvelope<AvailablePaymentProvider[]>>('/payments/providers');
+      return asArray<AvailablePaymentProvider>(data.data);
+    },
+    staleTime: 5 * 60_000,
+  });
+
+  const estimate = useQuery({
+    queryKey: ['checkout-estimate', appliedCoupon],
+    queryFn: async () => {
+      const { data } = await api.get<ApiEnvelope<OrderEstimate>>('/orders/estimate', {
+        params: appliedCoupon ? { couponCode: appliedCoupon } : {},
+      });
+      return data.data;
+    },
+    enabled: (cart.data?.items.length ?? 0) > 0,
+    retry: false,
+  });
+
+  // Debounce the coupon so the estimate isn't refetched on every keystroke.
+  useEffect(() => {
+    const term = couponCode.trim().toUpperCase();
+    const timer = setTimeout(() => setAppliedCoupon(term), 400);
+    return () => clearTimeout(timer);
+  }, [couponCode]);
+
+  const providerOptions = useMemo(
+    () => (providers.data && providers.data.length > 0 ? providers.data : FALLBACK_PROVIDERS),
+    [providers.data],
+  );
+
+  // The selected gateway is derived, not synced: if the server stops offering
+  // the customer's pick (or the first payload hasn't arrived), we fall back to
+  // the first available option instead of leaving an invalid choice selected.
+  const [preferredProvider, setPreferredProvider] = useState<PaymentProvider | null>(null);
+  const provider: PaymentProvider =
+    preferredProvider && providerOptions.some((option) => option.name === preferredProvider)
+      ? preferredProvider
+      : (providerOptions[0]?.name ?? 'cash');
+  const setProvider = setPreferredProvider;
+
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['cart'] });
 
   const saveAddress = useMutation({
@@ -75,6 +130,56 @@ function CheckoutContent() {
       return data.data;
     },
   });
+
+  /**
+   * Opens Razorpay Checkout for an existing intent and waits for the gateway
+   * webhook to confirm it. Resolves true only when the payment is PAID — a
+   * dismissed or failed modal just leaves the saved order unpaid.
+   */
+  async function payWithRazorpay(payment: Payment, order: Order): Promise<boolean> {
+    const payload = readRazorpayPayload(payment.clientPayload);
+    const loaded = await loadRazorpay();
+    const RazorpayCtor = window.Razorpay;
+    if (!loaded || !RazorpayCtor || !payload) {
+      setMessage('The payment gateway could not be loaded. Check your connection and try again.');
+      return false;
+    }
+
+    return new Promise<boolean>((resolve) => {
+      let settled = false;
+      const finish = (value: boolean) => {
+        if (settled) return;
+        settled = true;
+        resolve(value);
+      };
+
+      const instance = new RazorpayCtor({
+        key: payload.keyId,
+        amount: payload.amount,
+        currency: payload.currency,
+        order_id: payload.orderId,
+        name: SITE.name,
+        description: `Order ${order.orderNumber}`,
+        prefill: { name: address.fullName, contact: address.phone },
+        notes: { orderId: order.id },
+        theme: { color: '#b94f08' },
+        handler: () => {
+          void waitForPaidPayment(payment.id).then((paid) => {
+            setPaymentResult(paid ?? payment);
+            finish(paid !== null);
+          });
+        },
+        modal: { ondismiss: () => finish(false) },
+      });
+
+      instance.on('payment.failed', () => {
+        setMessage('The payment failed and no money was taken. You can retry from your orders page.');
+        finish(false);
+      });
+
+      instance.open();
+    });
+  }
 
   const placeOrder = useMutation({
     mutationFn: async () => {
@@ -102,7 +207,7 @@ function CheckoutContent() {
 
       const payload: CreateOrderInput = {
         ...(addressId ? { addressId } : { address: inlineAddress }),
-        ...(couponCode.trim() ? { couponCode: couponCode.trim().toUpperCase() } : {}),
+        ...(appliedCoupon ? { couponCode: appliedCoupon } : {}),
       };
 
       const { data } = await api.post<ApiEnvelope<Order>>('/orders', payload);
@@ -117,8 +222,22 @@ function CheckoutContent() {
           orderId: order.id,
           provider,
         } as { orderId: string; provider: PaymentProvider });
-        setPaymentResult(data.data);
+        const payment = data.data;
+        setPaymentResult(payment);
+
+        if (provider !== 'razorpay') {
+          setStep('created');
+          void invalidate();
+          return;
+        }
+
+        const paid = await payWithRazorpay(payment, order);
         setStep('created');
+        if (!paid) {
+          setMessage(
+            `Order ${order.orderNumber} is saved but still unpaid. You can retry the payment from your orders page.`,
+          );
+        }
       } catch (err) {
         setPaymentResult(null);
         setStep('created');
@@ -285,15 +404,15 @@ function CheckoutContent() {
           <div>
             <h2 className="mb-3 text-lg font-semibold text-ember-900">Payment</h2>
             <fieldset className="space-y-2">
-              {PROVIDERS.map((option) => (
-                <label key={option.value} className="flex items-center gap-3 rounded-lg border border-ember-100 p-3 text-sm">
+              {providerOptions.map((option) => (
+                <label key={option.name} className="flex items-center gap-3 rounded-lg border border-ember-100 p-3 text-sm">
                   <input
                     type="radio"
                     name="provider"
-                    value={option.value}
-                    checked={provider === option.value}
-                    onChange={() => setProvider(option.value)}
-                    className="h-4 w-4 accent-ember-600"
+                    value={option.name}
+                    checked={provider === option.name}
+                    onChange={() => setProvider(option.name)}
+                    className="h-4 w-4 accent-flame-600"
                   />
                   <span className="text-ember-900">{option.label}</span>
                 </label>
@@ -336,26 +455,55 @@ function CheckoutContent() {
           <dl className="mt-4 space-y-2 border-t border-ember-100 pt-4 text-sm">
             <div className="flex justify-between">
               <dt className="text-ember-900/60">Subtotal</dt>
-              <dd className="font-medium text-ember-900">{formatMoney(cartData.subtotal)}</dd>
+              <dd className="font-medium text-ember-900">{formatMoney(estimate.data?.subtotal ?? cartData.subtotal)}</dd>
             </div>
-            {couponCode.trim() && (
-              <div className="flex justify-between">
-                <dt className="text-ember-900/60">Coupon {couponCode}</dt>
-                <dd className="text-ember-900/60">Applied at order</dd>
+            {estimate.data && Number(estimate.data.discount) > 0 && (
+              <div className="flex justify-between text-flame-700">
+                <dt>Coupon {estimate.data.couponCode}</dt>
+                <dd className="font-medium">−{formatMoney(estimate.data.discount)}</dd>
               </div>
+            )}
+            {estimate.data && Number(estimate.data.tax) > 0 && (
+              <div className="flex justify-between">
+                <dt className="text-ember-900/60">
+                  GST {estimate.data.taxInclusive ? '(included)' : ''}
+                </dt>
+                <dd className="font-medium text-ember-900">{formatMoney(estimate.data.tax)}</dd>
+              </div>
+            )}
+            <div className="flex justify-between">
+              <dt className="text-ember-900/60">Delivery</dt>
+              <dd className="font-medium text-ember-900">
+                {estimate.data
+                  ? Number(estimate.data.deliveryFee) > 0
+                    ? formatMoney(estimate.data.deliveryFee)
+                    : 'Free'
+                  : '—'}
+              </dd>
+            </div>
+            {estimate.data?.amountToFreeShipping && Number(estimate.data.amountToFreeShipping) > 0 && (
+              <p className="rounded-lg bg-indigo-50 px-3 py-2 text-xs text-indigo-700">
+                Add {formatMoney(estimate.data.amountToFreeShipping)} more for free delivery.
+              </p>
             )}
             <div className="flex justify-between border-t border-ember-100 pt-3 text-base">
               <dt className="font-semibold text-ember-900">Total</dt>
-              <dd className="font-bold text-ember-800">{formatMoney(cartData.subtotal)}</dd>
+              <dd className="font-bold text-ember-800">
+                {formatMoney(estimate.data?.grandTotal ?? cartData.subtotal)}
+              </dd>
             </div>
-            <p className="text-xs text-ember-900/50">Delivery, tax, and discounts are applied by the server when the order is placed.</p>
+            {estimate.isError && (
+              <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">
+                {estimate.error instanceof Error ? estimate.error.message : 'Could not price this order.'}
+              </p>
+            )}
           </dl>
           <button
             onClick={() => placeOrder.mutate()}
-            disabled={busy || cartData.outOfStockCount > 0}
+            disabled={busy || cartData.outOfStockCount > 0 || estimate.isError}
             className="mt-5 w-full rounded-lg bg-flame-600 px-4 py-2.5 font-semibold text-white hover:bg-flame-700 disabled:opacity-50"
           >
-            {busy ? 'Placing order…' : 'Place order'}
+            {busy ? 'Placing order…' : provider === 'razorpay' ? 'Pay securely' : 'Place order'}
           </button>
         </aside>
       </div>
@@ -365,6 +513,9 @@ function CheckoutContent() {
 
 function OrderCreated({ order, payment, notice }: { order: Order; payment: Payment | null; notice: string | null }) {
   const detailsUrl = `/orders/${order.id}`;
+  const paid = payment?.status === 'PAID' || order.paymentStatus === 'PAID';
+  const cod = payment?.provider === 'cash';
+
   return (
     <section className="mx-auto max-w-2xl px-4 py-16 text-center">
       <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl" aria-hidden>
@@ -375,18 +526,16 @@ function OrderCreated({ order, payment, notice }: { order: Order; payment: Payme
         Order <span className="font-mono font-semibold">{order.orderNumber}</span> totalling{' '}
         <span className="font-bold">{formatMoney(order.grandTotal)}</span>.
       </p>
+
+      <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-ember-50 px-4 py-1.5 text-sm font-medium text-ember-800">
+        {paid ? 'Payment received' : cod ? 'Pay on delivery' : 'Payment pending'}
+      </p>
+
       {notice && <p className="mt-3 text-sm text-amber-700">{notice}</p>}
-      {payment?.clientPayload && (
-        <div className="mt-6 rounded-xl border border-ember-100 bg-ember-50/60 p-5 text-left text-sm">
-          <p className="font-semibold text-ember-800">Payment details</p>
-          <pre className="mt-2 whitespace-pre-wrap font-mono text-xs text-ember-900/70">
-            {JSON.stringify(payment.clientPayload, null, 2)}
-          </pre>
-          <p className="mt-2 text-xs text-ember-900/50">
-            Payment is settled by the provider webhook; its status updates appear on your order.
-          </p>
-        </div>
-      )}
+      <p className="mt-3 text-sm text-ember-900/60">
+        We&apos;ll email you as soon as it ships. You can track it from your orders page.
+      </p>
+
       <div className="mt-8 flex justify-center gap-3">
         <Link to={detailsUrl} className="rounded-lg bg-flame-600 px-5 py-2.5 font-semibold text-white hover:bg-flame-700">
           View order

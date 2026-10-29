@@ -13,6 +13,7 @@ import {
   adminListOrdersQuerySchema,
   cancelOrderSchema,
   createOrderSchema,
+  estimateOrderQuerySchema,
   paginationQuerySchema,
   returnRequestSchema,
   updateOrderStatusSchema,
@@ -29,6 +30,8 @@ export const customerOrdersRouter = Router();
 customerOrdersRouter.use('/orders', requireFirebase());
 
 customerOrdersRouter.post('/orders', checkoutLimiter(), validate({ body: createOrderSchema }), controller.createOrder);
+// Must precede `/orders/:id`, otherwise "estimate" is read as an order id.
+customerOrdersRouter.get('/orders/estimate', validate({ query: estimateOrderQuerySchema }), controller.estimate);
 customerOrdersRouter.get('/orders', validate({ query: paginationQuerySchema }), controller.listMyOrders);
 customerOrdersRouter.get('/orders/:id', controller.getMyOrder);
 customerOrdersRouter.post('/orders/:id/cancel', validate({ body: cancelOrderSchema }), controller.cancelMyOrder);

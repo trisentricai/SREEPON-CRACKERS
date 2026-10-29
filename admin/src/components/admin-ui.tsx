@@ -1,4 +1,10 @@
-import type { ButtonHTMLAttributes, ReactNode, SelectHTMLAttributes, InputHTMLAttributes } from 'react';
+import type {
+  ButtonHTMLAttributes,
+  ReactNode,
+  SelectHTMLAttributes,
+  InputHTMLAttributes,
+  TextareaHTMLAttributes,
+} from 'react';
 import { useEffect } from 'react';
 
 /** Shared building blocks for the admin dashboard. */
@@ -129,6 +135,12 @@ export function TextInput({ className = '', ...rest }: InputHTMLAttributes<HTMLI
   const base =
     'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-flame-600 focus:outline-none';
   return <input className={`${base} ${className}`} {...rest} />;
+}
+
+export function TextArea({ className = '', rows = 6, ...rest }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  const base =
+    'w-full rounded-lg border border-slate-300 px-3 py-2 text-sm leading-relaxed focus:border-flame-600 focus:outline-none';
+  return <textarea rows={rows} className={`${base} ${className}`} {...rest} />;
 }
 
 export function Select({ className = '', children, ...rest }: SelectHTMLAttributes<HTMLSelectElement>) {

@@ -585,6 +585,18 @@ export interface LegalSettings {
   notices: LegalPage[];
 }
 
+/** Policy slugs the backend accepts, in storefront reading order. */
+export const LEGAL_POLICY_KEYS = [
+  'privacy',
+  'terms',
+  'shipping',
+  'returns',
+  'refund',
+  'cancellation',
+] as const;
+
+export type LegalPolicyKey = (typeof LEGAL_POLICY_KEYS)[number];
+
 export interface SettingsView {
   store: StoreSettings;
   delivery: DeliverySettings;

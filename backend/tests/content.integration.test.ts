@@ -163,16 +163,20 @@ describe.skipIf(!hasDB)('content against a real database', () => {
     expect(homepage.config).toEqual({ heroTitle: `Big Diwali Sale ${stamp}`, heroTagline: 'Fresh stock' });
     expect(homepage.sections.length).toBeGreaterThanOrEqual(3);
 
-    const typedHero = homepage.sections.find((s) => s.type === HomepageSectionType.HERO);
+    const typedHero = homepage.sections.find((s) => s.id === hero.id);
     expect(typedHero).toBeDefined();
-    expect((typedHero?.content as { banners: unknown[] }).banners).toEqual([]);
+    // Hero sections surface every active HOME_HERO banner, so assert the
+    // placement filter rather than assuming the database has no banners.
+    const heroBanners = (typedHero?.content as { banners: Array<{ placement: string }> }).banners;
+    expect(Array.isArray(heroBanners)).toBe(true);
+    expect(heroBanners.every((banner) => banner.placement === 'HOME_HERO')).toBe(true);
 
-    const typedFeatured = homepage.sections.find((s) => s.type === HomepageSectionType.FEATURED_PRODUCTS);
+    const typedFeatured = homepage.sections.find((s) => s.id === featured.id);
     const featuredProducts = (typedFeatured?.content as { products: Array<{ id: string; basePrice: string; image: string | null }> }).products;
     expect(featuredProducts.some((p) => p.id === productId)).toBe(true);
     expect(featuredProducts.find((p) => p.id === productId)?.basePrice).toBe('500.00');
 
-    const typedGrid = homepage.sections.find((s) => s.type === HomepageSectionType.CATEGORY_GRID);
+    const typedGrid = homepage.sections.find((s) => s.id === grid.id);
     const gridCategories = (typedGrid?.content as { categories: Array<{ id: string }> }).categories;
     expect(gridCategories.some((c) => c.id === categoryId)).toBe(true);
 

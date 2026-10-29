@@ -41,6 +41,11 @@ export const cancelOrderSchema = z.object({
   reason: z.string().trim().max(300).optional(),
 });
 
+/** Optional coupon for the live checkout estimate (nothing is reserved). */
+export const estimateOrderQuerySchema = z.object({
+  couponCode: z.string().trim().toUpperCase().optional(),
+});
+
 export const returnRequestSchema = z.object({
   productId: z.string().uuid().optional(),
   reason: z.string().trim().min(1).max(500),
@@ -71,6 +76,7 @@ export const adminListOrdersQuerySchema = paginationQuerySchema.extend({
 });
 
 export type CreateOrderInput = z.infer<typeof createOrderSchema>;
+export type EstimateOrderQuery = z.infer<typeof estimateOrderQuerySchema>;
 export type CancelOrderInput = z.infer<typeof cancelOrderSchema>;
 export type ReturnRequestInput = z.infer<typeof returnRequestSchema>;
 export type UpdateOrderStatusInput = z.infer<typeof updateOrderStatusSchema>;

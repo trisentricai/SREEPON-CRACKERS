@@ -275,6 +275,29 @@ export interface PublicSettings {
   };
 }
 
+/** One published policy page (body is admin-authored plain text). */
+export interface LegalPage {
+  title: string;
+  body: string;
+}
+
+export interface LegalSettings {
+  policies: Record<string, LegalPage>;
+  notices: LegalPage[];
+}
+
+/** Slugs exposed by `GET /settings/legal`, in reading order. */
+export const LEGAL_POLICY_KEYS = [
+  'privacy',
+  'terms',
+  'shipping',
+  'returns',
+  'refund',
+  'cancellation',
+] as const;
+
+export type LegalPolicyKey = (typeof LEGAL_POLICY_KEYS)[number];
+
 /* ------------------------------------------------------------------ */
 /* Cart                                                                */
 /* ------------------------------------------------------------------ */
@@ -517,6 +540,27 @@ export interface Payment {
   createdAt: string;
   /** Present only on `POST /payments` for gateway hand-offs. */
   clientPayload?: Record<string, unknown>;
+}
+
+/** One gateway the customer may choose (from `GET /payments/providers`). */
+export interface AvailablePaymentProvider {
+  name: PaymentProvider;
+  label: string;
+}
+
+/** Authoritative checkout breakdown from `GET /orders/estimate`. */
+export interface OrderEstimate {
+  currency: string;
+  subtotal: string;
+  discount: string;
+  taxableBase: string;
+  tax: string;
+  taxInclusive: boolean;
+  deliveryFee: string;
+  grandTotal: string;
+  couponCode: string | null;
+  freeShippingAbove: string | null;
+  amountToFreeShipping: string | null;
 }
 
 /* ------------------------------------------------------------------ */

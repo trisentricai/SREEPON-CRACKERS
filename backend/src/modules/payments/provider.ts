@@ -255,3 +255,21 @@ export function assertProviderConfigured(provider: PaymentProviderAdapter): void
     throw ApiError.serviceUnavailable(`The ${provider.name} payment provider is not configured on this server`);
   }
 }
+
+const PROVIDER_LABELS: Record<PaymentProviderName, string> = {
+  razorpay: 'UPI, cards & netbanking',
+  stripe: 'Card (Stripe)',
+  mock: 'Test gateway',
+  cash: 'Cash on delivery',
+};
+
+/**
+ * The gateways a customer may actually choose: configured on this server, with
+ * the mock gateway never advertised in production even if a secret is present.
+ */
+export function listAvailableProviders(): Array<{ name: PaymentProviderName; label: string }> {
+  return (Object.values(REGISTRY) as PaymentProviderAdapter[])
+    .filter((provider) => provider.isConfigured())
+    .filter((provider) => provider.name !== 'mock' || !isProduction)
+    .map((provider) => ({ name: provider.name, label: PROVIDER_LABELS[provider.name] }));
+}

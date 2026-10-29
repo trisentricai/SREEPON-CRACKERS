@@ -1,11 +1,16 @@
 import type { Request, Response } from 'express';
 import { ApiError, asyncHandler, HttpStatus, ok, routeParam } from '../../utils/http';
 import { getProfileByUid } from '../auth/service';
+import { listAvailableProviders } from './provider';
 import * as service from './service';
 
 function resolveUserId(req: Request): Promise<string> {
   return getProfileByUid(req.user!.uid).then((user) => user.id);
 }
+
+export const getProviders = asyncHandler(async (_req: Request, res: Response) => {
+  res.json(ok(listAvailableProviders(), 'Payment providers'));
+});
 
 export const createPayment = asyncHandler(async (req: Request, res: Response) => {
   const payment = await service.createPayment(await resolveUserId(req), req.body);
