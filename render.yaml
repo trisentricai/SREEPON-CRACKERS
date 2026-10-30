@@ -56,19 +56,3 @@ services:
         sync: false
       - key: CORS_ORIGINS
         sync: false
-
-  - type: web
-    name: sripon
-    runtime: node
-    rootDir: web
-    buildCommand: npm run build
-    startCommand: npx serve -s dist -l $PORT
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: 10000
-    rewriteRules:
-      - source: "/.*"
-        destination: "/index.html"
-        statusCode: 200
