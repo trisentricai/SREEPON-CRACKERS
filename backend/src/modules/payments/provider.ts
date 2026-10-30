@@ -5,7 +5,7 @@ import { env, isProduction } from '../../config/env';
 import { ApiError } from '../../utils/http';
 import { logger } from '../../utils/logger';
 
-export type PaymentProviderName = 'razorpay' | 'stripe' | 'mock' | 'cash';
+export type PaymentProviderName = 'cashfree' | 'stripe' | 'mock' | 'cash';
 
 export interface CreateIntentInput {
   amount: Prisma.Decimal;
@@ -107,55 +107,91 @@ const mockProvider: PaymentProviderAdapter = {
   },
 };
 
-const razorpayProvider: PaymentProviderAdapter = {
-  name: 'razorpay',
+const cashfreeProvider: PaymentProviderAdapter = {
+  name: 'cashfree',
   isConfigured() {
-    return Boolean(env.RAZORPAY_KEY_ID && env.RAZORPAY_KEY_SECRET);
+    return Boolean(env.CASHFREE_APP_ID && env.CASHFREE_SECRET_KEY);
   },
   async createIntent({ amount, currency, orderNumber }) {
-    const keyId = env.RAZORPAY_KEY_ID;
-    const keySecret = env.RAZORPAY_KEY_SECRET;
-    if (!keyId || !keySecret) {
-      throw ApiError.serviceUnavailable('Razorpay is not configured on this server');
+    const appId = env.CASHFREE_APP_ID;
+    const secretKey = env.CASHFREE_SECRET_KEY;
+    const envMode = env.CASHFREE_ENV ?? 'sandbox';
+    if (!appId || !secretKey) {
+      throw ApiError.serviceUnavailable('Cashfree is not configured on this server');
     }
-    const response = await fetch('https://api.razorpay.com/v1/orders', {
+    const baseUrl = envMode === 'production'
+      ? 'https://api.cashfree.com/pg/orders'
+      : 'https://sandbox.cashfree.com/pg/orders';
+    const returnUrl = `${env.PUBLIC_BASE_URL ?? 'https://sreepon.in'}/orders/${orderNumber}`;
+    const response = await fetch(baseUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: basicAuth(keyId, keySecret),
+        'x-client-id': appId,
+        'x-client-secret': secretKey,
+        'x-api-version': '2022-09-01',
       },
-      body: JSON.stringify({ amount: toPaise(amount), currency, receipt: orderNumber, payment_capture: 1 }),
+      body: JSON.stringify({
+        order_id: orderNumber,
+        order_amount: toPaise(amount) / 100,
+        order_currency: currency,
+        order_note: `SriPon Order ${orderNumber}`,
+        customer_details: {
+          customer_id: orderNumber,
+          customer_name: 'Customer',
+          customer_phone: '',
+          customer_email: '',
+        },
+        order_meta: {
+          return_url: returnUrl,
+          payment_methods: 'upi,card,netbanking,wallet',
+        },
+      }),
     });
-    const json = (await response.json().catch(() => ({}))) as { id?: string; error?: { description?: string } };
-    if (!response.ok || !json.id) {
-      logger.warn({ status: response.status, error: json.error }, 'razorpay order creation failed');
+    const json = (await response.json().catch(() => ({}))) as {
+      order_id?: string;
+      cf_order_id?: string;
+      payment_session_id?: string;
+      payment_link?: string;
+      error?: { message?: string; code?: string };
+    };
+    if (!response.ok || (!json.order_id && !json.cf_order_id)) {
+      logger.warn({ status: response.status, error: json.error }, 'cashfree order creation failed');
       throw ApiError.serviceUnavailable('Payment gateway rejected the request');
     }
     return {
-      providerRefId: json.id,
-      clientPayload: { razorpay: { keyId, amount: toPaise(amount), currency, orderId: json.id } },
+      providerRefId: json.cf_order_id ?? json.order_id ?? null,
+      clientPayload: {
+        cashfree: {
+          orderId: json.order_id ?? json.cf_order_id ?? '',
+          cfOrderId: json.cf_order_id ?? json.order_id ?? '',
+          paymentSessionId: json.payment_session_id ?? null,
+          paymentLink: json.payment_link ?? null,
+          amount: toPaise(amount),
+          currency,
+          returnUrl,
+        },
+      },
     };
   },
   async verifyWebhook(rawBody, headers) {
-    const keySecret = env.RAZORPAY_KEY_SECRET;
-    if (!keySecret) throw ApiError.serviceUnavailable('Razorpay webhook verification is not configured');
-    const signature = headers['x-razorpay-signature'] as string | undefined;
-    if (!signature) throw ApiError.badRequest('Missing Razorpay signature');
-    if (!safeEqual(hmacHex(keySecret, rawBody), signature)) {
-      throw ApiError.unauthorized('Invalid webhook signature');
+    const secretKey = env.CASHFREE_SECRET_KEY;
+    if (!secretKey) throw ApiError.serviceUnavailable('Cashfree webhook verification is not configured');
+    const signature = headers['x-webhook-signature'] as string | undefined;
+    if (!signature) throw ApiError.badRequest('Missing Cashfree webhook signature');
+    if (!safeEqual(hmacHex(secretKey, rawBody), signature)) {
+      throw ApiError.unauthorized('Invalid Cashfree webhook signature');
     }
     const body = parseJsonBody(rawBody);
-    const event = String(body.event ?? '');
-    const payload = (body.payload ?? {}) as Record<string, unknown>;
-    const paymentEntity = (payload.payment ?? {}) as Record<string, unknown>;
-    const entity = (paymentEntity.entity ?? {}) as Record<string, unknown>;
-    const providerRefId = typeof entity.order_id === 'string' ? entity.order_id : null;
-    const amount = typeof entity.amount === 'number' ? new Prisma.Decimal(entity.amount).div(100) : null;
+    const order = (body.order ?? {}) as Record<string, unknown>;
+    const payment = (body.payment ?? {}) as Record<string, unknown>;
+    const providerRefId = typeof order.id === 'string' ? order.id : typeof order.cf_order_id === 'string' ? order.cf_order_id : null;
+    const amount = typeof payment.amount === 'number' ? new Prisma.Decimal(payment.amount).div(100) : null;
     return {
       providerRefId,
-      success: event === 'payment.captured' || event === 'order.paid',
+      success: String(order.status ?? payment.status ?? '').toUpperCase() === 'PAID',
       amount,
-      providerTransactionId: typeof entity.id === 'string' ? entity.id : undefined,
+      providerTransactionId: typeof payment.payment_id === 'string' ? payment.payment_id : undefined,
     };
   },
 };
@@ -238,7 +274,7 @@ const cashProvider: PaymentProviderAdapter = {
 };
 
 const REGISTRY: Record<PaymentProviderName, PaymentProviderAdapter> = {
-  razorpay: razorpayProvider,
+  cashfree: cashfreeProvider,
   stripe: stripeProvider,
   mock: mockProvider,
   cash: cashProvider,
@@ -257,7 +293,7 @@ export function assertProviderConfigured(provider: PaymentProviderAdapter): void
 }
 
 const PROVIDER_LABELS: Record<PaymentProviderName, string> = {
-  razorpay: 'UPI, cards & netbanking',
+  cashfree: 'UPI, cards & netbanking (Cashfree)',
   stripe: 'Card (Stripe)',
   mock: 'Test gateway',
   cash: 'Cash on delivery',

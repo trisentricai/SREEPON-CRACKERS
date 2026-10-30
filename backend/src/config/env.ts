@@ -48,6 +48,9 @@ const envSchema = z.object({
   CLOUDINARY_API_KEY: z.string().optional(),
   CLOUDINARY_API_SECRET: z.string().optional(),
 
+  // Public base URL of the storefront, used for Cashfree return URLs.
+  PUBLIC_BASE_URL: z.string().url().default('https://sreepon.in'),
+
   PAYMENT_PROVIDER: z.string().optional(),
   PAYMENT_MERCHANT_ID: z.string().optional(),
   PAYMENT_CLIENT_ID: z.string().optional(),
@@ -57,8 +60,9 @@ const envSchema = z.object({
 
   // Provider-specific payment credentials (providers fail closed when missing).
   PAYMENT_MOCK_WEBHOOK_SECRET: z.string().optional(),
-  RAZORPAY_KEY_ID: z.string().optional(),
-  RAZORPAY_KEY_SECRET: z.string().optional(),
+  CASHFREE_APP_ID: z.string().optional(),
+  CASHFREE_SECRET_KEY: z.string().optional(),
+  CASHFREE_ENV: z.enum(['sandbox', 'production']).default('sandbox'),
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
 });

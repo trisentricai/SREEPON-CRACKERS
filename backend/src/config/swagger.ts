@@ -460,7 +460,7 @@ export const openApiSpec = swaggerJsdoc({
           properties: {
             id: { type: 'string', format: 'uuid' },
             orderId: { type: 'string', format: 'uuid' },
-            provider: { type: 'string', enum: ['razorpay', 'stripe', 'mock', 'cash'] },
+            provider: { type: 'string', enum: ['cashfree', 'stripe', 'mock', 'cash'] },
             amount: { type: 'string', example: '1250.00' },
             status: { type: 'string', enum: ['PENDING', 'PAID', 'FAILED', 'REFUNDED', 'PARTIALLY_REFUNDED'] },
             providerRefId: { type: 'string', nullable: true },
@@ -574,7 +574,7 @@ export const openApiSpec = swaggerJsdoc({
           required: ['orderId', 'provider'],
           properties: {
             orderId: { type: 'string', format: 'uuid' },
-            provider: { type: 'string', enum: ['razorpay', 'stripe', 'mock', 'cash'] },
+            provider: { type: 'string', enum: ['cashfree', 'stripe', 'mock', 'cash'] },
           },
         },
         Coupon: {
@@ -1437,7 +1437,7 @@ export const openApiSpec = swaggerJsdoc({
         post: {
           tags: ['Payments'],
           summary: 'Payment gateway webhook (signature-verified; the only way an order is marked paid)',
-          parameters: [{ name: 'provider', in: 'path', required: true, schema: { type: 'string', enum: ['razorpay', 'stripe', 'mock'] } }],
+          parameters: [{ name: 'provider', in: 'path', required: true, schema: { type: 'string', enum: ['cashfree', 'stripe', 'mock'] } }],
           requestBody: { content: { 'application/json': { schema: { type: 'object' } } } },
           responses: { '200': { description: 'Webhook processed', content: { 'application/json': { schema: { $ref: '#/components/schemas/PaymentView' } } } }, '400': { description: 'Missing/invalid signature or payload' } },
         },

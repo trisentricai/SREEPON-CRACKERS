@@ -527,7 +527,7 @@ export interface InvoiceData {
 /* Payments                                                            */
 /* ------------------------------------------------------------------ */
 
-export type PaymentProvider = 'razorpay' | 'stripe' | 'mock' | 'cash';
+export type PaymentProvider = 'cashfree' | 'stripe' | 'mock' | 'cash';
 
 export interface Payment {
   id: string;

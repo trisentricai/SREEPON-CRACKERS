@@ -11,7 +11,7 @@ import '../../orders/presentation/order_detail_screen.dart';
 
 /// Checkout: pick an address (or add inline), optional coupon, place the order
 /// via `POST /orders`, then create a payment. Cash and mock gateways need no
-/// external SDK; razorpay/stripe return a clientPayload shown to the customer.
+/// external SDK; cash/stripe return a clientPayload shown to the customer.
 class CheckoutScreen extends ConsumerStatefulWidget {
   const CheckoutScreen({super.key});
 
@@ -314,7 +314,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       ref.invalidate(ordersProvider(1));
 
       // Create a payment intent. Mobile ships cash-on-delivery only; online
-      // payment lands with the Razorpay Flutter SDK (see docs/launch-plan.md).
+      // payment lands with the Cashfree Flutter SDK (see docs/launch-plan.md).
       await api.post<dynamic>(
         '/payments',
         body: {'orderId': order.id, 'provider': 'cash'},

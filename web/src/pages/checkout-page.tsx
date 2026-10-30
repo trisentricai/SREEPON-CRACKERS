@@ -15,14 +15,13 @@ import type {
 } from '@/api/types';
 import { asArray } from '@/api/normalize';
 import { AuthGate, Badge, EmptyState, ErrorState, Spinner } from '@/components/storefront-ui';
-import { SITE } from '@/config/env';
 import { useAuth } from '@/features/auth/context/auth-context';
 import { formatMoney } from '@/lib/format';
-import { loadRazorpay, readRazorpayPayload, waitForPaidPayment } from '@/lib/razorpay';
+import { readCashfreePayload, waitForPaidPayment } from '@/lib/cashfree';
 import { usePageMeta } from '@/lib/seo';
 
 const FALLBACK_PROVIDERS: AvailablePaymentProvider[] = [
-  { name: 'razorpay', label: 'UPI, cards & netbanking' },
+  { name: 'cashfree', label: 'UPI, cards & netbanking (Cashfree)' },
   { name: 'cash', label: 'Cash on delivery' },
 ];
 
@@ -135,15 +134,14 @@ function CheckoutContent() {
   });
 
   /**
-   * Opens Razorpay Checkout for an existing intent and waits for the gateway
-   * webhook to confirm it. Resolves true only when the payment is PAID — a
-   * dismissed or failed modal just leaves the saved order unpaid.
+   * Opens the Cashfree checkout link for an existing intent and waits for the
+   * gateway webhook to confirm it. Resolves true only when the payment is PAID —
+   * a dismissed or failed checkout just leaves the saved order unpaid.
    */
-  async function payWithRazorpay(payment: Payment, order: Order): Promise<boolean> {
-    const payload = readRazorpayPayload(payment.clientPayload);
-    const loaded = await loadRazorpay();
-    const RazorpayCtor = window.Razorpay;
-    if (!loaded || !RazorpayCtor || !payload) {
+  async function payWithCashfree(payment: Payment): Promise<boolean> {
+    const payload = readCashfreePayload(payment.clientPayload);
+    const paymentLink = payload?.paymentLink;
+    if (!paymentLink) {
       setMessage('The payment gateway could not be loaded. Check your connection and try again.');
       return false;
     }
@@ -156,31 +154,31 @@ function CheckoutContent() {
         resolve(value);
       };
 
-      const instance = new RazorpayCtor({
-        key: payload.keyId,
-        amount: payload.amount,
-        currency: payload.currency,
-        order_id: payload.orderId,
-        name: SITE.name,
-        description: `Order ${order.orderNumber}`,
-        prefill: { name: address.fullName, contact: address.phone },
-        notes: { orderId: order.id },
-        theme: { color: '#b94f08' },
-        handler: () => {
-          void waitForPaidPayment(payment.id).then((paid) => {
-            setPaymentResult(paid ?? payment);
-            finish(paid !== null);
-          });
-        },
-        modal: { ondismiss: () => finish(false) },
-      });
-
-      instance.on('payment.failed', () => {
-        setMessage('The payment failed and no money was taken. You can retry from your orders page.');
+      // Open Cashfree's hosted checkout in a new tab so the customer stays on
+      // this page while we poll for the webhook confirmation.
+      const win = window.open(paymentLink, '_blank', 'noopener,noreferrer');
+      if (!win) {
+        setMessage('Could not open the payment window. Please allow pop-ups for this site.');
         finish(false);
+        return;
+      }
+
+      void waitForPaidPayment(payment.id).then((paid) => {
+        setPaymentResult(paid ?? payment);
+        finish(paid !== null);
       });
 
-      instance.open();
+      // If the customer closes the popup without paying, the poll above will
+      // time out and resolve false; treat a closed window the same way.
+      const pollClosed = setInterval(() => {
+        if (win.closed) {
+          clearInterval(pollClosed);
+          if (!settled) {
+            setPaymentResult(payment);
+            finish(false);
+          }
+        }
+      }, 2000);
     });
   }
 
@@ -228,13 +226,13 @@ function CheckoutContent() {
         const payment = data.data;
         setPaymentResult(payment);
 
-        if (provider !== 'razorpay') {
+        if (provider !== 'cashfree') {
           setStep('created');
           void invalidate();
           return;
         }
 
-        const paid = await payWithRazorpay(payment, order);
+        const paid = await payWithCashfree(payment);
         setStep('created');
         if (!paid) {
           setMessage(
@@ -506,7 +504,7 @@ function CheckoutContent() {
             disabled={busy || cartData.outOfStockCount > 0 || estimate.isError}
             className="mt-5 w-full rounded-lg bg-flame-600 px-4 py-2.5 font-semibold text-white hover:bg-flame-700 disabled:opacity-50"
           >
-            {busy ? 'Placing order…' : provider === 'razorpay' ? 'Pay securely' : 'Place order'}
+            {busy ? 'Placing order…' : provider === 'cashfree' ? 'Pay securely' : 'Place order'}
           </button>
         </aside>
       </div>

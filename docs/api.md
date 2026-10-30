@@ -114,7 +114,7 @@ registered and guarded, but return `501` until their phase ships.
     `AuditLog` row; admin notes are appended timestamped to `order.notes`.
 - Payments: `POST /payments`, `GET /payments/:id` (Firebase),
   `POST /payments/webhooks/:provider` (webhook, provider-signed)
-  - Providers: `razorpay`, `stripe`, `mock`, `cash`. Amounts come only from the
+  - Providers: `cashfree`, `stripe`, `mock`, `cash`. Amounts come only from the
     stored order `grandTotal`; an in-flight PENDING payment is re-used instead
     of creating a duplicate intent.
   - A provider webhook — verified by HMAC signature over the raw request body —
