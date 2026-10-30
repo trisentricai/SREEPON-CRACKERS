@@ -390,4 +390,5 @@ When the user pastes a Figma URL or asks for design work, follow this order:
 - New `img`s must set `alt` and `loading="lazy"`; focusable controls get a visible `:focus-visible` ring (global, free).
 - Design work is adapted from Figma as a *reference*; final truth is the code + this doc.
 
-*— SriPon Design Integration Rules (Flame `#ff8a3d` · Indigo `#4338ca`)*
+*— SriPon Design Integration Rules (Flame `#ff8a3d` · Indigo `#4338ca`)*#   C a s h f r e e   m i g r a t i o n      b u i l d   c a c h e   i n v a l i d a t i o n  
+ 
