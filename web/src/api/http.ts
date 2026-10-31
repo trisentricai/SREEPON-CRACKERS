@@ -1,6 +1,7 @@
 import axios from 'axios';
 import type { AxiosError, AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 import type { ApiEnvelope, ApiErrorCode } from './types';
+import { env } from '@/config/env';
 
 /**
  * SriPon web API client.
@@ -36,6 +37,34 @@ export class ApiError extends Error {
   }
 }
 
+/** CSRF token issued by the backend, sent on state-changing requests. */
+let csrfToken: string | null = null;
+
+/** Fetch a CSRF token from the backend (uses fetch directly to avoid axios recursion). */
+export async function fetchCsrfToken(): Promise<string | null> {
+  try {
+    const response = await fetch(`${env.VITE_API_BASE_URL}/csrf/token`, {
+      method: 'GET',
+      headers: { Accept: 'application/json' },
+    });
+    if (!response.ok) return null;
+    const data = (await response.json()) as { data?: { csrfToken?: string } };
+    return data.data?.csrfToken ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Set the CSRF token (called after fetching or on 403 refresh). */
+export function setCsrfToken(token: string | null): void {
+  csrfToken = token;
+}
+
+/** Get the current CSRF token. */
+export function getCsrfToken(): string | null {
+  return csrfToken;
+}
+
 export interface RequestContext {
   /** Attach the authenticated customer's Firebase ID token. */
   token?: string;
@@ -46,7 +75,7 @@ export interface RequestContext {
 // First-login race: authenticated queries can beat the POST /auth/login bridge
 // that find-or-creates the backend User row. On a "profile not found" 401 we
 // run the bridge once and retry the original request.
-type RetriableConfig = InternalAxiosRequestConfig & { _profileBridgeRetried?: boolean };
+type RetriableConfig = InternalAxiosRequestConfig & { _profileBridgeRetried?: boolean; _csrfRetried?: boolean };
 
 export function createApiClient(baseUrl: string, getToken: () => Promise<string | null>): AxiosInstance {
   const client = axios.create({
@@ -55,9 +84,18 @@ export function createApiClient(baseUrl: string, getToken: () => Promise<string 
     headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
   });
 
+  const isStateChanging = (method: string | undefined) =>
+    ['post', 'patch', 'put', 'delete'].includes(method?.toLowerCase() ?? '');
+
   client.interceptors.request.use(async (config) => {
     const token = await getToken();
     if (token) config.headers.Authorization = `Bearer ${token}`;
+
+    // Attach CSRF token on state-changing requests when CSRF protection is enabled.
+    if (isStateChanging(config.method)) {
+      const csrf = getCsrfToken();
+      if (csrf) config.headers['X-CSRF-Token'] = csrf;
+    }
     return config;
   });
 
@@ -67,6 +105,24 @@ export function createApiClient(baseUrl: string, getToken: () => Promise<string 
       const status = error.response?.status ?? 0;
       const payload = error.response?.data;
       const config = error.config as RetriableConfig | undefined;
+
+      // CSRF token rejected: fetch a new one and retry once.
+      if (
+        status === 403 &&
+        payload &&
+        typeof payload.message === 'string' &&
+        payload.message.toLowerCase().includes('csrf') &&
+        config &&
+        !config._csrfRetried
+      ) {
+        config._csrfRetried = true;
+        const newToken = await fetchCsrfToken();
+        if (newToken) {
+          setCsrfToken(newToken);
+          config.headers['X-CSRF-Token'] = newToken;
+          return client(config);
+        }
+      }
 
       if (
         status === 401 &&

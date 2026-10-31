@@ -20,6 +20,8 @@ const envSchema = z.object({
   DEPLOY_TARGET: z.string().default(''),
 
   CORS_ORIGINS: z.string().default(''),
+  /** When "true", requires X-CSRF-Token header on state-changing requests. */
+  CSRF_REQUIRE_TOKEN: z.string().default(''),
   JWT_SECRET: z.string().default(''),
 
   DATABASE_URL: z.string().default(''),
@@ -39,6 +41,12 @@ const envSchema = z.object({
   FIREBASE_SERVICE_ACCOUNT_PATH: z.string().optional(),
   // Redirect target for Firebase-generated password-reset links.
   FIREBASE_PASSWORD_RESET_URL: z.string().optional(),
+  // Firebase Web API key (public). Required for Identity Toolkit revocation
+  // lookups on Cloudflare Workers. Safe to set on the backend.
+  FIREBASE_API_KEY: z.string().optional(),
+  // When "true", checks Firebase ID token revocation via Identity Toolkit
+  // on every authenticated request (adds ~1 network round-trip).
+  FIREBASE_CHECK_REVOCATION: z.string().default(''),
 
   SUPABASE_URL: z.string().optional(),
   SUPABASE_ANON_KEY: z.string().optional(),

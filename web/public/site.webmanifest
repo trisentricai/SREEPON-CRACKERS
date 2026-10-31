@@ -1,0 +1,49 @@
+{
+  "name": "SriPon — Premium crackers & gift boxes",
+  "short_name": "SriPon",
+  "description": "Order licensed, CE/ISI-compliant crackers and gift boxes from SriPon. GST invoice on every order, dispatch in 24–48h across India, cash on delivery available.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ff8a3d",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "32x32",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.webp",
+      "sizes": "192x192",
+      "type": "image/webp",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.webp",
+      "sizes": "512x512",
+      "type": "image/webp",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Shop crackers & gift boxes",
+      "short_name": "Shop",
+      "url": "/products",
+      "description": "Browse the full catalogue of licensed crackers and gift boxes.",
+      "icons": [{ "src": "/logo.webp", "sizes": "192x192" }]
+    },
+    {
+      "name": "Track your order",
+      "short_name": "Orders",
+      "url": "/orders",
+      "description": "View your order history and track deliveries.",
+      "icons": [{ "src": "/logo.webp", "sizes": "192x192" }]
+    }
+  ]
+}

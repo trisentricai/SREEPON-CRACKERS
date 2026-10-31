@@ -65,4 +65,4 @@ id = "87bf7e00883b4b109ad58d6203ed4793"
 # Times are UTC. Adjust (or add entries) here and redeploy; the dashboard's
 # Cron Triggers tab shows each run's success/error.
 [triggers]
-crons = ["*/30 * * * *"]
+crons = ["*/30 * * * *", "*/5 * * * *", "*/10 * * * *"]

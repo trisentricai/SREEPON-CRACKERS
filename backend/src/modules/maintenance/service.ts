@@ -226,3 +226,123 @@ export async function runScheduledMaintenance(cron: string): Promise<ExpireStale
     throw err;
   }
 }
+
+/** Cloudflare Workers API base URL for self-pings. */
+const WORKER_BASE_URL = 'https://sreepon-api.trisentricai.workers.dev';
+
+/**
+ * Keep-alive: hit the /health endpoint every 5 minutes to prevent the Worker
+ * from going cold. The response is discarded; we only care that the isolate
+ * stays warm.
+ */
+export async function keepWorkerAlive(_env: Record<string, unknown>): Promise<void> {
+  try {
+    const response = await fetch(`${WORKER_BASE_URL}/health`);
+    logger.info(
+      { status: response.status, url: `${WORKER_BASE_URL}/health` },
+      'keep-alive ping',
+    );
+  } catch (err) {
+    logger.warn({ err }, 'keep-alive ping failed');
+  }
+}
+
+/**
+ * Check whether the latest git commit is deployed on this Worker. If not,
+ * trigger a redeploy via GitHub Actions repository dispatch.
+ *
+ * How it works:
+ *   1. Fetch the latest commit SHA from the GitHub API.
+ *   2. Compare it with `DEPLOYED_COMMIT_SHA` (an env var set at deploy time
+ *      by wrangler deploy or the CI workflow).
+ *   3. If they differ, send a repository_dispatch event to GitHub with
+ *      event_type="redeploy", which triggers the deploy.yml workflow.
+ *
+ * Requires env vars:
+ *   GITHUB_REPO_OWNER  (e.g. "trisentricai")
+ *   GITHUB_REPO_NAME   (e.g. "SREEPON-CRACKERS")
+ *   GITHUB_TOKEN       (a PAT with repo scope, for the dispatch)
+ *   DEPLOYED_COMMIT_SHA (set by the deploy workflow after a successful deploy)
+ */
+export async function checkAndDeployLatest(_env: Record<string, unknown>): Promise<void> {
+  const owner = String(_env.GITHUB_REPO_OWNER ?? 'trisentricai');
+  const repo = String(_env.GITHUB_REPO_NAME ?? 'SREEPON-CRACKERS');
+  const token = String(_env.GITHUB_TOKEN ?? '');
+  const deployedSha = String(_env.DEPLOYED_COMMIT_SHA ?? '');
+
+  if (!token) {
+    logger.warn({ component: 'maintenance' }, 'deploy-check: GITHUB_TOKEN not set, skipping');
+    return;
+  }
+
+  try {
+    // Fetch the latest commit on the default branch (master).
+    const latestResponse = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/commits/master`,
+      {
+        headers: {
+          Accept: 'application/vnd.github+json',
+          Authorization: `Bearer ${token}`,
+          'User-Agent': 'sripon-deploy-check',
+        },
+      },
+    );
+
+    if (!latestResponse.ok) {
+      logger.warn(
+        { status: latestResponse.status, owner, repo },
+        'deploy-check: failed to fetch latest commit',
+      );
+      return;
+    }
+
+    const latest = (await latestResponse.json()) as { sha?: string };
+    const latestSha = latest.sha;
+
+    if (!latestSha) {
+      logger.warn({ owner, repo }, 'deploy-check: latest commit SHA missing');
+      return;
+    }
+
+    // If the deployed SHA matches the latest, nothing to do.
+    if (deployedSha && deployedSha === latestSha) {
+      logger.info({ deployedSha, latestSha }, 'deploy-check: already up to date');
+      return;
+    }
+
+    // Trigger a redeploy via GitHub Actions repository dispatch.
+    const dispatchResponse = await fetch(
+      `https://api.github.com/repos/${owner}/${repo}/dispatches`,
+      {
+        method: 'POST',
+        headers: {
+          Accept: 'application/vnd.github+json',
+          Authorization: `Bearer ${token}`,
+          'User-Agent': 'sripon-deploy-check',
+        },
+        body: JSON.stringify({
+          event_type: 'redeploy',
+          client_payload: {
+            latest_sha: latestSha,
+            triggered_by: 'cron-deploy-check',
+          },
+        }),
+      },
+    );
+
+    if (!dispatchResponse.ok) {
+      logger.warn(
+        { status: dispatchResponse.status, owner, repo, latestSha },
+        'deploy-check: failed to trigger redeploy dispatch',
+      );
+      return;
+    }
+
+    logger.info(
+      { deployedSha, latestSha, owner, repo },
+      'deploy-check: redeploy triggered via GitHub Actions',
+    );
+  } catch (err) {
+    logger.error({ err, owner, repo }, 'deploy-check: unexpected error');
+  }
+}

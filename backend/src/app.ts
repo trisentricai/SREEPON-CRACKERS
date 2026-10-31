@@ -4,7 +4,9 @@ import helmet from 'helmet';
 import { pinoHttp } from 'pino-http';
 import { corsOrigins, env, isProduction } from './config/env';
 import { openApiSpec } from './config/swagger';
+import { csrfProtection, issueCsrfToken } from './middleware/csrf.middleware';
 import { errorHandler } from './middleware/error.middleware';
+import { httpCache } from './middleware/cache.middleware';
 import { notFoundHandler } from './middleware/not-found.middleware';
 import { healthRouter } from './modules/health';
 import { v1Router } from './routes/v1';
@@ -34,7 +36,7 @@ export function createApp(): Express {
         : true,
       credentials: true,
       methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Idempotency-Key'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Idempotency-Key', 'X-CSRF-Token'],
     }),
   );
 
@@ -63,8 +65,19 @@ export function createApp(): Express {
   // --- Global rate limiting (Redis-backed when available) -------------
   app.use(globalLimiter());
 
+  // --- CSRF protection for state-changing requests ----------------------
+  app.use(csrfProtection());
+
+  // --- HTTP response caching (Cache-Control headers + Redis) -----------
+  // Placed before routes so Cache-Control headers are set on all responses.
+  // Only public read-only GET routes are cached (see cache.middleware.ts).
+  app.use(httpCache());
+
   // --- API routes -----------------------------------------------------
   app.use('/api/v1', v1Router);
+
+  // --- CSRF token issuance (GET only, safe method) ----------------------
+  app.get('/api/v1/csrf/token', issueCsrfToken);
 
   // Service info (no secrets).
   app.get('/api', (_req, res) => {

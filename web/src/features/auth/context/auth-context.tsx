@@ -3,6 +3,7 @@ import type { Unsubscribe, User } from 'firebase/auth';
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { api } from '@/api/client';
+import { fetchCsrfToken, setCsrfToken } from '@/api/http';
 import { getAuthToken, getFirebaseAuth } from '@/services/firebase';
 import {
   logOut as doLogOut,
@@ -84,6 +85,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const idToken = await getAuthToken();
         if (!idToken) return;
         await api.post('/auth/login', { idToken });
+        // Issue a CSRF token for state-changing requests after successful sign-in.
+        const csrfToken = await fetchCsrfToken();
+        if (csrfToken) setCsrfToken(csrfToken);
       } catch (err) {
         console.warn('Session bridge to backend failed', err);
       }
@@ -105,6 +109,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = useCallback(async () => {
     await doLogOut();
     setUser(null);
+    setCsrfToken(null);
   }, []);
 
   const clearRedirectError = useCallback(() => setRedirectError(null), []);

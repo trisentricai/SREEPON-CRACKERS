@@ -18,6 +18,8 @@ import { httpServerHandler } from 'cloudflare:node';
 import { createApp } from './dist/app.js';
 import { runWithRequestPrisma } from './dist/infrastructure/prisma.js';
 import { runScheduledMaintenance } from './dist/modules/maintenance/service.js';
+import { keepWorkerAlive } from './dist/modules/maintenance/service.js';
+import { checkAndDeployLatest } from './dist/modules/maintenance/service.js';
 import { APP } from './dist/config/constants.js';
 import { env } from './dist/config/env.js';
 import { logger } from './dist/utils/logger.js';
@@ -47,6 +49,19 @@ export default {
   // event is not an HTTP request, but it needs the same per-invocation Prisma
   // client lifecycle, so it goes through the same helper.
   async scheduled(controller, env, ctx) {
-    await runWithRequestPrisma(() => runScheduledMaintenance(controller.cron), ctx);
+    const cron = controller.cron;
+    // Keep-alive: hit /health every 5 minutes to prevent cold starts.
+    if (cron === '*/5 * * * *') {
+      await runWithRequestPrisma(() => keepWorkerAlive(env), ctx);
+      return;
+    }
+    // Deploy-check: every 10 minutes, verify the latest git commit is deployed;
+    // if not, trigger a redeploy via GitHub Actions repository dispatch.
+    if (cron === '*/10 * * * *') {
+      await runWithRequestPrisma(() => checkAndDeployLatest(env), ctx);
+      return;
+    }
+    // Order expiry: every 30 minutes, cancel stale unpaid orders.
+    await runWithRequestPrisma(() => runScheduledMaintenance(cron), ctx);
   },
 };

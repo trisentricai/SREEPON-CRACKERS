@@ -1,0 +1,63 @@
+name: Deploy SriPon API to Cloudflare Workers
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Git ref to deploy (branch, tag, or SHA)'
+        required: false
+        default: 'master'
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.ref }}
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install backend dependencies
+        run: npm ci
+        working-directory: backend
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+        working-directory: backend
+
+      - name: Build worker bundle
+        run: npm run build
+        working-directory: backend
+
+      - name: Install Wrangler
+        run: npm install -g wrangler@latest
+
+      - name: Deploy to Cloudflare Workers
+        run: npx wrangler deploy --minify
+        working-directory: backend
+        env:
+          # Secrets are injected by GitHub (repository secrets):
+          #   CASHFREE_APP_ID, CASHFREE_SECRET_KEY, STRIPE_SECRET_KEY, etc.
+          # Variables are set in wrangler.toml [vars] or dashboard:
+          #   NODE_ENV, DEPLOY_TARGET, CORS_ORIGINS
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
+      - name: Set DEPLOYED_COMMIT_SHA variable
+        run: |
+          npx wrangler secret put DEPLOYED_COMMIT_SHA <<< "${{ github.sha }}"
+        working-directory: backend
+        env:
+          CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
