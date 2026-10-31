@@ -7,7 +7,7 @@ import { envSchema } from './env-schema';
 export const env = envSchema.parse(import.meta.env);
 
 export const SITE = {
-  name: 'Green Crackers & Candles',
+  name: 'SriPon',
   tagline: 'Celebrate responsibly',
   baseUrl: 'https://sreepon.in',
   currency: 'INR',
