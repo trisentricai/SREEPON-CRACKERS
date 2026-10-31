@@ -109,7 +109,7 @@ export function ProfilePage() {
 
   return (
     <section className="mx-auto max-w-7xl px-4 py-12">
-      <h1 className="text-2xl font-bold text-ember-800">Sign in to SriPon</h1>
+      <h1 className="text-2xl font-bold text-ember-800">Sign in to Sreepon</h1>
       <form
         className="mx-auto mt-6 flex max-w-sm flex-col gap-3"
         onSubmit={(e) => {

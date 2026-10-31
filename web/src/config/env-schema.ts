@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 /**
- * Vite environment schema for the SriPon customer website.
+ * Vite environment schema for the Sreepon customer website.
  * All runtime env access funnels through `@/config/env.ts`; this schema
  * guarantees every var is either present or has a safe explicit default, so
  * misconfiguration fails loudly at boot instead of as `undefined` mid-flow.

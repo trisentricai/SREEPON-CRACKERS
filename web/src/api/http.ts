@@ -4,7 +4,7 @@ import type { ApiEnvelope, ApiErrorCode } from './types';
 import { env } from '@/config/env';
 
 /**
- * SriPon web API client.
+ * Sreepon web API client.
  * One axios instance for the whole single-page app: base URL from validated
  * env, a timeout, and an interceptor that attaches the Firebase ID token for
  * authenticated requests. Response handling unwraps the `{ success, message,

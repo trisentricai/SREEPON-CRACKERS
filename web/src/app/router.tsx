@@ -14,7 +14,7 @@ import { ProductsPage } from '../pages/products-page';
 import { ProfilePage } from '../pages/profile-page';
 import { WishlistPage } from '../pages/wishlist-page';
 
-/** SriPon customer web routes. Feature routes are lazy-loaded where backed by heavy UIs. */
+/** Sreepon customer web routes. Feature routes are lazy-loaded where backed by heavy UIs. */
 export const router = createBrowserRouter([
   {
     path: '/',

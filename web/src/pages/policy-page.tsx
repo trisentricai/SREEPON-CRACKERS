@@ -53,7 +53,7 @@ export function PolicyPage() {
     title: policyTitle ?? 'Policies & terms',
     description: policyTitle
       ? `${policyTitle} for orders placed on ${SITE.name}.`
-      : 'Shipping, returns, refunds, privacy and terms for shopping with SriPon.',
+      : 'Shipping, returns, refunds, privacy and terms for shopping with Sreepon.',
     path: policyKey ? `/policies/${policyKey}` : '/policies',
   });
 
@@ -138,7 +138,7 @@ export function PoliciesIndexPage() {
 
   usePageMeta({
     title: 'Policies & terms',
-    description: 'Shipping, returns, refunds, privacy and terms for shopping with SriPon.',
+    description: 'Shipping, returns, refunds, privacy and terms for shopping with Sreepon.',
     path: '/policies',
   });
 

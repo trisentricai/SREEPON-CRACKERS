@@ -219,7 +219,7 @@ function HeroFallback({ storeName, tagline }: { storeName?: string; tagline?: st
         </Reveal>
         <Reveal delay={80}>
           <h1 className="mt-6 font-display text-4xl font-extrabold tracking-tight sm:text-6xl">
-            {storeName ?? 'SriPon'}
+            {storeName ?? 'Sreepon'}
           </h1>
           <span className="mx-auto mt-3 block h-2 w-28 rounded-full bg-gradient-to-r from-flame-200 via-gold-300 to-flame-200" />
         </Reveal>

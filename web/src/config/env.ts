@@ -1,13 +1,13 @@
 import { envSchema } from './env-schema';
 
 /**
- * Validated runtime configuration for the SriPon customer website.
+ * Validated runtime configuration for the Sreepon customer website.
  * Every env access in the app goes through this export.
  */
 export const env = envSchema.parse(import.meta.env);
 
 export const SITE = {
-  name: 'SriPon',
+  name: 'Sreepon',
   tagline: 'Celebrate responsibly',
   baseUrl: 'https://sreepon.in',
   currency: 'INR',

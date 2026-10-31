@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 /**
- * TypeScript mirror of the SriPon backend API surface for the customer
+ * TypeScript mirror of the Sreepon backend API surface for the customer
  * website. Source of truth is `backend/src/modules/*` (controllers/services)
  * and the OpenAPI contract in `docs/api.md`. Money is serialized as 2dp
  * strings; IDs are UUIDs.
@@ -20,7 +20,7 @@ export type ApiErrorCode =
   | 'server_error'
   | 'network_error';
 
-/** Standard SriPon API response envelope `{ success, message, data }`. */
+/** Standard Sreepon API response envelope `{ success, message, data }`. */
 export interface ApiEnvelope<T> {
   success: boolean;
   message: string;

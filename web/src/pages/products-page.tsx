@@ -42,7 +42,7 @@ export function ProductsPage() {
     title: activeCategory ? `${activeCategory.name} — green crackers or candles & fireworks` : 'Shop green crackers or candles & gift boxes',
     description: activeCategory
       ? activeCategory.description ??
-        `Buy ${activeCategory.name.toLowerCase()} online from SriPon. Licensed stock, GST invoice, dispatch in 24–48h.`
+        `Buy ${activeCategory.name.toLowerCase()} online from Sreepon. Licensed stock, GST invoice, dispatch in 24–48h.`
       : 'Browse licensed, CE/ISI-compliant green crackers or candles and gift boxes. GST invoice on every order and dispatch in 24–48h across India.',
     path: categorySlug ? `/products/${categorySlug}` : '/products',
   });
