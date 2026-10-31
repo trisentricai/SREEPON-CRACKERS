@@ -55,7 +55,7 @@ export function ProductsPage() {
           {activeCategory && <span className="text-ember-900/40"> / {activeCategory.name}</span>}
         </p>
         <h1 className="mt-1 font-display text-2xl font-bold text-ember-800">
-          {activeCategory?.name ?? 'Shop crackers &amp; fireworks'}
+          {activeCategory?.name ?? 'Shop crackers & fireworks'}
         </h1>
         <p className="mt-1 text-sm text-ember-900/50">All items are age-gated; shop responsibly.</p>
       </header>

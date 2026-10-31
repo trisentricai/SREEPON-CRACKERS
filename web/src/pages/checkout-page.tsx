@@ -271,6 +271,12 @@ function CheckoutContent() {
     );
   }
 
+  // Show the confirmation before the empty-cart guard: placing an order
+  // empties the cart, which would otherwise replace the confirmation screen.
+  if (step === 'created' && createdOrder) {
+    return <OrderCreated order={createdOrder} payment={paymentResult} notice={error} />;
+  }
+
   const cartData = cart.data;
   if (!cartData || cartData.items.length === 0) {
     return (
@@ -285,10 +291,6 @@ function CheckoutContent() {
         </div>
       </section>
     );
-  }
-
-  if (step === 'created' && createdOrder) {
-    return <OrderCreated order={createdOrder} payment={paymentResult} notice={error} />;
   }
 
   const busy = placeOrder.isPending || step === 'placing';

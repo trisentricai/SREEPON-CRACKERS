@@ -11,7 +11,10 @@ import { formatDate } from '@/lib/format';
 import { usePageMeta } from '@/lib/seo';
 
 const AUTH_ERROR_MESSAGES: Record<string, string> = {
+  'auth/invalid-credential': 'Invalid email or password.',
   'auth/invalid-login-credentials': 'Invalid email or password.',
+  'auth/wrong-password': 'Invalid email or password.',
+  'auth/user-not-found': 'Invalid email or password.',
   'auth/invalid-email': 'Please enter a valid email address.',
   'auth/user-disabled': 'This account has been disabled.',
   'auth/weak-password': 'Password must be at least 6 characters.',

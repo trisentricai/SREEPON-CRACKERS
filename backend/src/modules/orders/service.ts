@@ -201,10 +201,10 @@ export function computeCouponDiscount(
     discount = subtotal.mul(value).div(100);
     if (coupon.maxDiscount != null) {
       const cap = new Prisma.Decimal(coupon.maxDiscount);
-      discount = Prisma.Decimal.min(discount, cap);
+      discount = cap.lt(discount) ? cap : discount;
     }
   } else {
-    discount = Prisma.Decimal.min(value, subtotal);
+    discount = subtotal.lt(value) ? subtotal : value;
   }
   discount = discount.gt(0) ? discount : new Prisma.Decimal(0);
   return { discount };
@@ -466,6 +466,8 @@ export async function estimateOrder(userId: string, input: { couponCode?: string
   const settings = await getPublicSettings();
   const totals = computeOrderTotals({ subtotal, discount, settings });
   const freeShippingAbove = settings.delivery.freeShippingAbove;
+  const remainingForFreeShipping =
+    freeShippingAbove !== null ? new Prisma.Decimal(freeShippingAbove).sub(totals.taxableBase) : null;
 
   return {
     currency: 'INR',
@@ -478,10 +480,11 @@ export async function estimateOrder(userId: string, input: { couponCode?: string
     grandTotal: totals.grandTotal.toFixed(2),
     couponCode: appliedCoupon,
     freeShippingAbove,
-    amountToFreeShipping:
-      freeShippingAbove !== null
-        ? Prisma.Decimal.max(0, new Prisma.Decimal(freeShippingAbove).sub(totals.taxableBase)).toFixed(2)
-        : null,
+    amountToFreeShipping: remainingForFreeShipping
+      ? remainingForFreeShipping.gt(0)
+        ? remainingForFreeShipping.toFixed(2)
+        : '0.00'
+      : null,
   };
 }
 
