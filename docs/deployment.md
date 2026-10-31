@@ -49,6 +49,15 @@ Only `NODE_ENV`, `DEPLOY_TARGET=workers` and `CORS_ORIGINS` live in `[vars]`.
 **KV binding.** A KV namespace (`sreeponredis`) is bound as `KV` for the
 Redis-replacement role on Workers.
 
+**Scheduled jobs (cron).** `[triggers] crons = ["*/30 * * * *"]` in
+`wrangler.toml` makes Cloudflare invoke `scheduled()` in `worker.mjs` every 30
+minutes. It runs the order-expiry job in `src/modules/maintenance`: unpaid
+online orders older than `ORDER_PAYMENT_WINDOW_MINUTES` (default 1440 = 24h) are
+cancelled, their reserved stock released, and their pending payments marked
+`FAILED`. Cash-on-delivery orders are skipped. Each run's outcome and errors are
+visible under Worker → Settings → Trigger Events; the same idempotent job can be
+run on demand with `POST /api/v1/admin/maintenance/expire-orders`.
+
 ### Workers limitations
 
 Workers has no local filesystem and no raw TCP sockets, so a few things differ

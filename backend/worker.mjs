@@ -17,6 +17,7 @@ import { createServer } from 'node:http';
 import { httpServerHandler } from 'cloudflare:node';
 import { createApp } from './dist/app.js';
 import { runWithRequestPrisma } from './dist/infrastructure/prisma.js';
+import { runScheduledMaintenance } from './dist/modules/maintenance/service.js';
 import { APP } from './dist/config/constants.js';
 import { env } from './dist/config/env.js';
 import { logger } from './dist/utils/logger.js';
@@ -40,5 +41,12 @@ const handler = httpServerHandler({ port: 8080 });
 export default {
   fetch(request, env, ctx) {
     return runWithRequestPrisma(() => handler.fetch(request, env, ctx), ctx);
+  },
+
+  // Cloudflare Cron Trigger (see `[triggers]` in wrangler.toml). A scheduled
+  // event is not an HTTP request, but it needs the same per-invocation Prisma
+  // client lifecycle, so it goes through the same helper.
+  async scheduled(controller, env, ctx) {
+    await runWithRequestPrisma(() => runScheduledMaintenance(controller.cron), ctx);
   },
 };

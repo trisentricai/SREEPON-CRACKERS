@@ -7,7 +7,7 @@
 
 ## 1. TL;DR
 
-The site **is already live** at `https://sreepon.in` (Cloudflare Pages), admin at
+The site **is already live** at `https://sreepon.in` (Render), admin at
 `https://sreepon-admin.pages.dev`, mobile points at the same API. Deploy pipelines work.
 
 It is **not yet sellable**. Three P0 blockers:
@@ -16,7 +16,7 @@ It is **not yet sellable**. Three P0 blockers:
 |---|---------|--------|
 | 1 | **No online payment.** Web offers "Cash on delivery" + a visible **"Test gateway"** option; mobile hard-codes `provider: 'mock'` on every order. | You cannot collect money. Customers see a test option on a live store. |
 | 2 | **Order totals ignore the settings.** `tax` and `deliveryFee` are hardcoded `new Prisma.Decimal(0)` when an order is created. GST rate, delivery fee and "free shipping above" in admin are decorative. | Wrong prices, no GST invoice, shipping cost absorbed. |
-| 3 | **Nothing legal/trust on the site.** 6 policy pages exist in the API but all bodies are empty and no storefront page renders them. Footer "legal" links all point to `/profile`. | Razorpay merchant review will reject it; customers won't prepay. |
+| 3 | **Nothing legal/trust on the site.** 6 policy pages exist in the API but all bodies are empty and no storefront page renders them. Footer "legal" links all point to `/profile`. | Cashfree merchant review will reject it; customers won't prepay. |
 
 Everything else in section 3 is fast (≤1h each). The 2-day plan in section 4 fits
 in ~14 working hours of code plus a content block.
@@ -35,6 +35,10 @@ in ~14 working hours of code plus a content block.
 - Web, admin and mobile all ship `VITE_API_BASE_URL = workers.dev`. Good — no split-brain.
 - Cold-start problem is gone (Workers edge), but the Render instance is still the
   schema *default* — worth deleting so nobody falls back to it.
+- Scheduled maintenance is live: a Cloudflare Cron Trigger runs every 30 minutes,
+  cancels unpaid online orders past `ORDER_PAYMENT_WINDOW_MINUTES` (default 24h)
+  and releases their reserved stock. The same idempotent job is exposed to admins
+  at `POST /admin/maintenance/expire-orders`. COD orders are never expired.
 - Catalog: **7 products** (2 with photos), **16 categories** (10 with zero products, 0 with images).
 - Orders: inventory rows exist and stock is enforced (`Insufficient stock` guard works).
 - Auth, cart, wishlist, addresses, coupons, invoices, order tracking: implemented and mounted.
@@ -47,8 +51,8 @@ in ~14 working hours of code plus a content block.
 
 | Gap | Where | Fix | Effort |
 |---|---|---|---|
-| Online payment missing | `web/src/pages/checkout-page.tsx` (only `cash` + `mock`) | Add Razorpay Checkout.js; backend order+webhook already exist | 3h |
-| Mobile always posts `mock` | `mobile/lib/features/cart/presentation/checkout_screen.dart:317` | Switch to `cash` (COD) now; Razorpay SDK week 2 | 15m |
+| Online payment missing | `web/src/pages/checkout-page.tsx` (only `cash` + `mock`) | Add Cashfree hosted checkout; backend order+webhook already exist | 3h |
+| Mobile always posts `mock` | `mobile/lib/features/cart/presentation/checkout_screen.dart:317` | Switch to `cash` (COD) now; Cashfree Flutter SDK week 2 | 15m |
 | Tax + delivery hardcoded to 0 | `backend/src/modules/orders/service.ts:349-351` | Read `getPublicSettings()`, apply `tax.rate` (and `taxInclusive`), `delivery.fee`, `freeShippingAbove` | 2h + tests |
 | Policy pages empty and unrouted | API `/settings/legal` ready; no web route, no admin editor | 6 legal pages + footer links + simple admin tab | 3h |
 | Store settings blank | Admin → Settings | Fill tagline, support email/phone, WhatsApp, GSTIN, delivery fee, free-ship threshold, socials | 30m (content) |
@@ -88,7 +92,7 @@ Assumes one engineer + one content session. Code hours are conservative.
 |---|---|---|---|
 | 0:00–0:30 | Fix order math: apply tax rate + delivery fee + free-shipping threshold server-side | `backend/src/modules/orders/service.ts`, reuse `settings/service.getPublicSettings` | Order total = subtotal − discount + GST + shipping; unit test for all 3 branches |
 | 0:30–1:00 | Add `GET /payments/:id` polling helper on web; hide `mock` provider in production builds | `checkout-page.tsx` | "Test gateway" invisible on the live build |
-| 1:00–3:30 | Razorpay on web: load Checkout.js, open with `clientPayload.razorpay`, on success poll `GET /payments/:id` until `PAID`, show confirmation | `checkout-page.tsx`, `web/index.html` | Real ₹1 test payment on production with live keys |
+| 1:00-3:30 | Cashfree on web: open the hosted payment link from `clientPayload.cashfree`, then poll `GET /payments/:id` until `PAID`, show confirmation | `checkout-page.tsx`, `web/src/lib/cashfree.ts` | Real ₹1 test payment on production with live keys |
 | 3:30–3:45 | Mobile: `mock` → `cash`, copy the client payload instead of always posting a fake intent | `checkout_screen.dart` | New build places a COD order, status stays `PENDING` |
 | 3:45–6:00 | Legal pages: `/policies/:key` route rendering `GET /settings/legal`, footer links, admin editor tab | `web/src/pages/policy-page.tsx` (new), `router.tsx`, `app-shell.tsx`, `admin/src/pages/settings-page.tsx` | All 6 policies reachable, editable in admin, non-empty |
 | 6:00–7:00 | Storefront wiring of settings: footer support block, socials, WhatsApp float | `app-shell.tsx` | Phone/email/WhatsApp appear from admin values |
@@ -129,7 +133,7 @@ Assumes one engineer + one content session. Code hours are conservative.
 - Uptime monitor on `/health` + error tracking (Sentry) on web/admin/backend.
 
 ### Week 2 — mobile parity
-- Razorpay Flutter SDK in the app (replaces COD-only).
+- Cashfree Flutter SDK in the app (replaces COD-only).
 - Push notifications (device registration endpoint already exists, no sender).
 - Deep links for `sreepon.in/products/slug/...`.
 - Play Store + App Store submission (iOS CI workflow already present).
@@ -168,7 +172,7 @@ Assumes one engineer + one content session. Code hours are conservative.
 
 | Item | Why it blocks |
 |---|---|
-| Razorpay account + KYC → live `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` + webhook URL `…/api/v1/payments/webhooks/razorpay` | Without it, no online payment (code ships ready, keys pending) |
+| Cashfree account + KYC → live `CASHFREE_APP_ID` / `CASHFREE_SECRET_KEY` + webhook URL `…/api/v1/payments/webhooks/cashfree` | Without it, no online payment (code ships ready, keys pending) |
 | GST registration + GSTIN string | Tax cannot be charged/invoiced correctly |
 | Support phone / email / WhatsApp number | Needed on the site and for merchant review |
 | Delivery fee + free-shipping threshold decision | Drives the order math fix |
@@ -182,7 +186,7 @@ Assumes one engineer + one content session. Code hours are conservative.
 | Risk | Mitigation |
 |---|---|
 | Live keys not approved in time | Ship COD-only launch, keep "Test gateway" hidden, add UPI collect/manual confirmation as stopgap |
-| Razorpay webhook not reachable | Test with a ₹1 live payment on day 1, not on launch day |
+| Cashfree webhook not reachable | Test with a ₹1 live payment on day 1, not on launch day |
 | Tax change alters existing order totals | Tax applies to new orders only; no backfill |
 | Mobile release lag | Web is the launch surface; app follows in week 2 |
 | Two APIs drift again | Delete Render; document Workers as the only API in `docs/deployment.md` |
@@ -190,7 +194,7 @@ Assumes one engineer + one content session. Code hours are conservative.
  
  # #   9 .   I m p l e m e n t a t i o n   s t a t u s   ( u p d a t e d   2 9   O c t   2 0 2 6 ) 
  
- D a y   1   a n d   D a y   2   c o d e   s h i p p e d   ( ` m a s t e r `   �!  ` s r e e p o n . i n `   /   ` s r e e p o n - a d m i n . p a g e s . d e v `   v i a   C l o u d f l a r e   P a g e s ) . 
+ D a y   1   a n d   D a y   2   c o d e   s h i p p e d   ( ` m a s t e r `   �!  ` s r e e p o n . i n `   /   ` s r e e p o n - a d m i n . p a g e s . d e v `   v i a   C l o u d f l a r e   P a g e s ) . 
  
  # # #   L a n d e d 
  -   O r d e r   m a t h s   i n   ` b a c k e n d / s r c / m o d u l e s / o r d e r s / p r i c i n g . t s `   ( ` c o m p u t e O r d e r T o t a l s ` ) ,   w i r e d   i n t o 

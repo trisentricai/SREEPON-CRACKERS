@@ -51,6 +51,11 @@ const envSchema = z.object({
   // Public base URL of the storefront, used for Cashfree return URLs.
   PUBLIC_BASE_URL: z.string().url().default('https://sreepon.in'),
 
+  // How long an unpaid online order may hold its reserved stock before the
+  // scheduled maintenance job cancels it (Cloudflare Cron Trigger, every 30m).
+  // Cash-on-delivery orders are never expired by that job.
+  ORDER_PAYMENT_WINDOW_MINUTES: z.coerce.number().int().min(5).max(60 * 24 * 30).default(60 * 24),
+
   PAYMENT_PROVIDER: z.string().optional(),
   PAYMENT_MERCHANT_ID: z.string().optional(),
   PAYMENT_CLIENT_ID: z.string().optional(),

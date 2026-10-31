@@ -120,6 +120,10 @@ registered and guarded, but return `501` until their phase ships.
   - A provider webhook — verified by HMAC signature over the raw request body —
     is the only thing that marks a payment (and its order) PAID or FAILED.
     Unconfigured gateways fail closed (`503`).
+  - A payment that arrives after its order was cancelled (customer, admin or the
+    expiry job) is still recorded as PAID — the money moved — but the order is
+    not reopened (its stock may already be resold); a timestamped
+    "refund required" note is appended to it instead.
 - Coupons: `POST /coupons/validate` (Firebase);
   Coupon admin: `GET/POST /admin/coupons`, `GET/PATCH/DELETE /admin/coupons/:id`
   - Eligibility (window, minimum order value, usage limit, per-user limit) is
@@ -177,6 +181,15 @@ registered and guarded, but return `501` until their phase ships.
   `GET /admin/inventory/low-stock`,
   `POST /admin/inventory/:productId/adjust`,
   `GET /admin/inventory/:productId/transactions`
+- Maintenance (Supabase, `SUPER_ADMIN | ADMIN`):
+  `POST /admin/maintenance/expire-orders`
+  - Cancels unpaid online orders older than `ORDER_PAYMENT_WINDOW_MINUTES`
+    (default 1440 = 24h), releases their reserved stock and marks their pending
+    payments `FAILED`. Idempotent; cash-on-delivery orders are never expired.
+    Body is optional: `{ olderThanMinutes?: 1..43200, limit?: 1..100 }`.
+  - The same job runs automatically every 30 minutes from the Cloudflare Cron
+    Trigger declared in `backend/wrangler.toml` (`scheduled` in
+    `backend/worker.mjs`).
 - Customers (Supabase): `GET /admin/customers`,
   `GET /admin/customers/:id`, `GET /admin/customers/:id/orders`
 - Settings: `GET /settings/public`, `GET /settings/legal` (public);

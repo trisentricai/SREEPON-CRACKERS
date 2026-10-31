@@ -18,6 +18,7 @@ import { notificationsRouter } from '../modules/notifications';
 import { analyticsRouter } from '../modules/analytics';
 import { settingsRouter } from '../modules/settings';
 import { mediaRouter } from '../modules/media';
+import { maintenanceRouter } from '../modules/maintenance';
 
 /**
  * API v1 route table.
@@ -58,6 +59,7 @@ v1Router.use(notificationsRouter);
 v1Router.use(analyticsRouter);
 v1Router.use(settingsRouter);
 v1Router.use(inventoryRouter);
+v1Router.use(maintenanceRouter);
 
 // Media
 v1Router.use(mediaRouter);

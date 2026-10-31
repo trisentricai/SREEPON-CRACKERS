@@ -58,3 +58,11 @@ CORS_ORIGINS = "https://sreepon.in,https://www.sreepon.in,https://sreepon-cracke
 [[kv_namespaces]]
 binding = "KV"
 id = "87bf7e00883b4b109ad58d6203ed4793"
+
+# Scheduled maintenance (Cloudflare Cron Triggers → `scheduled` in worker.mjs).
+# Every 30 minutes is plenty; the job is idempotent and cancels unpaid online
+# orders past ORDER_PAYMENT_WINDOW_MINUTES, releasing their reserved stock.
+# Times are UTC. Adjust (or add entries) here and redeploy; the dashboard's
+# Cron Triggers tab shows each run's success/error.
+[triggers]
+crons = ["*/30 * * * *"]

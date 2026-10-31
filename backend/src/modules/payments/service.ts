@@ -1,7 +1,7 @@
 import type { IncomingHttpHeaders } from 'node:http';
 import type { Prisma } from '@prisma/client';
 import { prisma } from '../../infrastructure/prisma';
-import { PaymentStatus } from '../../types/enums';
+import { PaymentStatus, OrderStatus } from '../../types/enums';
 import { ApiError } from '../../utils/http';
 import { logger } from '../../utils/logger';
 import { toApiError } from '../../utils/prisma-errors';
@@ -115,7 +115,13 @@ export async function handleWebhook(
 
   const payment = await prisma.payment.findFirst({
     where: { provider: provider.name, providerRefId: event.providerRefId },
-    select: { id: true, orderId: true, amount: true, status: true },
+    select: {
+      id: true,
+      orderId: true,
+      amount: true,
+      status: true,
+      order: { select: { status: true, notes: true } },
+    },
   });
   if (!payment) {
     logger.warn({ provider: provider.name, providerRefId: event.providerRefId }, 'webhook referenced unknown payment');
@@ -146,6 +152,31 @@ export async function handleWebhook(
   }
 
   try {
+    // A payment can arrive after the order was cancelled — by the customer, an
+    // admin, or the scheduled expiry job that releases abandoned reservations.
+    // The money is still real, so record it, but never resurrect the order:
+    // its stock has been released and may already be sold to someone else.
+    // Leave a note so the admin refunds it.
+    if (payment.order.status === OrderStatus.CANCELLED) {
+      logger.warn(
+        { paymentId: payment.id, orderId: payment.orderId },
+        'payment received for a cancelled order — refund required',
+      );
+      const stamp = new Date().toISOString().replace('T', ' ').slice(0, 16);
+      const note = `[${stamp}] Payment of ${payment.amount.toFixed(2)} received after cancellation — refund required`;
+      const notes = payment.order.notes ? `${payment.order.notes}\n${note}` : note;
+      await prisma.$transaction([
+        prisma.payment.update({
+          where: { id: payment.id },
+          data: { status: PaymentStatus.PAID, paidAt: new Date(), webhookPayload: payload },
+        }),
+        prisma.order.update({ where: { id: payment.orderId }, data: { notes } }),
+      ]);
+      return buildPaymentView(
+        await prisma.payment.findUniqueOrThrow({ where: { id: payment.id }, select: paymentSelect }),
+      );
+    }
+
     await prisma.$transaction([
       prisma.payment.update({
         where: { id: payment.id },

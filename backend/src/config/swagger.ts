@@ -291,6 +291,13 @@ export const openApiSpec = swaggerJsdoc({
             note: { type: 'string' },
           },
         },
+        ExpireOrdersRequest: {
+          type: 'object',
+          properties: {
+            olderThanMinutes: { type: 'integer', minimum: 1, maximum: 43200, description: 'Defaults to ORDER_PAYMENT_WINDOW_MINUTES' },
+            limit: { type: 'integer', minimum: 1, maximum: 100 },
+          },
+        },
         CreateAdminRequest: {
           type: 'object',
           required: ['email', 'password', 'role'],
@@ -1698,6 +1705,24 @@ export const openApiSpec = swaggerJsdoc({
           responses: {
             '200': { description: 'Updated settings', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
             '400': { $ref: '#/components/responses/BadRequest' },
+            '401': { $ref: '#/components/responses/Unauthorized' },
+            '403': { $ref: '#/components/responses/Forbidden' },
+            '422': { $ref: '#/components/responses/Validation' },
+          },
+        },
+      },
+      '/admin/maintenance/expire-orders': {
+        post: {
+          tags: ['Ops'],
+          summary: 'Run the order-expiry job now (same job as the 30-minute cron trigger)',
+          description:
+            'Cancels unpaid online orders older than the payment window and releases their reserved stock. Idempotent; cash-on-delivery orders are never expired.',
+          security: [{ supabaseAuth: [] }],
+          requestBody: {
+            content: { 'application/json': { schema: { $ref: '#/components/schemas/ExpireOrdersRequest' } } },
+          },
+          responses: {
+            '200': { description: 'Run summary (scanned, cancelled, reservationsReleased)', content: { 'application/json': { schema: { $ref: '#/components/schemas/ApiResponse' } } } },
             '401': { $ref: '#/components/responses/Unauthorized' },
             '403': { $ref: '#/components/responses/Forbidden' },
             '422': { $ref: '#/components/responses/Validation' },
