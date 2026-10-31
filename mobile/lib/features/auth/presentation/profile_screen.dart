@@ -60,7 +60,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               ),
               const SizedBox(width: 10),
               Text(
-                'SriPon',
+                'Sreepon',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
               ),
             ],
@@ -87,7 +87,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           if (_authError != null)
             Padding(
               padding: const EdgeInsets.only(top: 12),
-              child: Text(_authError!, style: const TextStyle(color: SriPonColors.danger)),
+              child: Text(_authError!, style: const TextStyle(color: SreeponColors.danger)),
             ),
           const SizedBox(height: 16),
           FilledButton(

@@ -20,7 +20,7 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final homepage = ref.watch(homepageProvider);
     final settings = ref.watch(publicSettingsProvider);
-    final storeName = settings.value?.store.name ?? 'SriPon';
+    final storeName = settings.value?.store.name ?? 'Sreepon';
     final cart = ref.watch(cartProvider);
     final cartCount = cart.asData?.value.totalQuantity ?? 0;
 

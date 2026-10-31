@@ -7,5 +7,5 @@ import 'features/auth/data/firebase_service.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeFirebase();
-  runApp(const ProviderScope(child: SriPonApp()));
+  runApp(const ProviderScope(child: SreeponApp()));
 }
