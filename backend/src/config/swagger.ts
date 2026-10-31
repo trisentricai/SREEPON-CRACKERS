@@ -2,7 +2,7 @@ import swaggerJsdoc from 'swagger-jsdoc';
 import { APP } from './constants';
 
 /**
- * OpenAPI 3.0 spec for the SriPon API.
+ * OpenAPI 3.0 spec for the Sreepon API.
  * Each module documents its paths/components as it is implemented (Phases 3–8).
  * Base schema is defined here so `/api/openapi.json` and `/api/docs` work from
  * day one.

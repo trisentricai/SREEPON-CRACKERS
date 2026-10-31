@@ -166,7 +166,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
               if (outOfStock)
                 const Padding(
                   padding: EdgeInsets.only(top: 8),
-                  child: Text('Currently out of stock', style: TextStyle(color: SriPonColors.danger)),
+                  child: Text('Currently out of stock', style: TextStyle(color: SreeponColors.danger)),
                 )
               else if (available != null && available <= 10)
                 Padding(
@@ -275,7 +275,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
             height: 10,
             width: double.infinity,
             child: Center(
-              child: Text('Added to cart', style: TextStyle(color: SriPonColors.success)),
+              child: Text('Added to cart', style: TextStyle(color: SreeponColors.success)),
             ),
           ),
       ],

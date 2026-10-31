@@ -20,7 +20,7 @@ class WishlistScreen extends ConsumerWidget {
     if (!auth.isAuthenticated) {
       return Scaffold(
         appBar: AppBar(title: const Text('Wishlist')),
-        body: SriPonEmptyState(
+        body: SreeponEmptyState(
           icon: IconlyLight.heart,
           title: 'Sign in required',
           message: 'Sign in to see and manage your wishlist.',
@@ -43,7 +43,7 @@ class WishlistScreen extends ConsumerWidget {
         ),
         data: (items) {
           if (items.isEmpty) {
-            return const SriPonEmptyState(
+            return const SreeponEmptyState(
               icon: IconlyLight.heart,
               title: 'Wishlist is empty',
               message: 'Tap the heart on a product to save it here.',

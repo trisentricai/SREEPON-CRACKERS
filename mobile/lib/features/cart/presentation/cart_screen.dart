@@ -236,7 +236,7 @@ class _EmptyCart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const SriPonEmptyState(
+    return const SreeponEmptyState(
       icon: IconlyLight.bag_2,
       title: 'Your cart is empty',
       message: 'Browse the catalogue and add some crackers to get started.',

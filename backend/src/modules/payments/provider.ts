@@ -53,7 +53,7 @@ function toPaise(amount: Prisma.Decimal): number {
 
 // Secret for the local/mock provider. Only meaningful outside production;
 // production requires the env var to be set explicitly.
-const MOCK_DEV_SECRET = 'sripon-mock-pay-dev-secret';
+const MOCK_DEV_SECRET = 'sreepon-mock-pay-dev-secret';
 
 function mockWebhookSecret(): string | undefined {
   return env.PAYMENT_MOCK_WEBHOOK_SECRET ?? (!isProduction ? MOCK_DEV_SECRET : undefined);
@@ -89,7 +89,7 @@ const mockProvider: PaymentProviderAdapter = {
   async verifyWebhook(rawBody, headers) {
     const secret = mockWebhookSecret();
     if (!secret) throw ApiError.serviceUnavailable('Mock payment provider is not configured');
-    const signature = headers['x-sripon-signature'] as string | undefined;
+    const signature = headers['x-sreepon-signature'] as string | undefined;
     if (!signature) throw ApiError.badRequest('Missing webhook signature');
     if (!safeEqual(hmacHex(secret, rawBody), signature)) {
       throw ApiError.unauthorized('Invalid webhook signature');
@@ -135,7 +135,7 @@ const cashfreeProvider: PaymentProviderAdapter = {
         order_id: orderNumber,
         order_amount: toPaise(amount) / 100,
         order_currency: currency,
-        order_note: `SriPon Order ${orderNumber}`,
+        order_note: `Sreepon Order ${orderNumber}`,
         customer_details: {
           customer_id: orderNumber,
           customer_name: 'Customer',

@@ -13,7 +13,7 @@ export const login = asyncHandler(async (req: Request, res: Response) => {
   const { user, created } = await findOrCreateFromFirebase(claims);
   res
     .status(created ? HttpStatus.CREATED : HttpStatus.OK)
-    .json(ok(toPublicProfile(user), created ? 'Welcome to SriPon' : 'Welcome back'));
+    .json(ok(toPublicProfile(user), created ? 'Welcome to Sreepon' : 'Welcome back'));
 });
 
 export const register = asyncHandler(async (req: Request, res: Response) => {

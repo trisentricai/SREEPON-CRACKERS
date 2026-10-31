@@ -32,7 +32,7 @@ export async function updateAvatar(uid: string, input: AvatarUploadInput) {
   let secureUrl: string;
   try {
     const uploaded = await uploadToCloudinary(buffer, {
-      folder: 'sripon/avatars',
+      folder: 'sreepon/avatars',
       resourceType: 'image',
     });
     secureUrl = uploaded.secureUrl;

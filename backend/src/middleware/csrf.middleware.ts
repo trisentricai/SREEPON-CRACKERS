@@ -7,7 +7,7 @@ import { logger } from '../utils/logger';
 /**
  * CSRF protection middleware for state-changing endpoints.
  *
- * The SriPon API is a cross-origin JSON API consumed by a SPA using Bearer
+ * The Sreepon API is a cross-origin JSON API consumed by a SPA using Bearer
  * tokens in the Authorization header. Because Bearer tokens are never sent
  * automatically by browsers on cross-origin requests (unlike cookies),
  * traditional cookie-based CSRF is not directly applicable. However, we add

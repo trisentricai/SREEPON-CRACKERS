@@ -7,7 +7,7 @@ import { logger } from '../utils/logger';
 
 /**
  * Centralized error handler.
- * Renders the SriPon error envelope, never leaks stack traces in production,
+ * Renders the Sreepon error envelope, never leaks stack traces in production,
  * and logs structured error data with request correlation ids.
  */
 export const errorHandler: ErrorRequestHandler = (err, req, res, _next) => {

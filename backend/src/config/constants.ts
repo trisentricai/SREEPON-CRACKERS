@@ -1,7 +1,7 @@
 /** Static, non-secret application constants. */
 
 export const APP = {
-  name: 'SriPon',
+  name: 'Sreepon',
   version: '1.0.0',
   apiVersion: 'v1',
 } as const;

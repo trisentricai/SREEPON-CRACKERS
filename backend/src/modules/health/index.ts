@@ -39,7 +39,7 @@ healthRouter.get(
             redis: redisResult,
           },
         },
-        'SriPon API is healthy',
+        'Sreepon API is healthy',
       ),
     );
   }),

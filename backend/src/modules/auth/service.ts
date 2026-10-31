@@ -104,7 +104,7 @@ export async function findOrCreateFromFirebase(identity: FirebaseIdentity): Prom
     const user = await prisma.user.create({
       data: {
         firebaseUid: identity.uid,
-        email: identity.email ?? `${identity.uid}@firebase.sripon.invalid`,
+        email: identity.email ?? `${identity.uid}@firebase.sreepon.invalid`,
         name: identity.name ?? null,
         phone: identity.phone_number ?? null,
       },

@@ -1,4 +1,4 @@
-/** Shared domain enums used across the SriPon API contract. */
+/** Shared domain enums used across the Sreepon API contract. */
 
 export const AdminRole = {
   SUPER_ADMIN: 'SUPER_ADMIN',

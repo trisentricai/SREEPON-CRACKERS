@@ -283,7 +283,7 @@ export async function checkAndDeployLatest(_env: Record<string, unknown>): Promi
         headers: {
           Accept: 'application/vnd.github+json',
           Authorization: `Bearer ${token}`,
-          'User-Agent': 'sripon-deploy-check',
+          'User-Agent': 'sreepon-deploy-check',
         },
       },
     );
@@ -318,7 +318,7 @@ export async function checkAndDeployLatest(_env: Record<string, unknown>): Promi
         headers: {
           Accept: 'application/vnd.github+json',
           Authorization: `Bearer ${token}`,
-          'User-Agent': 'sripon-deploy-check',
+          'User-Agent': 'sreepon-deploy-check',
         },
         body: JSON.stringify({
           event_type: 'redeploy',

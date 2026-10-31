@@ -34,7 +34,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
     if (!auth.isAuthenticated) {
       return Scaffold(
         appBar: AppBar(title: const Text('Orders')),
-        body: SriPonEmptyState(
+        body: SreeponEmptyState(
           icon: IconlyLight.paper,
           title: 'Sign in required',
           message: 'Sign in to view your orders.',
@@ -57,7 +57,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
         ),
         data: (response) {
           if (response.items.isEmpty) {
-            return const SriPonEmptyState(
+            return const SreeponEmptyState(
               icon: IconlyLight.paper,
               title: 'No orders yet',
               message: 'Your placed orders will show up here.',

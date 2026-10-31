@@ -113,7 +113,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           Text('Delivery address', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: 8),
           if (addresses.isEmpty)
-            const Text('Add an address below to check out.', style: TextStyle(color: SriPonColors.inkMuted))
+            const Text('Add an address below to check out.', style: TextStyle(color: SreeponColors.inkMuted))
           else
             for (final address in addresses)
               Card(
@@ -197,9 +197,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               padding: const EdgeInsets.only(top: 6),
               child: Row(
                 children: [
-                  const Icon(IconlyBold.tick_square, size: 16, color: SriPonColors.success),
+                  const Icon(IconlyBold.tick_square, size: 16, color: SreeponColors.success),
                   const SizedBox(width: 6),
-                  Text('Coupon $_couponApplied applied', style: const TextStyle(color: SriPonColors.success)),
+                  Text('Coupon $_couponApplied applied', style: const TextStyle(color: SreeponColors.success)),
                 ],
               ),
             ),
@@ -223,7 +223,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           if (_error != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: Text(_error!, style: const TextStyle(color: SriPonColors.danger)),
+              child: Text(_error!, style: const TextStyle(color: SreeponColors.danger)),
             ),
           Row(
             children: [

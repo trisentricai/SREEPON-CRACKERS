@@ -15,7 +15,7 @@ import { globalLimiter } from './utils/rate-limit';
 import { APP } from './config/constants';
 
 /**
- * Builds the SriPon Express application.
+ * Builds the Sreepon Express application.
  * Exported separately from the HTTP server so integration tests can inject
  * the app into supertest without opening a port.
  */

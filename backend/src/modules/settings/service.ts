@@ -29,7 +29,7 @@ export { GROUP_KEYS };
 // --- Views & defaults ----------------------------------------------------
 
 const DEFAULT_STORE = {
-  name: 'SriPon',
+  name: 'Sreepon',
   tagline: '',
   supportEmail: '',
   supportPhone: '',

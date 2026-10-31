@@ -3,7 +3,7 @@ import { env, isDev, isTest } from '../config/env';
 
 const baseOptions: pino.LoggerOptions = {
   level: isTest ? 'silent' : isDev ? 'debug' : 'info',
-  base: { app: 'sripon-api' },
+  base: { app: 'sreepon-api' },
   redact: {
     paths: [
       'password',
