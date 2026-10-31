@@ -214,7 +214,7 @@ function HeroFallback({ storeName, tagline }: { storeName?: string; tagline?: st
         <Reveal>
           <span className="inline-flex items-center gap-2 rounded-full border border-gold-300/50 bg-gold-400/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-gold-100 backdrop-blur-sm">
             <Star className="h-3.5 w-3.5" />
-            Festive crackers &amp; fireworks
+            Festive green crackers or candles &amp; fireworks
           </span>
         </Reveal>
         <Reveal delay={80}>

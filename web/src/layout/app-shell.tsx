@@ -209,7 +209,7 @@ function SiteFooter() {
   const social = settings.data?.social;
 
   const shopLinks = [
-    { label: 'Shop all crackers', to: '/products' },
+    { label: 'Shop all green crackers or candles', to: '/products' },
     { label: 'New arrivals', to: '/products?sort=newest' },
     { label: 'Gift boxes', to: '/products/gift-boxes' },
   ];

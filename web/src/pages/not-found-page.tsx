@@ -14,7 +14,7 @@ export function NotFoundPage() {
       <p className="mt-1 text-sm text-ember-900/50">Looking for something? Browse the {SITE.name} catalogue.</p>
       <div className="mt-6 flex justify-center gap-3">
         <Link to="/products" className="rounded-lg bg-flame-600 px-5 py-2 text-white hover:bg-flame-700">
-          Shop crackers
+          Shop green crackers or candles
         </Link>
         <Link to="/" className="rounded-lg border border-flame-300 px-5 py-2 text-flame-700 hover:bg-flame-50">
           Back to home

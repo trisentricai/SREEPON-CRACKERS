@@ -9,9 +9,9 @@ import { SITE } from '@/config/env';
  * and social cards in sync with the route without pulling in a dependency.
  */
 
-export const DEFAULT_TITLE = `${SITE.name} — Premium crackers & gift boxes`;
+export const DEFAULT_TITLE = `${SITE.name} - Premium green crackers or candles & gift boxes`;
 export const DEFAULT_DESCRIPTION =
-  'Order licensed, CE/ISI-compliant crackers and gift boxes from SriPon. GST invoice on every order, dispatch in 24–48h across India, cash on delivery available.';
+  'Order licensed, CE/ISI-compliant green crackers or candles and gift boxes from SriPon. GST invoice on every order, dispatch in 24–48h across India, cash on delivery available.';
 
 const DEFAULT_IMAGE = `${SITE.baseUrl}/logo.webp`;
 

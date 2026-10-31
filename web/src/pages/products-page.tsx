@@ -39,11 +39,11 @@ export function ProductsPage() {
   const activeCategory = categorySlug ? findCategory(categories.data ?? [], categorySlug) : undefined;
 
   usePageMeta({
-    title: activeCategory ? `${activeCategory.name} — crackers & fireworks` : 'Shop crackers & gift boxes',
+    title: activeCategory ? `${activeCategory.name} — green crackers or candles & fireworks` : 'Shop green crackers or candles & gift boxes',
     description: activeCategory
       ? activeCategory.description ??
         `Buy ${activeCategory.name.toLowerCase()} online from SriPon. Licensed stock, GST invoice, dispatch in 24–48h.`
-      : 'Browse licensed, CE/ISI-compliant crackers and gift boxes. GST invoice on every order and dispatch in 24–48h across India.',
+      : 'Browse licensed, CE/ISI-compliant green crackers or candles and gift boxes. GST invoice on every order and dispatch in 24–48h across India.',
     path: categorySlug ? `/products/${categorySlug}` : '/products',
   });
 
@@ -55,7 +55,7 @@ export function ProductsPage() {
           {activeCategory && <span className="text-ember-900/40"> / {activeCategory.name}</span>}
         </p>
         <h1 className="mt-1 font-display text-2xl font-bold text-ember-800">
-          {activeCategory?.name ?? 'Shop crackers & fireworks'}
+          {activeCategory?.name ?? 'Shop green crackers or candles & fireworks'}
         </h1>
         <p className="mt-1 text-sm text-ember-900/50">All items are age-gated; shop responsibly.</p>
       </header>
