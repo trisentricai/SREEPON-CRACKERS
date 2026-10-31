@@ -11,7 +11,7 @@ import { SITE } from '@/config/env';
 
 export const DEFAULT_TITLE = `${SITE.name} — Premium crackers & gift boxes`;
 export const DEFAULT_DESCRIPTION =
-  'Order licensed, CE/ISI-compliant crackers and gift boxes from SriPon. GST invoice on every order, dispatch in 24–48h across India, cash on delivery available.';
+  'Order licensed, CE/ISI-compliant crackers and gift boxes from green crackers and candles. GST invoice on every order, dispatch in 24–48h across India, cash on delivery available.';
 
 const DEFAULT_IMAGE = `${SITE.baseUrl}/logo.webp`;
 
