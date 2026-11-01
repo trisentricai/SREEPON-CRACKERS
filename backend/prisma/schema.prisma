@@ -474,8 +474,9 @@ model HomepageSection {
 
 model Notification {
   id        String           @id @default(uuid())
-  userId    String
-  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String?
+  adminId   String?
+  user      User?            @relation(fields: [userId], references: [id], onDelete: Cascade)
   type      NotificationType
   title     String
   body      String
@@ -485,18 +486,21 @@ model Notification {
   createdAt DateTime         @default(now())
 
   @@index([userId, isRead])
+  @@index([adminId, isRead])
 }
 
 model DeviceToken {
   id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String?
+  adminId   String?
+  user      User?      @relation(fields: [userId], references: [id], onDelete: Cascade)
   token     String
   platform  String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@unique([userId, token])
+  @@unique([adminId, token])
 }
 
 // --- Platform ------------------------------------------------------------
