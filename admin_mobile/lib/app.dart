@@ -17,6 +17,8 @@ import '../features/banners/banners_screen.dart';
 import '../features/homepage/homepage_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/notifications/notification_centre_screen.dart';
+import '../features/notifications/fcm_service.dart'
+    show fcmServiceProvider, unreadCountProvider;
 
 /// Sreepon admin app — root widget.
 ///
@@ -106,6 +108,16 @@ class _AdminShellState extends ConsumerState<_AdminShell> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    // Wire notification taps to navigate to the relevant screen.
+    ref.read(fcmServiceProvider).onNotificationTap = (route) {
+      if (mounted) context.go(route);
+    };
+    ref.read(fcmServiceProvider).refreshBadge();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final user = ref.watch(currentUserProvider);
 
@@ -167,9 +179,38 @@ class _AdminShellState extends ConsumerState<_AdminShell> {
       appBar: AppBar(
         title: const Text('Sreepon Admin'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_outlined),
-            onPressed: () => context.go('/notifications'),
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications_outlined),
+                onPressed: () => context.go('/notifications'),
+              ),
+              Consumer(
+                builder: (_, ref, __) {
+                  final count = ref.watch(unreadCountProvider);
+                  if (count == 0) return const SizedBox.shrink();
+                  return Positioned(
+                    right: 6,
+                    top: 6,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: SreeponAdminTheme.flame600,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Text(
+                        count > 9 ? '9+' : count.toString(),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
           IconButton(
             icon: const Icon(Icons.settings_outlined),
