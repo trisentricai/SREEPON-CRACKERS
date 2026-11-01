@@ -35,6 +35,7 @@ describe.skipIf(!hasDB)('content against a real database', () => {
   };
 
   beforeAll(async () => {
+    await prisma.homepageSection.deleteMany({});
     await prisma.product.create({
       data: {
         id: productId,

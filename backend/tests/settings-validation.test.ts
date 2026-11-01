@@ -49,7 +49,7 @@ describe('Settings guards & validation contract (no DB)', () => {
 
   it('accepts a full partial update across groups', () => {
     const result = updateSettingsSchema.safeParse({
-      store: { name: 'SriPon', supportPhone: '+919876543210' },
+      store: { name: 'Sreepon', supportPhone: '+919876543210' },
       delivery: { enabled: false, deliveryFee: 40 },
       social: { whatsappNumber: '+919876543210' },
     });

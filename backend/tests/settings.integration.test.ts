@@ -28,7 +28,7 @@ describe.skipIf(!hasDB)('settings against a real database', () => {
 
   it('returns defaults when nothing is stored', async () => {
     const settings = await settingsService.getPublicSettings();
-    expect(settings.store.name).toBe('SriPon');
+    expect(settings.store.name).toBe('Sreepon');
     expect(settings.store.currency).toBe('INR');
     expect(settings.delivery.deliveryFee).toBe('0.00');
     expect(settings.tax.rate).toBe(0);
@@ -38,12 +38,12 @@ describe.skipIf(!hasDB)('settings against a real database', () => {
   it('updates the store group and exposes it publicly', async () => {
     const ctx = { actorId: randomUUID(), requestId: randomUUID() };
     await settingsService.updateSettings(
-      { store: { name: 'SriPon Customer Care', tagline: 'Premium snacks', supportPhone: '+919876543210' } },
+      { store: { name: 'Sreepon Customer Care', tagline: 'Premium snacks', supportPhone: '+919876543210' } },
       ctx,
     );
 
     const settings = await settingsService.getPublicSettings();
-    expect(settings.store.name).toBe('SriPon Customer Care');
+    expect(settings.store.name).toBe('Sreepon Customer Care');
     expect(settings.store.tagline).toBe('Premium snacks');
     expect(settings.store.supportPhone).toBe('+919876543210');
   });
@@ -106,7 +106,7 @@ describe.skipIf(!hasDB)('settings against a real database', () => {
     const res = await request(app).get('/api/v1/settings/public');
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.store.name).toBe('SriPon Customer Care');
+    expect(res.body.data.store.name).toBe('Sreepon Customer Care');
     expect(res.body.data.tax.rate).toBe(18);
   });
 });

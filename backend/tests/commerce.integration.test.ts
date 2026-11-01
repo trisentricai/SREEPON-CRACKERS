@@ -16,7 +16,7 @@ import * as couponsService from '../src/modules/coupons/service';
  * with seeded users, products and coupons.
  */
 const hasDB = Boolean(process.env.DATABASE_URL);
-const MOCK_WEBHOOK_SECRET = 'sripon-mock-pay-dev-secret';
+const MOCK_WEBHOOK_SECRET = 'sreepon-mock-pay-dev-secret';
 
 function mockSignature(body: unknown): string {
   return createHmac('sha256', MOCK_WEBHOOK_SECRET).update(Buffer.from(JSON.stringify(body))).digest('hex');
@@ -24,7 +24,7 @@ function mockSignature(body: unknown): string {
 
 function mockWebhook(payload: Record<string, unknown>) {
   return paymentsService.handleWebhook('mock', Buffer.from(JSON.stringify(payload)), {
-    'x-sripon-signature': mockSignature(payload),
+    'x-sreepon-signature': mockSignature(payload),
   });
 }
 
@@ -262,7 +262,7 @@ describe.skipIf(!hasDB)('commerce against a real database', () => {
 
     await expect(
       paymentsService.handleWebhook('mock', Buffer.from(JSON.stringify({ providerRefId: payment.providerRefId, success: true })), {
-        'x-sripon-signature': 'deadbeef',
+        'x-sreepon-signature': 'deadbeef',
       }),
     ).rejects.toMatchObject({ status: 401 });
 

@@ -10,7 +10,7 @@ describe('SriPon API smoke tests', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.app).toBe('SriPon');
+    expect(res.body.data.app).toBe('Sreepon');
     expect(res.body.data.status).toBe('ok');
     expect(res.body.data.services).toBeDefined();
   });
@@ -28,7 +28,7 @@ describe('SriPon API smoke tests', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.openapi).toBe('3.0.3');
-    expect(res.body.info.title).toBe('SriPon API');
+    expect(res.body.info.title).toBe('Sreepon API');
   });
 
   it('unknown routes return the SriPon error envelope', async () => {
