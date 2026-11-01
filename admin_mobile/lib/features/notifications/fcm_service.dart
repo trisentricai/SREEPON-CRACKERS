@@ -26,25 +26,8 @@ class FcmService {
   FirebaseMessaging? _messaging;
   FlutterLocalNotificationsPlugin? _localNotifications;
 
-  /// Initialize Firebase + FCM. Call once at app startup.
+  /// Initialize FCM. Call once at app startup (Firebase is initialized in main.dart).
   Future<void> init() async {
-    final config = SreeponAdminConfig.instance;
-
-    // Initialize Firebase only if credentials are provided.
-    if (config.firebaseApiKey != null &&
-        config.firebaseAppId != null &&
-        config.firebaseMessagingSenderId != null &&
-        config.firebaseProjectId != null) {
-      await Firebase.initializeApp(
-        options: FirebaseOptions(
-          apiKey: config.firebaseApiKey!,
-          appId: config.firebaseAppId!,
-          messagingSenderId: config.firebaseMessagingSenderId!,
-          projectId: config.firebaseProjectId!,
-        ),
-      );
-    }
-
     _messaging = FirebaseMessaging.instance;
 
     // Request permissions (required on iOS; a no-op on Android if already granted).
