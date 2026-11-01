@@ -9,21 +9,36 @@ import 'features/notifications/fcm_service.dart';
 /// Flag ensuring FCM is initialized exactly once.
 final _fcmInitialized = StateProvider<bool>((ref) => false);
 
-/// Initializes FCM push notifications once the provider scope is mounted.
-class FcmInitializer extends ConsumerWidget {
+/// Initializes FCM push notifications once after the first frame — avoids
+/// modifying providers during the widget build lifecycle.
+class FcmInitializer extends ConsumerStatefulWidget {
   const FcmInitializer({required this.child, super.key});
 
   final Widget child;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    if (!ref.read(_fcmInitialized)) {
-      ref.read(_fcmInitialized.notifier).state = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) async {
+  ConsumerState<FcmInitializer> createState() => _FcmInitializerState();
+}
+
+class _FcmInitializerState extends ConsumerState<FcmInitializer> {
+  bool _started = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (_started) return;
+      _started = true;
+      if (!ref.read(_fcmInitialized)) {
+        ref.read(_fcmInitialized.notifier).state = true;
         await ref.read(fcmServiceProvider).init();
-      });
-    }
-    return child;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
   }
 }
 
