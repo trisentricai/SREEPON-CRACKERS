@@ -57,6 +57,6 @@ jobs:
       - name: Set DEPLOYED_COMMIT_SHA variable
         working-directory: backend
         run: |
-          npx wrangler secret put DEPLOYED_COMMIT_SHA --format json <<< "${{ github.sha }}"
+          echo "${{ github.sha }}" | npx wrangler secret put DEPLOYED_COMMIT_SHA
         env:
           CF_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
