@@ -93,10 +93,10 @@ export function CustomersPage() {
       <Card className="overflow-hidden p-0">
         {isLoading && <Spinner />}
         {isError && <div className="p-5"><ErrorState message={error instanceof Error ? error.message : 'Failed to load customers'} /></div>}
-        {!isLoading && !isError && (!data || data.items.length === 0) && (
+        {!isLoading && !isError && (!data || !Array.isArray(data.items) || data.items.length === 0) && (
           <div className="p-5"><EmptyState title="No customers found." /></div>
         )}
-        {data && data.items.length > 0 && (
+        {data && Array.isArray(data.items) && data.items.length > 0 && (
           <>
             <table className="w-full text-left text-sm">
               <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
@@ -127,7 +127,7 @@ export function CustomersPage() {
                 ))}
               </tbody>
             </table>
-            <Pagination page={page} total={data.pagination.total} limit={LIMIT} onChange={setPage} />
+            <Pagination page={page} total={data.pagination?.total ?? 0} limit={LIMIT} onChange={setPage} />
           </>
         )}
       </Card>
