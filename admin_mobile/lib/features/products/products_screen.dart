@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sreepon_admin/core/models/products.dart';
 import 'package:sreepon_admin/core/network/api_client.dart';
 import 'package:sreepon_admin/core/theme/sreepon_admin_theme.dart';
 import 'package:sreepon_admin/core/utils/format.dart';
 import 'package:sreepon_admin/core/widgets/widgets.dart';
+import 'package:sreepon_admin/features/products/product_form_screen.dart';
 
 final productsProvider = FutureProvider<ProductListResponse>((ref) async {
   final data = await api.get<Map<String, dynamic>>(
@@ -79,7 +81,14 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () async {
+          final saved = await Navigator.of(context).push<bool>(
+            MaterialPageRoute(builder: (_) => const ProductFormScreen()),
+          );
+          if (saved == true && mounted) {
+            ref.refresh(productsProvider);
+          }
+        },
         child: const Icon(Icons.add),
       ),
     );
@@ -160,6 +169,7 @@ class _ProductRow extends StatelessWidget {
             ),
           ],
         ),
+        onTap: () => context.go('/products/${product.id}/edit'),
       ),
     );
   }
