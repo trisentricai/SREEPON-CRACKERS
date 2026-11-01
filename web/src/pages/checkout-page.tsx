@@ -114,14 +114,25 @@ function CheckoutContent() {
     [providers.data],
   );
 
+  // Cashfree (UPI/cards/netbanking) is not yet available to customers — it is
+  // shown as "Available soon" and cannot be selected. Only the remaining
+  // gateways (today: cash on delivery) are actually selectable.
+  const selectableProviders = useMemo(
+    () => providerOptions.filter((option) => option.name !== 'cashfree'),
+    [providerOptions],
+  );
+
   // The selected gateway is derived, not synced: if the server stops offering
   // the customer's pick (or the first payload hasn't arrived), we fall back to
   // the first available option instead of leaving an invalid choice selected.
+  // Cashfree is never an eligible selection.
   const [preferredProvider, setPreferredProvider] = useState<PaymentProvider | null>(null);
   const provider: PaymentProvider =
-    preferredProvider && providerOptions.some((option) => option.name === preferredProvider)
+    preferredProvider &&
+    preferredProvider !== 'cashfree' &&
+    providerOptions.some((option) => option.name === preferredProvider)
       ? preferredProvider
-      : (providerOptions[0]?.name ?? 'cash');
+      : (selectableProviders[0]?.name ?? providerOptions.find((o) => o.name !== 'cashfree')?.name ?? 'cash');
   const setProvider = setPreferredProvider;
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['cart'] });
@@ -393,19 +404,37 @@ function CheckoutContent() {
           <div>
             <h2 className="mb-3 text-lg font-semibold text-ember-900">Payment</h2>
             <fieldset className="space-y-2">
-              {providerOptions.map((option) => (
-                <label key={option.name} className="flex items-center gap-3 rounded-lg border border-ember-100 p-3 text-sm">
-                  <input
-                    type="radio"
-                    name="provider"
-                    value={option.name}
-                    checked={provider === option.name}
-                    onChange={() => setProvider(option.name)}
-                    className="h-4 w-4 accent-flame-600"
-                  />
-                  <span className="text-ember-900">{option.label}</span>
-                </label>
-              ))}
+              {providerOptions.map((option) => {
+                const comingSoon = option.name === 'cashfree';
+                return (
+                  <label
+                    key={option.name}
+                    className={`flex items-center gap-3 rounded-lg border p-3 text-sm ${
+                      comingSoon
+                        ? 'cursor-not-allowed border-ember-100 bg-ember-50/40 opacity-60'
+                        : 'border-ember-100'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="provider"
+                      value={option.name}
+                      checked={provider === option.name}
+                      onChange={() => {
+                        if (!comingSoon) setProvider(option.name);
+                      }}
+                      disabled={comingSoon}
+                      className="h-4 w-4 accent-flame-600 disabled:cursor-not-allowed"
+                    />
+                    <span className={comingSoon ? 'text-ember-900/60' : 'text-ember-900'}>{option.label}</span>
+                    {comingSoon && (
+                      <span className="ml-auto rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                        Available soon
+                      </span>
+                    )}
+                  </label>
+                );
+              })}
             </fieldset>
           </div>
 
