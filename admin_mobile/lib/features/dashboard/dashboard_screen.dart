@@ -113,30 +113,23 @@ class DashboardScreen extends ConsumerWidget {
       _stat('Out of stock', '${m.outOfStockCount}', Icons.block, SreeponAdminTheme.red600),
     ];
 
+    // Responsive: 2 columns on small screens, 3 on medium, 4 on large
+    final width = MediaQuery.of(context).size.width;
+    final crossAxisCount = width < 600 ? 2 : width < 900 ? 3 : 4;
+
     return SliverPadding(
       padding: const EdgeInsets.all(16),
-      sliver: LayoutBuilder(
-        builder: (context, constraints) {
-          // Responsive: 2 columns on small screens, 3 on medium, 4 on large
-          final width = MediaQuery.of(context).size.width;
-          final crossAxisCount = width < 600
-              ? 2
-              : width < 900
-                  ? 3
-                  : 4;
-          return SliverGrid(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: crossAxisCount,
-              childAspectRatio: 1.7,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-            ),
-            delegate: SliverChildBuilderDelegate(
-              (context, index) => items[index],
-              childCount: items.length,
-            ),
-          );
-        },
+      sliver: SliverGrid(
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: crossAxisCount,
+          childAspectRatio: 1.7,
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+        ),
+        delegate: SliverChildBuilderDelegate(
+          (context, index) => items[index],
+          childCount: items.length,
+        ),
       ),
     );
   }
