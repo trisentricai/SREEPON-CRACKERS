@@ -115,17 +115,27 @@ class DashboardScreen extends ConsumerWidget {
 
     return SliverPadding(
       padding: const EdgeInsets.all(16),
-      sliver: SliverGrid(
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 1.5,
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-        ),
-        delegate: SliverChildBuilderDelegate(
-          (context, index) => items[index],
-          childCount: items.length,
-        ),
+      sliver: LayoutBuilder(
+        builder: (context, constraints) {
+          // Responsive: 2 columns on small screens, 3 on medium, 4 on large
+          final crossAxisCount = constraints.maxWidth < 600
+              ? 2
+              : constraints.maxWidth < 900
+                  ? 3
+                  : 4;
+          return SliverGrid(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: crossAxisCount,
+              childAspectRatio: 1.7,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+            ),
+            delegate: SliverChildBuilderDelegate(
+              (context, index) => items[index],
+              childCount: items.length,
+            ),
+          );
+        },
       ),
     );
   }

@@ -24,38 +24,43 @@ class StatCard extends StatelessWidget {
     final accentColor = accent ?? SreeponAdminTheme.flame600;
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(10),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Row(
-              children: [
-                if (icon != null) ...[
+            if (icon != null) ...[
+              Row(
+                children: [
                   Container(
-                    padding: const EdgeInsets.all(6),
+                    padding: const EdgeInsets.all(5),
                     decoration: BoxDecoration(
                       color: accentColor.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(6),
                     ),
-                    child: Icon(icon, size: 16, color: accentColor),
+                    child: Icon(icon, size: 14, color: accentColor),
                   ),
-                  const SizedBox(width: 8),
+                  const Spacer(),
                 ],
-                const Spacer(),
-              ],
-            ),
-            const SizedBox(height: 6),
+              ),
+              const SizedBox(height: 5),
+            ],
             Text(
               label,
-              style: Theme.of(context).textTheme.labelSmall?.copyWith(color: SreeponAdminTheme.slate600),
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                    color: SreeponAdminTheme.slate600,
+                    fontSize: 11,
+                  ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 3),
             Text(
               value,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 15,
+                  ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
@@ -63,7 +68,10 @@ class StatCard extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 hint!,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: SreeponAdminTheme.slate500),
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: SreeponAdminTheme.slate500,
+                      fontSize: 10,
+                    ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
