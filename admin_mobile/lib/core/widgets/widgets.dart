@@ -24,7 +24,7 @@ class StatCard extends StatelessWidget {
     final accentColor = accent ?? SreeponAdminTheme.flame600;
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(10),
+        padding: const EdgeInsets.all(8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
@@ -33,44 +33,44 @@ class StatCard extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(5),
+                    padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
                       color: accentColor.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(6),
+                      borderRadius: BorderRadius.circular(5),
                     ),
                     child: Icon(icon, size: 14, color: accentColor),
                   ),
                   const Spacer(),
                 ],
               ),
-              const SizedBox(height: 5),
+              const SizedBox(height: 4),
             ],
             Text(
               label,
               style: Theme.of(context).textTheme.labelSmall?.copyWith(
                     color: SreeponAdminTheme.slate600,
-                    fontSize: 11,
+                    fontSize: 10,
                   ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
-            const SizedBox(height: 3),
+            const SizedBox(height: 2),
             Text(
               value,
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w700,
-                    fontSize: 15,
+                    fontSize: 14,
                   ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             if (hint != null && hint!.isNotEmpty) ...[
-              const SizedBox(height: 2),
+              const SizedBox(height: 1),
               Text(
                 hint!,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: SreeponAdminTheme.slate500,
-                      fontSize: 10,
+                      fontSize: 9,
                     ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
