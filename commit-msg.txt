@@ -1,5 +1,0 @@
-Rename brand from SriPon to Sreepon
-
-- Update SITE.name to 'Sreepon' in env.ts
-- Update all page headings, descriptions, and meta text to say 'Sreepon'
-- Replace all 'SriPon' references with 'Sreepon' across web/src
