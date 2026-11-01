@@ -118,7 +118,7 @@ class DashboardScreen extends ConsumerWidget {
       sliver: SliverGrid(
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
-          childAspectRatio: 1.55,
+          childAspectRatio: 1.5,
           crossAxisSpacing: 12,
           mainAxisSpacing: 12,
         ),

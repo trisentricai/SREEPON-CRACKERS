@@ -139,18 +139,24 @@ class _ProductRow extends StatelessWidget {
           ],
         ),
         trailing: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            StatusChip(
-              text: product.isActive ? 'Active' : 'Inactive',
-              tone: product.isActive ? 'green' : 'slate',
-            ),
-            const SizedBox(height: 6),
-            Switch(
-              value: product.isActive,
-              onChanged: (_) {},
-              activeColor: SreeponAdminTheme.flame600,
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                StatusChip(
+                  text: product.isActive ? 'Active' : 'Inactive',
+                  tone: product.isActive ? 'green' : 'slate',
+                ),
+                const SizedBox(width: 8),
+                Switch(
+                  value: product.isActive,
+                  onChanged: (_) {},
+                  activeColor: SreeponAdminTheme.flame600,
+                ),
+              ],
             ),
           ],
         ),

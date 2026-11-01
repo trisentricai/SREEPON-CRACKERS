@@ -101,14 +101,21 @@ class _OrderRow extends StatelessWidget {
           ],
         ),
         trailing: Column(
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(formatMoney(order.grandTotal),
-                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14)),
-            const SizedBox(height: 4),
-            StatusChip(text: titleCase(order.paymentStatus ?? ''), tone: paid ? 'green' : 'amber'),
-            StatusChip(text: titleCase(order.status ?? ''), tone: 'slate'),
+                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
+            const SizedBox(height: 2),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                StatusChip(text: titleCase(order.paymentStatus ?? ''), tone: paid ? 'green' : 'amber'),
+                const SizedBox(width: 4),
+                StatusChip(text: titleCase(order.status ?? ''), tone: 'slate'),
+              ],
+            ),
           ],
         ),
         onTap: () => GoRouter.of(context).push('/orders/${order.id}'),
