@@ -2,7 +2,7 @@ import { Router } from 'express';
 import type { NextFunction, Request, RequestHandler, Response } from 'express';
 import { z } from 'zod';
 import { requireSupabase, requireAdminRoles, AdminRole } from '../../middleware/auth.middleware';
-import { getValidatedQuery } from '../../middleware/validation.middleware';
+import { getValidatedQuery, validate } from '../../middleware/validation.middleware';
 import { ApiError, HttpStatus, asyncHandler, ok, routeParam } from '../../utils/http';
 import { prisma } from '../../infrastructure/prisma';
 import { UserStatus } from '../../types/enums';
@@ -62,7 +62,7 @@ adminCustomersRouter.use(
   requireAdminRoles(AdminRole.SUPER_ADMIN, AdminRole.ADMIN, AdminRole.ORDER_MANAGER),
 );
 
-adminCustomersRouter.get('/admin/customers', asyncHandler(async (req: Request, res: Response) => {
+adminCustomersRouter.get('/admin/customers', validate({ query: listCustomersQuerySchema }), asyncHandler(async (req: Request, res: Response) => {
   const query = getValidatedQuery<ListCustomersQuery>(req);
   const where = {
     ...(query.status ? { status: query.status } : {}),
@@ -159,7 +159,7 @@ adminCustomersRouter.get('/admin/customers/:id', asyncHandler(async (req: Reques
   );
 }));
 
-adminCustomersRouter.get('/admin/customers/:id/orders', asyncHandler(async (req: Request, res: Response) => {
+adminCustomersRouter.get('/admin/customers/:id/orders', validate({ query: customerOrdersQuerySchema }), asyncHandler(async (req: Request, res: Response) => {
   const id = routeParam(req, 'id');
   customerDetailParamsSchema.parse({ id });
   const query = getValidatedQuery<CustomerOrdersQuery>(req);
