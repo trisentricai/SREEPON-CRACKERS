@@ -238,9 +238,7 @@ describe.skipIf(!hasDB)('commerce against a real database', () => {
     const first = await paymentsService.createPayment(buyerUserId, { orderId: order.id, provider: 'mock' });
     expect(first.providerRefId).toMatch(/^mock_/);
     expect(first.status).toBe('PENDING');
-    if ('clientPayload' in first) {
-      expect(first.clientPayload.provider).toBe('mock');
-    }
+    expect(first.clientPayload?.provider).toBe('mock');
 
     const second = await paymentsService.createPayment(buyerUserId, { orderId: order.id, provider: 'mock' });
     expect(second.id).toBe(first.id);

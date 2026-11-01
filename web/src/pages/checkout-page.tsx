@@ -17,7 +17,7 @@ import { asArray } from '@/api/normalize';
 import { AuthGate, Badge, EmptyState, ErrorState, Spinner } from '@/components/storefront-ui';
 import { useAuth } from '@/features/auth/context/auth-context';
 import { formatMoney } from '@/lib/format';
-import { readCashfreePayload, waitForPaidPayment } from '@/lib/cashfree';
+import { getCashfree, readCashfreePayload, waitForPaidPayment } from '@/lib/cashfree';
 import { usePageMeta } from '@/lib/seo';
 
 const FALLBACK_PROVIDERS: AvailablePaymentProvider[] = [
@@ -134,52 +134,38 @@ function CheckoutContent() {
   });
 
   /**
-   * Opens the Cashfree checkout link for an existing intent and waits for the
+   * Opens Cashfree's checkout modal for an existing intent and waits for the
    * gateway webhook to confirm it. Resolves true only when the payment is PAID —
    * a dismissed or failed checkout just leaves the saved order unpaid.
    */
   async function payWithCashfree(payment: Payment): Promise<boolean> {
     const payload = readCashfreePayload(payment.clientPayload);
-    const paymentLink = payload?.paymentLink;
-    if (!paymentLink) {
+    if (!payload?.paymentSessionId) {
+      setMessage('The payment gateway could not be started. Please try again.');
+      return false;
+    }
+
+    const cashfree = await getCashfree(payload.mode);
+    if (!cashfree) {
       setMessage('The payment gateway could not be loaded. Check your connection and try again.');
       return false;
     }
 
-    return new Promise<boolean>((resolve) => {
-      let settled = false;
-      const finish = (value: boolean) => {
-        if (settled) return;
-        settled = true;
-        resolve(value);
-      };
-
-      // Open Cashfree's hosted checkout in a new tab so the customer stays on
-      // this page while we poll for the webhook confirmation.
-      const win = window.open(paymentLink, '_blank', 'noopener,noreferrer');
-      if (!win) {
-        setMessage('Could not open the payment window. Please allow pop-ups for this site.');
-        finish(false);
-        return;
-      }
-
-      void waitForPaidPayment(payment.id).then((paid) => {
-        setPaymentResult(paid ?? payment);
-        finish(paid !== null);
+    try {
+      // `_modal` keeps the customer on this page; the webhook still decides the
+      // outcome, so a dismissed modal simply polls out and leaves the order unpaid.
+      await cashfree.checkout({
+        paymentSessionId: payload.paymentSessionId,
+        redirectTarget: '_modal',
       });
+    } catch {
+      // Modal errors are expected when the customer closes it or the bank declines;
+      // the payment status poll below is the source of truth either way.
+    }
 
-      // If the customer closes the popup without paying, the poll above will
-      // time out and resolve false; treat a closed window the same way.
-      const pollClosed = setInterval(() => {
-        if (win.closed) {
-          clearInterval(pollClosed);
-          if (!settled) {
-            setPaymentResult(payment);
-            finish(false);
-          }
-        }
-      }, 2000);
-    });
+    const paid = await waitForPaidPayment(payment.id, 20);
+    setPaymentResult(paid ?? payment);
+    return paid !== null;
   }
 
   const placeOrder = useMutation({

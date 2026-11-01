@@ -1,35 +1,67 @@
 import { api } from '@/api/client';
 import type { ApiEnvelope, Payment } from '@/api/types';
 
-const CASHFREE_CHECKOUT_SRC = 'https://cdn.cashfree.com/js/cashfreejs/v1/cashfree.js';
+// Official Cashfree JS SDK (v3). Loaded from the CDN on demand so the storefront
+// ships no extra bundle weight and the gateway can be swapped per environment.
+const CASHFREE_SDK_SRC = 'https://sdk.cashfree.com/js/v3/cashfree.js';
 
-let scriptPromise: Promise<boolean> | null = null;
+export type CashfreeMode = 'sandbox' | 'production';
+
+export interface CashfreeCheckoutOptions {
+  paymentSessionId: string;
+  redirectTarget?: '_modal' | '_self' | '_blank';
+}
+
+export interface CashfreeCheckoutResult {
+  error?: boolean;
+  redirect?: boolean;
+  paymentDetails?: { paymentMessage?: string };
+}
+
+export interface CashfreeInstance {
+  checkout(options: CashfreeCheckoutOptions): Promise<CashfreeCheckoutResult> | void;
+}
+
+type CashfreeFactory = (options: { mode: CashfreeMode }) => CashfreeInstance;
+
+type CashfreeWindow = Window & { Cashfree?: CashfreeFactory };
+
+let scriptPromise: Promise<CashfreeFactory | null> | null = null;
 
 /**
- * Loads Cashfree.js once, on demand. Returns false when the script cannot be
- * fetched (offline, blocked by an extension), so callers can fall back to
- * opening the payment link directly.
+ * Loads the Cashfree JS SDK once, on demand. Resolves null when the script
+ * cannot be fetched (offline, blocked by an extension) so callers can tell the
+ * customer instead of hanging on a dead button.
  */
-export function loadCashfree(): Promise<boolean> {
-  if ((window as unknown as { CashfreeCheckout?: unknown }).CashfreeCheckout) {
-    return Promise.resolve(true);
-  }
+export function loadCashfree(): Promise<CashfreeFactory | null> {
+  const existing = (window as CashfreeWindow).Cashfree;
+  if (existing) return Promise.resolve(existing);
   if (scriptPromise) return scriptPromise;
 
-  scriptPromise = new Promise<boolean>((resolve) => {
+  scriptPromise = new Promise<CashfreeFactory | null>((resolve) => {
     const script = document.createElement('script');
-    script.src = CASHFREE_CHECKOUT_SRC;
+    script.src = CASHFREE_SDK_SRC;
     script.async = true;
-    script.onload = () =>
-      resolve(Boolean((window as unknown as { CashfreeCheckout?: unknown }).CashfreeCheckout));
+    script.onload = () => resolve((window as CashfreeWindow).Cashfree ?? null);
     script.onerror = () => {
       scriptPromise = null;
-      resolve(false);
+      resolve(null);
     };
     document.body.appendChild(script);
   });
 
   return scriptPromise;
+}
+
+/** Returns a checkout instance bound to the environment the intent was created in. */
+export async function getCashfree(mode: CashfreeMode): Promise<CashfreeInstance | null> {
+  const factory = await loadCashfree();
+  if (!factory) return null;
+  try {
+    return factory({ mode });
+  } catch {
+    return null;
+  }
 }
 
 export interface CashfreeClientPayload {
@@ -40,6 +72,7 @@ export interface CashfreeClientPayload {
   amount: number;
   currency: string;
   returnUrl: string;
+  mode: CashfreeMode;
 }
 
 /** Pulls the Cashfree hand-off details out of an intent's clientPayload. */
@@ -56,6 +89,7 @@ export function readCashfreePayload(
     amount,
     currency,
     returnUrl,
+    mode,
   } = raw as Record<string, unknown>;
   if (typeof orderId !== 'string' || typeof cfOrderId !== 'string') return null;
   if (typeof amount !== 'number') return null;
@@ -67,6 +101,7 @@ export function readCashfreePayload(
     amount,
     currency: typeof currency === 'string' ? currency : 'INR',
     returnUrl: typeof returnUrl === 'string' ? returnUrl : '',
+    mode: mode === 'production' ? 'production' : 'sandbox',
   };
 }
 
