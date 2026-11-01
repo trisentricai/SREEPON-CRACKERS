@@ -7,6 +7,7 @@ import '../features/auth/auth_provider.dart';
 import '../features/auth/presentation/login_screen.dart';
 import '../features/dashboard/dashboard_screen.dart';
 import '../features/analytics/analytics_screen.dart';
+import '../features/analytics/analytics_provider.dart';
 import '../features/products/products_screen.dart';
 import '../features/categories/categories_screen.dart';
 import '../features/orders/orders_screen.dart';
