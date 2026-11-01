@@ -174,9 +174,9 @@ class Spinner extends StatelessWidget {
   }
 }
 
-/// Small status badge.
-class Badge extends StatelessWidget {
-  const Badge({
+/// Small status chip (avoids clash with Material's Badge).
+class StatusChip extends StatelessWidget {
+  const StatusChip({
     super.key,
     required this.text,
     this.tone = 'slate',
