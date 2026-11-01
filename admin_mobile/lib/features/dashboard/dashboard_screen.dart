@@ -118,9 +118,10 @@ class DashboardScreen extends ConsumerWidget {
       sliver: LayoutBuilder(
         builder: (context, constraints) {
           // Responsive: 2 columns on small screens, 3 on medium, 4 on large
-          final crossAxisCount = constraints.maxWidth < 600
+          final width = MediaQuery.of(context).size.width;
+          final crossAxisCount = width < 600
               ? 2
-              : constraints.maxWidth < 900
+              : width < 900
                   ? 3
                   : 4;
           return SliverGrid(
