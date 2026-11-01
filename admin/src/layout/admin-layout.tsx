@@ -4,6 +4,7 @@ import { useAdminAuth } from '@/features/auth/context/admin-auth-context';
 
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard' },
+  { to: '/analytics', label: 'Analytics' },
   { to: '/products', label: 'Products' },
   { to: '/categories', label: 'Categories' },
   { to: '/orders', label: 'Orders' },
@@ -43,7 +44,7 @@ export function AdminLayout() {
       <aside className="flex w-60 shrink-0 flex-col border-r border-slate-200 bg-slate-900 text-slate-100">
         <div className="flex items-center gap-2 px-5 py-5">
           <span className="text-xl">🎇</span>
-          <span className="text-lg font-bold tracking-tight">SriPon Admin</span>
+          <span className="text-lg font-bold tracking-tight">Sreepon Admin</span>
         </div>
         <nav className="flex-1 space-y-1 px-3">
           {NAV_ITEMS.map((item) => (

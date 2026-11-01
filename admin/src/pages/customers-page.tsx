@@ -121,7 +121,7 @@ export function CustomersPage() {
                     </td>
                     <td className="px-4 py-3 text-slate-600">{customer.phone ?? '—'}</td>
                     <td className="px-4 py-3 text-slate-600">{customer.orderCount}</td>
-                    <td className="px-4 py-3"><Badge tone={STATUS_TONES[customer.status]}>{titleCase(customer.status)}</Badge></td>
+                    <td className="px-4 py-3"><Badge tone={STATUS_TONES[customer.status] ?? 'slate'}>{titleCase(customer.status)}</Badge></td>
                     <td className="px-4 py-3 text-slate-500">{formatDateTime(customer.createdAt)}</td>
                   </tr>
                 ))}
@@ -143,11 +143,11 @@ export function CustomersPage() {
             <div className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
               <div className="rounded-lg border border-slate-200 p-3">
                 <p className="text-xs text-slate-400">Orders</p>
-                <p className="mt-1 text-lg font-semibold text-slate-800">{detail.data.stats.orderCount}</p>
+                <p className="mt-1 text-lg font-semibold text-slate-800">{detail.data.stats?.orderCount ?? 0}</p>
               </div>
               <div className="rounded-lg border border-slate-200 p-3">
                 <p className="text-xs text-slate-400">Addresses</p>
-                <p className="mt-1 text-lg font-semibold text-slate-800">{detail.data.stats.addressCount}</p>
+                <p className="mt-1 text-lg font-semibold text-slate-800">{detail.data.stats?.addressCount ?? 0}</p>
               </div>
               <div className="rounded-lg border border-slate-200 p-3">
                 <p className="text-xs text-slate-400">Phone</p>
@@ -165,14 +165,14 @@ export function CustomersPage() {
                 <p className="text-sm text-slate-500">No orders yet.</p>
               )}
               <div className="space-y-2">
-                {(orders.data?.items ?? detail.data.recentOrders).map((order) => (
+                {(orders.data?.items ?? detail.data?.recentOrders ?? []).map((order) => (
                   <div key={order.id} className="flex items-center justify-between rounded-lg border border-slate-200 px-4 py-2 text-sm">
                     <div>
                       <p className="font-medium text-slate-800">{order.orderNumber}</p>
                       <p className="text-xs text-slate-400">{formatDateTime(order.createdAt)}</p>
                     </div>
                     <div className="flex items-center gap-3">
-                      <Badge tone={STATUS_TONES[order.status.toLowerCase()]}>{titleCase(order.status)}</Badge>
+                      <Badge tone="slate">{titleCase(order.status)}</Badge>
                       <span className="font-semibold text-slate-800">{formatMoney(order.grandTotal)}</span>
                     </div>
                   </div>

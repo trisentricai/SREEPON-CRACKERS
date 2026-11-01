@@ -3,6 +3,7 @@ import { AdminAuthProvider } from '@/features/auth/context/admin-auth-context';
 import { AdminLayout, RequireAdminAuth } from '@/layout/admin-layout';
 import { LoginPage } from '@/pages/login-page';
 import { DashboardPage } from '@/pages/dashboard-page';
+import { AnalyticsPage } from '@/pages/analytics-page';
 import { ProductsPage } from '@/pages/products-page';
 import { CategoriesPage } from '@/pages/categories-page';
 import { OrdersPage } from '@/pages/orders-page';
@@ -42,6 +43,7 @@ export const adminRouter = createBrowserRouter([
         element: shell,
         children: [
           { index: true, element: <DashboardPage /> },
+          { path: 'analytics', element: <AnalyticsPage /> },
           { path: 'products', element: <ProductsPage /> },
           { path: 'categories', element: <CategoriesPage /> },
           { path: 'orders', element: <OrdersPage /> },
