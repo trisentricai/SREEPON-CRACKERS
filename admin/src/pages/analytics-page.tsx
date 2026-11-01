@@ -11,37 +11,37 @@ function useAnalytics(days: DayRange) {
   const revenue = useQuery({
     queryKey: ['analytics-revenue', days],
     queryFn: async () => {
-      const { data } = await apiClient.get<ApiEnvelope<RevenuePoint[]>>('/admin/analytics/revenue', {
+      const { data } = await apiClient.get<ApiEnvelope<{ items: RevenuePoint[] }>>('/admin/analytics/revenue', {
         params: { days },
       });
-      return data.data;
+      return data.data?.items ?? [];
     },
   });
   const orders = useQuery({
     queryKey: ['analytics-orders', days],
     queryFn: async () => {
-      const { data } = await apiClient.get<ApiEnvelope<OrdersPoint[]>>('/admin/analytics/orders', {
+      const { data } = await apiClient.get<ApiEnvelope<{ items: OrdersPoint[] }>>('/admin/analytics/orders', {
         params: { days },
       });
-      return data.data;
+      return data.data?.items ?? [];
     },
   });
   const topProducts = useQuery({
     queryKey: ['analytics-top-products', days],
     queryFn: async () => {
-      const { data } = await apiClient.get<ApiEnvelope<TopProduct[]>>('/admin/analytics/top-products', {
+      const { data } = await apiClient.get<ApiEnvelope<{ items: TopProduct[] }>>('/admin/analytics/top-products', {
         params: { days, limit: 10 },
       });
-      return data.data;
+      return data.data?.items ?? [];
     },
   });
   const categories = useQuery({
     queryKey: ['analytics-categories', days],
     queryFn: async () => {
-      const { data } = await apiClient.get<ApiEnvelope<CategoryPerformance[]>>('/admin/analytics/categories', {
+      const { data } = await apiClient.get<ApiEnvelope<{ items: CategoryPerformance[]; total: number }>>('/admin/analytics/categories', {
         params: { days },
       });
-      return data.data;
+      return data.data?.items ?? [];
     },
   });
   return { revenue, orders, topProducts, categories };
