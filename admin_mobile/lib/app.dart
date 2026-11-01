@@ -11,6 +11,7 @@ import '../features/analytics/analytics_provider.dart';
 import '../features/products/products_screen.dart';
 import '../features/categories/categories_screen.dart';
 import '../features/orders/orders_screen.dart';
+import '../features/orders/order_detail_screen.dart';
 import '../features/customers/customers_screen.dart';
 import '../features/inventory/inventory_screen.dart';
 import '../features/coupons/coupons_screen.dart';
@@ -56,6 +57,7 @@ class SreeponAdminApp extends ConsumerWidget {
             GoRoute(path: '/products', builder: (context, state) => const ProductsScreen()),
             GoRoute(path: '/categories', builder: (context, state) => const CategoriesScreen()),
             GoRoute(path: '/orders', builder: (context, state) => const OrdersScreen()),
+            GoRoute(path: '/orders/:id', builder: (context, state) => OrderDetailScreen(orderId: state.pathParameters['id']!)),
             GoRoute(path: '/customers', builder: (context, state) => const CustomersScreen()),
             GoRoute(path: '/inventory', builder: (context, state) => const InventoryScreen()),
             GoRoute(path: '/coupons', builder: (context, state) => const CouponsScreen()),

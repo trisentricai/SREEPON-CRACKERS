@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:sreepon_admin/core/models/orders.dart';
 import 'package:sreepon_admin/core/network/api_client.dart';
 import 'package:sreepon_admin/core/theme/sreepon_admin_theme.dart';
@@ -13,6 +14,14 @@ final ordersProvider = FutureProvider<OrderListResponse>((ref) async {
     fromJson: (json) => json as Map<String, dynamic>,
   );
   return OrderListResponse.fromJson(data);
+});
+
+final orderDetailProvider = FutureProvider.family<Order, String>((ref, orderId) async {
+  final data = await api.get<Map<String, dynamic>>(
+    '/admin/orders/$orderId',
+    fromJson: (json) => json as Map<String, dynamic>,
+  );
+  return Order.fromJson(data);
 });
 
 class OrdersScreen extends ConsumerWidget {
@@ -102,9 +111,7 @@ class _OrderRow extends StatelessWidget {
             StatusChip(text: titleCase(order.status ?? ''), tone: 'slate'),
           ],
         ),
-        onTap: () {
-          // Navigate to order detail
-        },
+        onTap: () => GoRouter.of(context).push('/orders/${order.id}'),
       ),
     );
   }
