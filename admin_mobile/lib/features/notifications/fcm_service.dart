@@ -1,16 +1,11 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sreepon_admin/core/network/api_client.dart';
-import 'package:sreepon_admin/core/theme/sreepon_admin_theme.dart';
-
-import '../../config/env.dart';
 
 /// Token produced by FCM for this device.
 final fcmTokenProvider = StateProvider<String?>((ref) => null);
@@ -74,7 +69,12 @@ class FcmService {
     });
 
     // Get current FCM token and register with the backend.
-    final token = await _messaging!.getToken();
+    await registerDevice();
+  }
+
+  /// Re-register this device (call after sign-in, when the admin JWT is available).
+  Future<void> registerDevice() async {
+    final token = await _messaging?.getToken();
     if (token != null && token.isNotEmpty) {
       _ref.read(fcmTokenProvider.notifier).state = token;
       await _registerDevice(token);
@@ -119,7 +119,7 @@ class FcmService {
       message.hashCode,
       message.notification?.title ?? 'Sreepon Admin',
       message.notification?.body ?? '',
-      const NotificationDetails(android: null),
+      NotificationDetails(android: android),
       payload: message.data['route'] ?? '/notifications',
     );
   }

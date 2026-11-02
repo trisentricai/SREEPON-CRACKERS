@@ -10,6 +10,12 @@ import { ApiError } from '../../utils/http';
 import { toApiError } from '../../utils/prisma-errors';
 import { getPublicSettings } from '../settings/service';
 import { computeOrderTotals } from './pricing';
+import {
+  sendOrderConfirmationNotification,
+  sendOrderStatusNotification,
+} from '../notifications/service';
+import { createAdminNotification } from '../notifications/admin.service';
+import { sendAdminPush } from '../notifications/push.service';
 import type {
   AddAdminNoteInput,
   AdminListOrdersQuery,
@@ -419,7 +425,107 @@ export async function createOrder(userId: string, input: CreateOrderInput) {
       return order.id;
     });
 
-    return buildOrderView(await loadOrderDetail(prisma, orderId));
+    // Fetch full order with user details for notification
+    const createdOrder = await prisma.order.findUnique({
+      where: { id: orderId },
+      select: {
+        id: true,
+        orderNumber: true,
+        grandTotal: true,
+        currency: true,
+        userId: true,
+        user: { select: { email: true, name: true, phone: true } },
+        items: {
+          select: {
+            productName: true,
+            quantity: true,
+            lineTotal: true,
+          },
+        },
+      },
+    });
+
+    if (createdOrder && createdOrder.user) {
+      const items = createdOrder.items.map((item) => ({
+        name: item.productName,
+        quantity: item.quantity,
+        lineTotal: item.lineTotal.toFixed(2),
+      }));
+      await sendOrderConfirmationNotification(
+        createdOrder!.userId,
+        createdOrder.user?.email ?? null,
+        createdOrder.user?.phone ?? null,
+        createdOrder!.orderNumber,
+        createdOrder.user?.name ?? 'Customer',
+        createdOrder!.grandTotal.toFixed(2),
+        createdOrder!.currency,
+        items,
+      ).catch((err) => {
+        console.error('[Order Notification] Failed to send order confirmation:', err);
+      });
+    }
+
+    // Notify admins about new order (non-blocking)
+    const adminOrder = await prisma.order.findUnique({
+      where: { id: createdOrder!.id },
+      select: {
+        id: true,
+        orderNumber: true,
+        grandTotal: true,
+        currency: true,
+        items: {
+          select: {
+            productName: true,
+            quantity: true,
+            lineTotal: true,
+          },
+        },
+      },
+    });
+
+    if (adminOrder && adminOrder.items) {
+      const admins = await prisma.admin.findMany({
+        where: { isActive: true },
+        select: { id: true },
+      });
+      const title = `New Order #${adminOrder.orderNumber}`;
+      const body = `${createdOrder!.user?.name ?? 'Customer'} placed a new order for ${adminOrder.currency} ${adminOrder.grandTotal}`;
+
+      await Promise.all(
+        admins.map((admin) =>
+          createAdminNotification({
+            adminId: admin.id,
+            type: 'ORDER_CONFIRMED',
+            title,
+            body,
+            data: { orderNumber: adminOrder.orderNumber, type: 'ORDER_CONFIRMED' } as Record<string, unknown>,
+          }).catch((err) => {
+            console.error('[Admin Notification] Failed to notify admin:', admin.id, err);
+          }),
+        ),
+      );
+
+      // Push to the admin mobile app (no-op unless FCM_ADMIN_* is configured).
+      const adminIds = admins.map((admin) => admin.id);
+      if (adminIds.length > 0) {
+        const devices = await prisma.deviceToken.findMany({
+          where: { adminId: { in: adminIds } },
+          select: { token: true },
+        });
+        await sendAdminPush(
+          devices.map((device) => device.token),
+          {
+            title,
+            body,
+            data: { route: `/orders/${createdOrder!.id}`, orderNumber: adminOrder.orderNumber },
+          },
+        ).catch((err) => {
+          console.error('[Admin Notification] Push failed:', err);
+        });
+      }
+    }
+
+    return buildOrderView(await loadOrderDetail(prisma, createdOrder!.id));
   } catch (err) {
     throw toApiError(err, { resource: 'Order' });
   }
@@ -716,6 +822,43 @@ export async function updateOrderStatus(
     });
   });
 
+  // Send order status notification (non-blocking)
+  const orderForNotify = await prisma.order.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      orderNumber: true,
+      grandTotal: true,
+      currency: true,
+      userId: true,
+      user: { select: { email: true, name: true, phone: true } },
+    },
+  });
+
+  if (orderForNotify && orderForNotify.user) {
+    const items = await prisma.orderItem.findMany({
+      where: { orderId: id },
+      select: { productName: true, quantity: true, lineTotal: true },
+    });
+    await sendOrderNotification(
+      orderForNotify.userId,
+      orderForNotify.user?.email ?? null,
+      orderForNotify.user?.phone ?? null,
+      orderForNotify.orderNumber,
+      orderForNotify.user?.name ?? 'Customer',
+      to,
+      orderForNotify.grandTotal.toNumber(),
+      orderForNotify.currency,
+      items.map((item) => ({
+        name: item.productName,
+        quantity: item.quantity,
+        lineTotal: item.lineTotal.toNumber(),
+      })),
+    ).catch((err) => {
+      console.error('[Order Notification] Failed to send status update:', err);
+    });
+  }
+
   return getOrderForAdmin(id);
 }
 
@@ -769,6 +912,43 @@ export async function updateOrderPaymentStatus(
     });
   });
 
+  // Send payment status notification (non-blocking)
+  const orderForNotify = await prisma.order.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      orderNumber: true,
+      grandTotal: true,
+      currency: true,
+      userId: true,
+      user: { select: { email: true, name: true, phone: true } },
+    },
+  });
+
+  if (orderForNotify && orderForNotify.user) {
+    const items = await prisma.orderItem.findMany({
+      where: { orderId: id },
+      select: { productName: true, quantity: true, lineTotal: true },
+    });
+    await sendOrderNotification(
+      orderForNotify.userId,
+      orderForNotify.user?.email ?? null,
+      orderForNotify.user?.phone ?? null,
+      orderForNotify.orderNumber,
+      orderForNotify.user?.name ?? 'Customer',
+      to,
+      orderForNotify.grandTotal.toNumber(),
+      orderForNotify.currency,
+      items.map((item) => ({
+        name: item.productName,
+        quantity: item.quantity,
+        lineTotal: item.lineTotal.toNumber(),
+      })),
+    ).catch((err) => {
+      console.error('[Order Notification] Failed to send payment status update:', err);
+    });
+  }
+
   return getOrderForAdmin(id);
 }
 
@@ -782,4 +962,32 @@ export async function addOrderNote(adminId: string | null, id: string, input: Ad
 
   await prisma.order.update({ where: { id }, data: { notes } });
   return getOrderForAdmin(id);
+}
+
+/**
+ * Send order notification (email + SMS + in-app) when order status changes.
+ */
+async function sendOrderNotification(
+  userId: string,
+  email: string | null,
+  phone: string | null,
+  orderNumber: string,
+  customerName: string,
+  status: string,
+  grandTotal: number,
+  currency: string,
+  items: Array<{ name: string; quantity: number; lineTotal: number }>,
+) {
+  await sendOrderStatusNotification(
+    userId,
+    email,
+    phone,
+    orderNumber,
+    customerName,
+    status,
+    grandTotal.toFixed(2),
+    currency,
+  ).catch((err) => {
+    console.error('[Order Notification] Failed to send notification:', err);
+  });
 }

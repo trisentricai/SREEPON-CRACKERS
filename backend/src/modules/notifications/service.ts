@@ -1,6 +1,9 @@
+import { Prisma } from '@prisma/client';
 import { prisma } from '../../infrastructure/prisma';
 import { ApiError } from '../../utils/http';
 import type { ListNotificationsQuery, RegisterDeviceInput } from './schema';
+import { orderConfirmationEmail, orderStatusEmail, sendEmail } from './email.service';
+import { orderConfirmationSms, orderStatusSms, sendSms } from './sms.service';
 
 const notificationSelect = {
   id: true,
@@ -67,4 +70,113 @@ export async function registerDeviceToken(userId: string, input: RegisterDeviceI
 
 export async function unregisterDeviceToken(userId: string, token: string) {
   await prisma.deviceToken.deleteMany({ where: { userId, token } });
+}
+
+/**
+ * Send order confirmation email and SMS to the customer.
+ * Creates an in-app notification record as well.
+ */
+export async function sendOrderConfirmationNotification(
+  userId: string,
+  email: string | null,
+  phone: string | null,
+  orderNumber: string,
+  customerName: string,
+  grandTotal: string,
+  currency: string,
+  items: Array<{ name: string; quantity: number; lineTotal: string }>,
+) {
+  const results: Record<string, boolean | undefined> = {};
+
+  // Create in-app notification
+  await prisma.notification.create({
+    data: {
+      userId,
+      type: 'ORDER_CONFIRMED',
+      title: `Order Confirmed - ${orderNumber}`,
+      body: `Your order #${orderNumber} has been confirmed. Total: ${currency} ${grandTotal}`,
+      data: { orderNumber, type: 'ORDER_CONFIRMED' } as Prisma.InputJsonValue,
+    },
+  });
+
+  // Send email
+  if (email) {
+    const { html, text } = orderConfirmationEmail(
+      orderNumber,
+      customerName,
+      grandTotal,
+      currency,
+      items,
+    );
+    results.email = await sendEmail({
+      to: email,
+      subject: `Order Confirmation - ${orderNumber}`,
+      html,
+      text,
+    });
+  }
+
+  // Send SMS
+  if (phone) {
+    results.sms = await sendSms({
+      to: phone,
+      message: orderConfirmationSms(orderNumber, customerName, grandTotal, currency),
+    });
+  }
+
+  return results;
+}
+
+/**
+ * Send order status update notification (email + SMS + in-app).
+ */
+export async function sendOrderStatusNotification(
+  userId: string,
+  email: string | null,
+  phone: string | null,
+  orderNumber: string,
+  customerName: string,
+  status: string,
+  grandTotal: string,
+  currency: string,
+) {
+  const results: Record<string, boolean | undefined> = {};
+
+  // Create in-app notification
+  await prisma.notification.create({
+    data: {
+      userId,
+      type: 'ORDER_STATUS_CHANGED',
+      title: `Order Status Updated - ${orderNumber}`,
+      body: `Your order #${orderNumber} status has been updated to ${status}`,
+      data: { orderNumber, type: 'ORDER_STATUS_CHANGED', status } as Prisma.InputJsonValue,
+    },
+  });
+
+  // Send email
+  if (email) {
+    const { html, text } = orderStatusEmail(
+      orderNumber,
+      customerName,
+      status,
+      grandTotal,
+      currency,
+    );
+    results.email = await sendEmail({
+      to: email,
+      subject: `Order Status Update: ${status} - ${orderNumber}`,
+      html,
+      text,
+    });
+  }
+
+  // Send SMS
+  if (phone) {
+    results.sms = await sendSms({
+      to: phone,
+      message: orderStatusSms(orderNumber, customerName, status),
+    });
+  }
+
+  return results;
 }

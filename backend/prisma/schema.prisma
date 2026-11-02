@@ -113,6 +113,8 @@ enum NotificationType {
   PAYMENT
   PROMOTIONAL
   SYSTEM
+  ORDER_CONFIRMED
+  ORDER_STATUS_CHANGED
 }
 
 enum AuditAction {

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "424126502999",
+    "project_id": "admin-sreepon",
+    "storage_bucket": "admin-sreepon.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:424126502999:android:7c5e6f838cd4e8b216eb12",
+        "android_client_info": {
+          "package_name": "com.sreepon"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4vnCxfwR2JnZJqvjtgimp6PeVDybTDtg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

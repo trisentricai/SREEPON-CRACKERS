@@ -44,6 +44,26 @@ export const socialSettingsSchema = z.object({
   whatsappNumber: z.string().max(30).nullable().optional(),
 });
 
+export const notificationSettingsSchema = z.object({
+  smtpHost: z.string().trim().max(255).optional(),
+  smtpPort: z.coerce.number().min(1).max(65535).optional(),
+  smtpSecure: z.boolean().optional(),
+  smtpUser: z.string().trim().max(255).optional(),
+  smtpPass: z.string().trim().max(255).optional(),
+  smtpFrom: z.string().trim().email('From email must be a valid email address').max(255).optional(),
+  smtpFromName: z.string().trim().max(100).optional(),
+  twilioAccountSid: z.string().trim().max(255).optional(),
+  twilioAuthToken: z.string().trim().max(255).optional(),
+  twilioFromNumber: z.string().trim().max(50).optional(),
+  msg91AuthKey: z.string().trim().max(255).optional(),
+  msg91SenderId: z.string().trim().max(11).optional(),
+  smsApiUrl: z.string().trim().url().max(255).optional(),
+  smsApiKey: z.string().trim().max(255).optional(),
+  smsFrom: z.string().trim().max(50).optional(),
+  emailNotificationsEnabled: z.boolean().optional(),
+  smsNotificationsEnabled: z.boolean().optional(),
+});
+
 export const legalPageSchema = z.object({
   title: z.string().min(1, 'Page title is required').max(200),
   body: z.string().max(100000),
@@ -70,15 +90,25 @@ export const updateSettingsSchema = z
     tax: taxSettingsSchema.optional(),
     social: socialSettingsSchema.optional(),
     legal: legalSettingsSchema.optional(),
+    notification: notificationSettingsSchema.optional(),
   })
   .superRefine((data, ctx) => {
-    if (!data.store && !data.delivery && !data.tax && !data.social && !data.legal) {
+    if (
+      !data.store &&
+      !data.delivery &&
+      !data.tax &&
+      !data.social &&
+      !data.legal &&
+      !data.notification
+    ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: 'Provide at least one settings group to update',
       });
     }
   });
+
+export type NotificationSettingsInput = z.infer<typeof notificationSettingsSchema>;
 
 export type StoreSettingsInput = z.infer<typeof storeSettingsSchema>;
 export type DeliverySettingsInput = z.infer<typeof deliverySettingsSchema>;

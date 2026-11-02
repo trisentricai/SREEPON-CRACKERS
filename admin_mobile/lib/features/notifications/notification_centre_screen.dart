@@ -35,7 +35,7 @@ class NotificationItem {
   final String? route;
 }
 
-final notificationsProvider = FutureProvider<List<NotificationItem>>((ref) async {
+final notificationsProvider = FutureProvider.autoDispose<List<NotificationItem>>((ref) async {
   final data = await api.get<Map<String, dynamic>>(
     '/admin/notifications',
     query: {'page': 1, 'limit': 50},
@@ -60,7 +60,7 @@ class _NotificationCentreScreenState extends ConsumerState<NotificationCentreScr
       path: '/admin/notifications/$id/read',
       fromJson: (json) => json,
     );
-    ref.refresh(notificationsProvider);
+    ref.invalidate(notificationsProvider);
     ref.read(unreadCountProvider.notifier).state =
         (ref.read(unreadCountProvider) > 0 ? ref.read(unreadCountProvider) - 1 : 0);
   }
@@ -71,47 +71,54 @@ class _NotificationCentreScreenState extends ConsumerState<NotificationCentreScr
     final unread = ref.watch(unreadCountProvider);
 
     return Scaffold(
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
-              child: Row(
-                children: [
-                  Text('Notifications',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: SreeponAdminTheme.slate900,
-                          )),
-                  const Spacer(),
-                  if (unread > 0)
-                    TextButton.icon(
-                      onPressed: () async {
-                        await api.patch(
-                          path: '/admin/notifications/read-all',
-                          fromJson: (json) => json,
-                        );
-                        ref.refresh(notificationsProvider);
-                        ref.read(unreadCountProvider.notifier).state = 0;
-                      },
-                      label: const Text('Mark all read'),
-                      icon: const Icon(Icons.mark_as_unread, size: 18),
-                    ),
-                ],
+      body: RefreshIndicator(
+        onRefresh: () async {
+          ref.invalidate(notificationsProvider);
+          await ref.read(fcmServiceProvider).refreshBadge();
+        },
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: Row(
+                  children: [
+                    Text('Notifications',
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: SreeponAdminTheme.slate900,
+                            )),
+                    const Spacer(),
+                    if (unread > 0)
+                      TextButton.icon(
+                        onPressed: () async {
+                          await api.patch(
+                            path: '/admin/notifications/read-all',
+                            fromJson: (json) => json,
+                          );
+                          ref.invalidate(notificationsProvider);
+                          ref.read(unreadCountProvider.notifier).state = 0;
+                        },
+                        label: const Text('Mark all read'),
+                        icon: const Icon(Icons.mark_as_unread, size: 18),
+                      ),
+                  ],
+                ),
               ),
             ),
-          ),
-          async.when(
-            data: (items) => _buildList(context, items),
-            loading: () => const SliverFillRemaining(child: Spinner()),
-            error: (e, _) => SliverFillRemaining(
-              child: ErrorState(
-                message: e is ApiException ? e.message : 'Failed to load notifications',
-                onRetry: () => ref.refresh(notificationsProvider),
+            async.when(
+              data: (items) => _buildList(context, items),
+              loading: () => const SliverFillRemaining(child: Spinner()),
+              error: (e, _) => SliverFillRemaining(
+                child: ErrorState(
+                  message: e is ApiException ? e.message : 'Failed to load notifications',
+                  onRetry: () => ref.invalidate(notificationsProvider),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

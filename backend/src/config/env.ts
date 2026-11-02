@@ -47,6 +47,12 @@ const envSchema = z.object({
   // When "true", checks Firebase ID token revocation via Identity Toolkit
   // on every authenticated request (adds ~1 network round-trip).
   FIREBASE_CHECK_REVOCATION: z.string().default(''),
+  // Service account for the *admin* Firebase project (`admin-sreepon`), used to
+  // deliver FCM push notifications to the admin mobile app. Optional: when
+  // absent, push delivery is skipped and only in-app notifications are stored.
+  FCM_ADMIN_PROJECT_ID: z.string().optional(),
+  FCM_ADMIN_CLIENT_EMAIL: z.string().optional(),
+  FCM_ADMIN_PRIVATE_KEY: z.string().optional(),
 
   SUPABASE_URL: z.string().optional(),
   SUPABASE_ANON_KEY: z.string().optional(),

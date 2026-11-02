@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,7 +9,7 @@ import '../features/auth/auth_provider.dart';
 import '../features/auth/presentation/login_screen.dart';
 import '../features/dashboard/dashboard_screen.dart';
 import '../features/analytics/analytics_screen.dart';
-import '../features/analytics/analytics_provider.dart';
+import '../features/products/product_form_screen.dart';
 import '../features/products/products_screen.dart';
 import '../features/categories/categories_screen.dart';
 import '../features/orders/orders_screen.dart';
@@ -55,6 +57,8 @@ class SreeponAdminApp extends ConsumerWidget {
             GoRoute(path: '/', builder: (context, state) => const DashboardScreen()),
             GoRoute(path: '/analytics', builder: (context, state) => const AnalyticsScreen()),
             GoRoute(path: '/products', builder: (context, state) => const ProductsScreen()),
+            GoRoute(path: '/products/create', builder: (context, state) => const ProductFormScreen()),
+            GoRoute(path: '/products/:id/edit', builder: (context, state) => ProductFormScreen(productId: state.pathParameters['id']!)),
             GoRoute(path: '/categories', builder: (context, state) => const CategoriesScreen()),
             GoRoute(path: '/orders', builder: (context, state) => const OrdersScreen()),
             GoRoute(path: '/orders/:id', builder: (context, state) => OrderDetailScreen(orderId: state.pathParameters['id']!)),
@@ -91,6 +95,7 @@ class _AdminShell extends ConsumerStatefulWidget {
 
 class _AdminShellState extends ConsumerState<_AdminShell> {
   int _selectedIndex = 0;
+  Timer? _notificationPoller;
 
   static const List<_NavItem> _items = [
     _NavItem(label: 'Dashboard', icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard, route: '/'),
@@ -118,6 +123,18 @@ class _AdminShellState extends ConsumerState<_AdminShell> {
       if (mounted) context.go(route);
     };
     ref.read(fcmServiceProvider).refreshBadge();
+    ref.read(fcmServiceProvider).registerDevice();
+    // Poll for unread notifications so new orders surface while the app is open.
+    _notificationPoller = Timer.periodic(const Duration(seconds: 30), (_) {
+      if (!mounted) return;
+      ref.read(fcmServiceProvider).refreshBadge();
+    });
+  }
+
+  @override
+  void dispose() {
+    _notificationPoller?.cancel();
+    super.dispose();
   }
 
   @override
@@ -148,7 +165,7 @@ class _AdminShellState extends ConsumerState<_AdminShell> {
                 selected: active,
                 onTap: () => _onDrawerItem(item.route),
               );
-            }).toList(),
+            }),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.notifications_outlined, color: SreeponAdminTheme.slate600),

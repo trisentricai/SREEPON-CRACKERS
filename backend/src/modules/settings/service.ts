@@ -5,6 +5,7 @@ import type {
   DeliverySettingsInput,
   LegalPageKey,
   LegalSettingsInput,
+  NotificationSettingsInput,
   SettingsAuditContext,
   StoreSettingsInput,
   TaxSettingsInput,
@@ -22,9 +23,32 @@ const GROUP_KEYS = {
   tax: 'settings.tax',
   social: 'settings.social',
   legal: 'settings.legal',
+  notification: 'settings.notification',
 } as const;
 
 export { GROUP_KEYS };
+
+// --- Defaults ---------------------------------------------------------------
+
+const DEFAULT_NOTIFICATION = {
+  smtpHost: null,
+  smtpPort: 587,
+  smtpSecure: false,
+  smtpUser: null,
+  smtpPass: null,
+  smtpFrom: null,
+  smtpFromName: 'Sreepon',
+  twilioAccountSid: null,
+  twilioAuthToken: null,
+  twilioFromNumber: null,
+  msg91AuthKey: null,
+  msg91SenderId: null,
+  smsApiUrl: null,
+  smsApiKey: null,
+  smsFrom: null,
+  emailNotificationsEnabled: false,
+  smsNotificationsEnabled: false,
+} as const;
 
 // --- Views & defaults ----------------------------------------------------
 
@@ -140,8 +164,16 @@ export async function getLegalSettings() {
 }
 
 export async function getAllSettings() {
-  const [publicSettings, legal] = await Promise.all([getPublicSettings(), getLegalSettings()]);
-  return { ...publicSettings, legal };
+  const [publicSettings, legal, notification] = await Promise.all([
+    getPublicSettings(),
+    getLegalSettings(),
+    getStoredJson(GROUP_KEYS.notification),
+  ]);
+  return {
+    ...publicSettings,
+    legal,
+    notification: mergeGroup(DEFAULT_NOTIFICATION, notification),
+  };
 }
 
 // --- Mutations -----------------------------------------------------------
@@ -206,6 +238,28 @@ async function normalizeLegal(input: LegalSettingsInput): Promise<Record<string,
   };
 }
 
+function normalizeNotification(input: NotificationSettingsInput): Record<string, unknown> {
+  const notification: Record<string, unknown> = {};
+  if (input.smtpHost !== undefined) notification.smtpHost = input.smtpHost;
+  if (input.smtpPort !== undefined) notification.smtpPort = input.smtpPort;
+  if (input.smtpSecure !== undefined) notification.smtpSecure = input.smtpSecure;
+  if (input.smtpUser !== undefined) notification.smtpUser = input.smtpUser;
+  if (input.smtpPass !== undefined) notification.smtpPass = input.smtpPass;
+  if (input.smtpFrom !== undefined) notification.smtpFrom = input.smtpFrom;
+  if (input.smtpFromName !== undefined) notification.smtpFromName = input.smtpFromName;
+  if (input.twilioAccountSid !== undefined) notification.twilioAccountSid = input.twilioAccountSid;
+  if (input.twilioAuthToken !== undefined) notification.twilioAuthToken = input.twilioAuthToken;
+  if (input.twilioFromNumber !== undefined) notification.twilioFromNumber = input.twilioFromNumber;
+  if (input.msg91AuthKey !== undefined) notification.msg91AuthKey = input.msg91AuthKey;
+  if (input.msg91SenderId !== undefined) notification.msg91SenderId = input.msg91SenderId;
+  if (input.smsApiUrl !== undefined) notification.smsApiUrl = input.smsApiUrl;
+  if (input.smsApiKey !== undefined) notification.smsApiKey = input.smsApiKey;
+  if (input.smsFrom !== undefined) notification.smsFrom = input.smsFrom;
+  if (input.emailNotificationsEnabled !== undefined) notification.emailNotificationsEnabled = input.emailNotificationsEnabled;
+  if (input.smsNotificationsEnabled !== undefined) notification.smsNotificationsEnabled = input.smsNotificationsEnabled;
+  return notification;
+}
+
 export async function updateSettings(input: UpdateSettingsInput, ctx: SettingsAuditContext) {
   const changed: string[] = [];
 
@@ -228,6 +282,10 @@ export async function updateSettings(input: UpdateSettingsInput, ctx: SettingsAu
   if (input.legal) {
     await upsertGroup(GROUP_KEYS.legal, await normalizeLegal(input.legal));
     changed.push('legal');
+  }
+  if (input.notification) {
+    await upsertGroup(GROUP_KEYS.notification, normalizeNotification(input.notification));
+    changed.push('notification');
   }
 
   await prisma.auditLog.create({

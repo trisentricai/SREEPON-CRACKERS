@@ -45,6 +45,9 @@ class Order {
     required this.createdAt,
     this.currency,
     this.items,
+    this.address,
+    this.customer,
+    this.notes,
   });
 
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -59,6 +62,9 @@ class Order {
       items: (json['items'] as List<dynamic>?)
           ?.map((e) => OrderItem.fromJson(e as Map<String, dynamic>))
           .toList(),
+      address: json['address'] as Map<String, dynamic>?,
+      customer: json['customer'] as Map<String, dynamic>?,
+      notes: json['notes'] as String?,
     );
   }
 
@@ -70,6 +76,9 @@ class Order {
   final String? createdAt;
   final String? currency;
   final List<OrderItem>? items;
+  final Map<String, dynamic>? address;
+  final Map<String, dynamic>? customer;
+  final String? notes;
 }
 
 class OrderListResponse {

@@ -106,6 +106,8 @@ export const NotificationType = {
   PAYMENT: 'PAYMENT',
   PROMOTIONAL: 'PROMOTIONAL',
   SYSTEM: 'SYSTEM',
+  ORDER_CONFIRMED: 'ORDER_CONFIRMED',
+  ORDER_STATUS_CHANGED: 'ORDER_STATUS_CHANGED',
 } as const;
 export type NotificationType = (typeof NotificationType)[keyof typeof NotificationType];
 
