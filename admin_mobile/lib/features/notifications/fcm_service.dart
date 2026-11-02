@@ -20,6 +20,15 @@ class FcmService {
   final Ref _ref;
   FirebaseMessaging? _messaging;
   FlutterLocalNotificationsPlugin? _localNotifications;
+  String? _pendingRoute;
+
+  /// Route carried by the notification that cold-started the app. Consumed
+  /// once by the shell after the router is ready.
+  String? takePendingRoute() {
+    final route = _pendingRoute;
+    _pendingRoute = null;
+    return route;
+  }
 
   /// Initialize FCM. Call once at app startup (Firebase is initialized in main.dart).
   Future<void> init() async {
@@ -68,6 +77,27 @@ class FcmService {
       _handleNotificationTap(message.data['route'] ?? '/notifications');
     });
 
+    // FCM rotates tokens; re-register so pushes keep flowing without a restart.
+    _messaging!.onTokenRefresh.listen((token) {
+      _ref.read(fcmTokenProvider.notifier).state = token;
+      _registerDevice(token);
+    });
+
+    // Notification that launched the app from a terminated state — keep the
+    // route until the router has mounted (see takePendingRoute).
+    final initialMessage = await _messaging!.getInitialMessage();
+    final initialRoute = initialMessage?.data['route'];
+    if (initialRoute is String && initialRoute.isNotEmpty) {
+      _pendingRoute = initialRoute;
+      // FCM init runs after the first frame, so the shell has usually wired its
+      // handler already. Otherwise the shell consumes it when it mounts.
+      final handler = onNotificationTap;
+      if (handler != null) {
+        _pendingRoute = null;
+        handler(initialRoute);
+      }
+    }
+
     // Get current FCM token and register with the backend.
     await registerDevice();
   }
@@ -89,8 +119,10 @@ class FcmService {
         fromJson: (json) => json,
       );
       await _refreshUnreadCount();
-    } catch (_) {
-      // Registration may fail if the user isn't an admin; ignore silently.
+    } catch (error) {
+      // Registration may fail if the user isn't an admin; ignore so the app
+      // keeps working, but keep a breadcrumb for debugging.
+      debugPrint('FCM device registration failed: $error');
     }
   }
 

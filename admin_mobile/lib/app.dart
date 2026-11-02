@@ -122,6 +122,13 @@ class _AdminShellState extends ConsumerState<_AdminShell> {
     ref.read(fcmServiceProvider).onNotificationTap = (route) {
       if (mounted) context.go(route);
     };
+    // Cold-start deep link: a notification tap that launched the app.
+    final pendingRoute = ref.read(fcmServiceProvider).takePendingRoute();
+    if (pendingRoute != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) context.go(pendingRoute);
+      });
+    }
     ref.read(fcmServiceProvider).refreshBadge();
     ref.read(fcmServiceProvider).registerDevice();
     // Poll for unread notifications so new orders surface while the app is open.
