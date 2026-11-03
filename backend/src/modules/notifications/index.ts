@@ -16,9 +16,10 @@ import {
   markAdminNotificationRead,
   markAllAdminNotificationsRead,
   registerAdminDevice,
+  sweepOrders,
   unregisterAdminDevice,
 } from './admin.controller';
-import { listNotificationsQuerySchema, registerDeviceSchema } from './schema';
+import { listNotificationsQuerySchema, registerDeviceSchema, sweepOrdersSchema } from './schema';
 
 /**
  * Customer notifications (FCM-backed storage). Push delivery subscribes to
@@ -73,4 +74,11 @@ notificationsRouter.delete(
   requireSupabase(),
   requireAdminRoles(AdminRole.SUPER_ADMIN, AdminRole.ADMIN, AdminRole.ORDER_MANAGER),
   unregisterAdminDevice,
+);
+notificationsRouter.post(
+  '/admin/notifications/sweep-orders',
+  requireSupabase(),
+  requireAdminRoles(AdminRole.SUPER_ADMIN, AdminRole.ADMIN),
+  validate({ body: sweepOrdersSchema }),
+  sweepOrders,
 );

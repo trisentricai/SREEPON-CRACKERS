@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:sreepon_admin/core/models/orders.dart';
 import 'package:sreepon_admin/core/network/api_client.dart';
 import 'orders_screen.dart' show orderDetailProvider;
@@ -329,12 +328,12 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                                 'note': _noteController.text,
                               }).future);
                               _noteController.clear();
-                              if (mounted) {
+                              if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                       content: Text('Note added'), backgroundColor: SreeponAdminTheme.green600),
                                 );
-                                ref.refresh(orderDetailProvider(widget.orderId));
+                                ref.invalidate(orderDetailProvider(widget.orderId));
                               }
                             },
                       child: const Text('Add'),
@@ -366,7 +365,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                     SnackBar(
                         content: Text('Status set to $label'), backgroundColor: SreeponAdminTheme.green600),
                   );
-                  ref.refresh(orderDetailProvider(widget.orderId));
+                  ref.invalidate(orderDetailProvider(widget.orderId));
                 }
               },
               child: const Text('Set'),
@@ -390,7 +389,7 @@ class _OrderDetailScreenState extends ConsumerState<OrderDetailScreen> {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(content: Text('Payment set to $label'), backgroundColor: SreeponAdminTheme.green600),
                   );
-                  ref.refresh(orderDetailProvider(widget.orderId));
+                  ref.invalidate(orderDetailProvider(widget.orderId));
                 }
               },
               child: const Text('Set'),

@@ -59,10 +59,15 @@ CORS_ORIGINS = "https://sreepon.in,https://www.sreepon.in,https://sreepon-cracke
 binding = "KV"
 id = "87bf7e00883b4b109ad58d6203ed4793"
 
-# Scheduled maintenance (Cloudflare Cron Triggers → `scheduled` in worker.mjs).
-# Every 30 minutes is plenty; the job is idempotent and cancels unpaid online
-# orders past ORDER_PAYMENT_WINDOW_MINUTES, releasing their reserved stock.
+# Scheduled work (Cloudflare Cron Triggers -> `scheduled` in worker.mjs).
+# The account plan allows 5 cron triggers in total, so the 2-minute slot does
+# double duty instead of adding a fourth entry on this Worker.
+#   */2  keep-alive ping + new-order sweep: backfill admin notifications and
+#        push for recent orders that missed the inline notification path.
+#   */10 deploy-check: redeploy when the latest commit is not live.
+#   */30 order expiry: cancel unpaid online orders past
+#        ORDER_PAYMENT_WINDOW_MINUTES and release their reserved stock.
 # Times are UTC. Adjust (or add entries) here and redeploy; the dashboard's
 # Cron Triggers tab shows each run's success/error.
 [triggers]
-crons = ["*/30 * * * *", "*/5 * * * *", "*/10 * * * *"]
+crons = ["*/2 * * * *", "*/10 * * * *", "*/30 * * * *"]

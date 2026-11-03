@@ -29,13 +29,13 @@ categoriesRouter.use(
 categoriesRouter.get('/admin/categories', validate({ query: listCategoriesQuerySchema }), controller.listAdminCategories);
 categoriesRouter.post('/admin/categories', validate({ body: createCategorySchema }), controller.createCategory);
 categoriesRouter.patch(
+  '/admin/categories/reorder',
+  validate({ body: reorderCategoriesSchema }),
+  controller.reorderCategories,
+);
+categoriesRouter.patch(
   '/admin/categories/:id',
   validate({ body: updateCategorySchema }),
   controller.updateCategory,
 );
 categoriesRouter.delete('/admin/categories/:id', controller.deleteCategory);
-categoriesRouter.patch(
-  '/admin/categories/reorder',
-  validate({ body: reorderCategoriesSchema }),
-  controller.reorderCategories,
-);

@@ -159,6 +159,16 @@ export async function getPublishedById(id: string) {
   return product;
 }
 
+/** Full product record for the admin dashboard, published or not. */
+export async function getForAdmin(id: string) {
+  const product = await prisma.product.findUnique({
+    where: { id },
+    select: catalogSelect,
+  });
+  if (!product) throw ApiError.notFound('Product not found');
+  return product;
+}
+
 export async function listForAdmin(query: AdminProductQuery) {
   const categoryIds = await resolveCategoryScope(query.category);
 
@@ -222,7 +232,9 @@ export async function createProduct(input: CreateProductInput) {
           isActive: input.isActive,
           isFeatured: input.isFeatured,
           minimumAge: input.minimumAge ?? null,
-          isApproved: input.isApproved ?? false,
+          // Products are only created through the admin routes, so they are
+          // published by default; the admin can still pass isApproved: false.
+          isApproved: input.isApproved ?? true,
         },
         select: catalogSelect,
       });

@@ -59,7 +59,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<AdminUser?>> {
         id: user.id,
         email: user.email ?? '',
         name: user.userMetadata?['name'],
-        role: _roleFromMetadata(user.appMetadata ?? {}),
+        role: _roleFromMetadata(user.appMetadata),
       ));
     });
   }
@@ -76,7 +76,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<AdminUser?>> {
         id: user.id,
         email: user.email ?? '',
         name: user.userMetadata?['name'],
-        role: _roleFromMetadata(user.appMetadata ?? {}),
+        role: _roleFromMetadata(user.appMetadata),
       ));
     } catch (_) {
       state = const AsyncValue.data(null);
@@ -107,7 +107,7 @@ class AuthNotifier extends StateNotifier<AsyncValue<AdminUser?>> {
         id: response.user!.id,
         email: response.user!.email ?? email,
         name: response.user!.userMetadata?['name'],
-        role: _roleFromMetadata(response.user!.appMetadata ?? {}),
+        role: _roleFromMetadata(response.user!.appMetadata),
       ));
     } on AuthException catch (e) {
       state = AsyncValue.error(e.message, StackTrace.empty);

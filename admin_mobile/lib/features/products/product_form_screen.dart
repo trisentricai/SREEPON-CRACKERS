@@ -6,180 +6,36 @@ import 'package:image_picker/image_picker.dart';
 import 'package:sreepon_admin/core/models/products.dart';
 import 'package:sreepon_admin/core/network/api_client.dart';
 import 'package:sreepon_admin/core/theme/sreepon_admin_theme.dart';
-import 'package:sreepon_admin/core/utils/format.dart';
 import 'package:sreepon_admin/core/widgets/widgets.dart';
 import 'package:sreepon_admin/features/notifications/media_provider.dart';
 
-final productFormProvider = StateNotifierProvider.autoDispose<ProductFormNotifier, ProductFormState>((ref) {
-  return ProductFormNotifier(ref);
-});
+/// Minimal category record for the product form dropdown.
+class AdminCategory {
+  const AdminCategory({required this.id, required this.name, this.isActive = true});
 
-class ProductFormState {
-  const ProductFormState({
-    this.name = '',
-    this.slug = '',
-    this.sku = '',
-    this.description = '',
-    this.shortDescription = '',
-    this.categoryId = '',
-    this.basePrice = '',
-    this.unit = 'BOX',
-    this.isActive = true,
-    this.isFeatured = false,
-    this.imageBytes,
-    this.imageFileName,
-    this.existingImageUrl,
-    this.isLoading = false,
-    this.error,
-  });
+  factory AdminCategory.fromJson(Map<String, dynamic> json) {
+    return AdminCategory(
+      id: json['id'] as String,
+      name: (json['name'] ?? '') as String,
+      isActive: json['isActive'] != false,
+    );
+  }
 
+  final String id;
   final String name;
-  final String slug;
-  final String sku;
-  final String description;
-  final String shortDescription;
-  final String categoryId;
-  final String basePrice;
-  final String unit;
   final bool isActive;
-  final bool isFeatured;
-  final Uint8List? imageBytes;
-  final String? imageFileName;
-  final String? existingImageUrl;
-  final bool isLoading;
-  final String? error;
-
-  ProductFormState copyWith({
-    String? name,
-    String? slug,
-    String? sku,
-    String? description,
-    String? shortDescription,
-    String? categoryId,
-    String? basePrice,
-    String? unit,
-    bool? isActive,
-    bool? isFeatured,
-    Uint8List? imageBytes,
-    String? imageFileName,
-    String? existingImageUrl,
-    bool? isLoading,
-    String? error,
-  }) {
-    return ProductFormState(
-      name: name ?? this.name,
-      slug: slug ?? this.slug,
-      sku: sku ?? this.sku,
-      description: description ?? this.description,
-      shortDescription: shortDescription ?? this.shortDescription,
-      categoryId: categoryId ?? this.categoryId,
-      basePrice: basePrice ?? this.basePrice,
-      unit: unit ?? this.unit,
-      isActive: isActive ?? this.isActive,
-      isFeatured: isFeatured ?? this.isFeatured,
-      imageBytes: imageBytes ?? this.imageBytes,
-      imageFileName: imageFileName ?? this.imageFileName,
-      existingImageUrl: existingImageUrl ?? this.existingImageUrl,
-      isLoading: isLoading ?? this.isLoading,
-      error: error ?? this.error,
-    );
-  }
 }
 
-class ProductFormNotifier extends StateNotifier<ProductFormState> {
-  ProductFormNotifier(this.ref) : super(const ProductFormState());
-
-  final Ref ref;
-
-  void setField({
-    String? name,
-    String? slug,
-    String? sku,
-    String? description,
-    String? shortDescription,
-    String? categoryId,
-    String? basePrice,
-    String? unit,
-    bool? isActive,
-    bool? isFeatured,
-  }) {
-    state = state.copyWith(
-      name: name,
-      slug: slug,
-      sku: sku,
-      description: description,
-      shortDescription: shortDescription,
-      categoryId: categoryId,
-      basePrice: basePrice,
-      unit: unit,
-      isActive: isActive,
-      isFeatured: isFeatured,
-    );
-  }
-
-  void setImage(Uint8List bytes, String fileName) {
-    state = state.copyWith(imageBytes: bytes, imageFileName: fileName);
-  }
-
-  void clearImage() {
-    state = state.copyWith(imageBytes: null, imageFileName: null);
-  }
-
-  Future<bool> save({String? productId}) async {
-    state = state.copyWith(isLoading: true, error: null);
-    try {
-      String? imageUrl;
-      if (state.imageBytes != null && state.imageFileName != null) {
-        final policy = await ref.read(signUploadProvider({
-          'folder': 'sreepon/products',
-          'resourceType': 'image',
-        }).future);
-        final uploadResult = await uploadImageToCloudinary(
-          policy: policy,
-          bytes: state.imageBytes!,
-          fileName: state.imageFileName!,
-        );
-        imageUrl = uploadResult['secure_url'] as String?;
-      } else if (state.existingImageUrl != null) {
-        imageUrl = state.existingImageUrl;
-      }
-
-      final payload = <String, dynamic>{
-        'name': state.name,
-        if (state.slug.isNotEmpty) 'slug': state.slug,
-        'sku': state.sku,
-        if (state.description.isNotEmpty) 'description': state.description,
-        if (state.shortDescription.isNotEmpty) 'shortDescription': state.shortDescription,
-        if (state.categoryId.isNotEmpty) 'categoryId': state.categoryId,
-        'basePrice': double.tryParse(state.basePrice) ?? 0,
-        'unit': state.unit,
-        'isActive': state.isActive,
-        'isFeatured': state.isFeatured,
-        if (imageUrl != null) 'imageUrl': imageUrl,
-      };
-
-      if (productId == null) {
-        await api.post<Map<String, dynamic>>(
-          path: '/admin/products',
-          body: payload,
-          fromJson: (json) => json as Map<String, dynamic>,
-        );
-      } else {
-        await api.patch<Map<String, dynamic>>(
-          path: '/admin/products/$productId',
-          body: payload,
-          fromJson: (json) => json as Map<String, dynamic>,
-        );
-      }
-      return true;
-    } catch (e) {
-      state = state.copyWith(isLoading: false, error: e.toString());
-      return false;
-    } finally {
-      state = state.copyWith(isLoading: false);
-    }
-  }
-}
+final adminCategoriesProvider = FutureProvider.autoDispose<List<AdminCategory>>((ref) async {
+  final data = await api.get<List<dynamic>>(
+    '/admin/categories',
+    fromJson: (json) => json as List<dynamic>,
+  );
+  return data
+      .whereType<Map<String, dynamic>>()
+      .map(AdminCategory.fromJson)
+      .toList();
+});
 
 class ProductFormScreen extends ConsumerStatefulWidget {
   const ProductFormScreen({super.key, this.productId});
@@ -192,15 +48,41 @@ class ProductFormScreen extends ConsumerStatefulWidget {
 
 class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   final _formKey = GlobalKey<FormState>();
+
   final _nameController = TextEditingController();
   final _slugController = TextEditingController();
   final _skuController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _shortDescriptionController = TextEditingController();
-  final _categoryIdController = TextEditingController();
   final _basePriceController = TextEditingController();
+  final _mrpPriceController = TextEditingController();
+  final _piecesPerBoxController = TextEditingController();
 
-  final _units = ['BOX', 'PACKET', 'SINGLE', 'OTHER'];
+  static const _units = ['BOX', 'PACKET', 'SINGLE', 'OTHER'];
+
+  String _categoryId = '';
+  String _unit = 'BOX';
+  bool _isActive = true;
+  bool _isApproved = true;
+  bool _isFeatured = false;
+
+  List<ProductImage> _existingImages = const [];
+  Uint8List? _newImageBytes;
+  String? _newImageName;
+
+  bool _loading = false;
+  bool _saving = false;
+  String? _loadError;
+
+  bool get _isEdit => widget.productId != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (_isEdit) {
+      _loadProduct();
+    }
+  }
 
   @override
   void dispose() {
@@ -209,218 +91,443 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     _skuController.dispose();
     _descriptionController.dispose();
     _shortDescriptionController.dispose();
-    _categoryIdController.dispose();
     _basePriceController.dispose();
+    _mrpPriceController.dispose();
+    _piecesPerBoxController.dispose();
     super.dispose();
   }
 
+  Future<void> _loadProduct() async {
+    setState(() {
+      _loading = true;
+      _loadError = null;
+    });
+    try {
+      final product = await api.get<Product>(
+        '/admin/products/${widget.productId}',
+        fromJson: (json) => Product.fromJson(json as Map<String, dynamic>),
+      );
+      if (!mounted) return;
+      setState(() {
+        _nameController.text = product.name;
+        _slugController.text = product.slug ?? '';
+        _skuController.text = product.sku ?? '';
+        _descriptionController.text = product.description ?? '';
+        _shortDescriptionController.text = product.shortDescription ?? '';
+        _basePriceController.text = product.basePrice;
+        _mrpPriceController.text = product.mrpPrice ?? '';
+        _piecesPerBoxController.text = product.piecesPerBox?.toString() ?? '';
+        _categoryId = product.categoryId ?? '';
+        _unit = _units.contains(product.unit) ? product.unit! : 'BOX';
+        _isActive = product.isActive;
+        _isApproved = product.isApproved;
+        _isFeatured = product.isFeatured;
+        _existingImages = product.images;
+        _loading = false;
+      });
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _loading = false;
+        _loadError = e is ApiException ? e.message : 'Failed to load product';
+      });
+    }
+  }
+
   Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(
+    final picked = await ImagePicker().pickImage(
       source: ImageSource.gallery,
       imageQuality: 70,
       maxWidth: 1200,
     );
     if (picked == null) return;
     final bytes = await picked.readAsBytes();
-    ref.read(productFormProvider.notifier).setImage(bytes, picked.name);
+    if (!mounted) return;
+    setState(() {
+      _newImageBytes = bytes;
+      _newImageName = picked.name;
+    });
   }
 
-  void _save() {
-    if (!_formKey.currentState!.validate()) return;
-    _formKey.currentState!.save();
-    final notifier = ref.read(productFormProvider.notifier);
-    notifier.save(productId: widget.productId).then((success) {
-      if (success && mounted) {
-        Navigator.of(context).pop(true);
+  Future<Map<String, dynamic>?> _uploadNewImage() async {
+    if (_newImageBytes == null || _newImageName == null) return null;
+    final policy = await ref.read(signUploadProvider({
+      'folder': 'sreepon/products',
+      'resourceType': 'image',
+    }).future);
+    return uploadImageToCloudinary(
+      policy: policy,
+      bytes: _newImageBytes!,
+      fileName: _newImageName!,
+    );
+  }
+
+  Future<void> _save() async {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    FocusScope.of(context).unfocus();
+    setState(() => _saving = true);
+
+    try {
+      final uploaded = await _uploadNewImage();
+
+      final payload = <String, dynamic>{
+        'name': _nameController.text.trim(),
+        'sku': _skuController.text.trim(),
+        'basePrice': double.tryParse(_basePriceController.text.trim()) ?? 0,
+        'unit': _unit,
+        'isActive': _isActive,
+        'isApproved': _isApproved,
+        'isFeatured': _isFeatured,
+        if (_slugController.text.trim().isNotEmpty) 'slug': _slugController.text.trim(),
+        if (_descriptionController.text.trim().isNotEmpty)
+          'description': _descriptionController.text.trim(),
+        if (_shortDescriptionController.text.trim().isNotEmpty)
+          'shortDescription': _shortDescriptionController.text.trim(),
+        if (_categoryId.isNotEmpty) 'categoryId': _categoryId,
+        if (_mrpPriceController.text.trim().isNotEmpty)
+          'mrpPrice': double.tryParse(_mrpPriceController.text.trim()) ?? 0,
+        if (_piecesPerBoxController.text.trim().isNotEmpty)
+          'piecesPerBox': int.tryParse(_piecesPerBoxController.text.trim()) ?? 1,
+      };
+
+      if (!_isEdit) {
+        if (uploaded != null) {
+          payload['images'] = [
+            {
+              'url': uploaded['secure_url'],
+              if ((uploaded['public_id'] as String?)?.isNotEmpty ?? false)
+                'cloudinaryPublicId': uploaded['public_id'],
+            },
+          ];
+        }
+        await api.post<Map<String, dynamic>>(
+          path: '/admin/products',
+          body: payload,
+          fromJson: (json) => json as Map<String, dynamic>,
+        );
+      } else {
+        await api.patch<Map<String, dynamic>>(
+          path: '/admin/products/${widget.productId}',
+          body: payload,
+          fromJson: (json) => json as Map<String, dynamic>,
+        );
+        if (uploaded != null) {
+          await api.post<Map<String, dynamic>>(
+            path: '/admin/products/${widget.productId}/images',
+            body: {
+              'url': uploaded['secure_url'],
+              'cloudinaryPublicId': (uploaded['public_id'] as String?) ?? '',
+              'objectPosition': 'CENTER',
+            },
+            fromJson: (json) => json as Map<String, dynamic>,
+          );
+        }
       }
-    });
+
+      if (!mounted) return;
+      Navigator.of(context).pop(true);
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _saving = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e is ApiException ? e.message : 'Save failed: $e'),
+          backgroundColor: SreeponAdminTheme.red600,
+        ),
+      );
+    }
+  }
+
+  Future<void> _delete() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete product?'),
+        content: const Text('This cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: const Text('Delete', style: TextStyle(color: SreeponAdminTheme.red600)),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    try {
+      await api.delete('/admin/products/${widget.productId}');
+      if (mounted) Navigator.of(context).pop(true);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(e is ApiException ? e.message : 'Delete failed'),
+            backgroundColor: SreeponAdminTheme.red600,
+          ),
+        );
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final formState = ref.watch(productFormProvider);
+    final categoriesAsync = ref.watch(adminCategoriesProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.productId == null ? 'Add Product' : 'Edit Product'),
+        title: Text(_isEdit ? 'Edit Product' : 'Add Product'),
         actions: [
-          if (widget.productId != null)
+          if (_isEdit)
             IconButton(
-              icon: const Icon(Icons.delete, color: SreeponAdminTheme.red600),
-              onPressed: () async {
-                final confirmed = await showDialog<bool>(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Delete product?'),
-                    content: const Text('This cannot be undone.'),
-                    actions: [
-                      TextButton(onPressed: () => Navigator.of(context).pop(false), child: const Text('Cancel')),
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(true),
-                        child: const Text('Delete', style: TextStyle(color: SreeponAdminTheme.red600)),
-                      ),
-                    ],
-                  ),
-                );
-                if (confirmed == true && mounted) {
-                  try {
-                    await api.delete('/admin/products/${widget.productId}');
-                    if (mounted) Navigator.of(context).pop(true);
-                  } catch (e) {
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Delete failed: $e'), backgroundColor: SreeponAdminTheme.red600),
-                      );
-                    }
-                  }
-                }
-              },
+              icon: const Icon(Icons.delete_outline, color: SreeponAdminTheme.red600),
+              tooltip: 'Delete',
+              onPressed: _saving ? null : _delete,
             ),
           IconButton(
             icon: const Icon(Icons.save),
-            onPressed: formState.isLoading ? null : _save,
+            tooltip: 'Save',
+            onPressed: (_saving || _loading) ? null : _save,
           ),
         ],
       ),
-      body: formState.isLoading
-          ? const Center(child: Spinner())
-          : Form(
-              key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  TextFormField(
-                    controller: _nameController,
-                    decoration: const InputDecoration(labelText: 'Product name *'),
-                    validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
-                    onSaved: (v) => ref.read(productFormProvider.notifier).setField(name: v),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _slugController,
-                    decoration: const InputDecoration(labelText: 'Slug (URL-friendly)'),
-                    onSaved: (v) => ref.read(productFormProvider.notifier).setField(slug: v ?? ''),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _skuController,
-                    decoration: const InputDecoration(labelText: 'SKU *'),
-                    validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
-                    onSaved: (v) => ref.read(productFormProvider.notifier).setField(sku: v ?? ''),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _descriptionController,
-                    decoration: const InputDecoration(labelText: 'Description'),
-                    maxLines: 3,
-                    onSaved: (v) => ref.read(productFormProvider.notifier).setField(description: v ?? ''),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _shortDescriptionController,
-                    decoration: const InputDecoration(labelText: 'Short description'),
-                    maxLines: 2,
-                    onSaved: (v) => ref.read(productFormProvider.notifier).setField(shortDescription: v ?? ''),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _categoryIdController,
-                    decoration: const InputDecoration(labelText: 'Category ID (optional)'),
-                    onSaved: (v) => ref.read(productFormProvider.notifier).setField(categoryId: v ?? ''),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _basePriceController,
-                    decoration: const InputDecoration(labelText: 'Base price (₹) *'),
-                    keyboardType: TextInputType.number,
-                    validator: (v) => (v == null || v.isEmpty) ? 'Required' : null,
-                    onSaved: (v) => ref.read(productFormProvider.notifier).setField(basePrice: v ?? ''),
-                  ),
-                  const SizedBox(height: 12),
-                  DropdownButtonFormField<String>(
-                    decoration: const InputDecoration(labelText: 'Unit'),
-                    value: formState.unit,
-                    items: _units
-                        .map((u) => DropdownMenuItem(value: u, child: Text(u)))
-                        .toList(),
-                    onChanged: (v) => ref.read(productFormProvider.notifier).setField(unit: v!),
-                  ),
-                  const SizedBox(height: 12),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Product image',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
-                          const SizedBox(height: 12),
-                          Row(
-                            children: [
-                              OutlinedButton.icon(
-                                onPressed: _pickImage,
-                                icon: const Icon(Icons.image),
-                                label: const Text('Pick image'),
-                              ),
-                              const SizedBox(width: 12),
-                              if (formState.imageBytes != null)
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.memory(
-                                    formState.imageBytes!,
-                                    width: 100,
-                                    height: 100,
-                                    fit: BoxFit.cover,
-                                  ),
-                                )
-                              else if (formState.existingImageUrl != null)
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.network(
-                                    formState.existingImageUrl!,
-                                    width: 100,
-                                    height: 100,
-                                    fit: BoxFit.cover,
-                                  ),
+      body: _loading
+          ? const Spinner(label: 'Loading product…')
+          : _loadError != null
+              ? ErrorState(message: _loadError!, onRetry: _loadProduct)
+              : Form(
+                  key: _formKey,
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+                    children: [
+                      TextFormField(
+                        controller: _nameController,
+                        textCapitalization: TextCapitalization.words,
+                        decoration: const InputDecoration(labelText: 'Product name *'),
+                        validator: (v) =>
+                            (v == null || v.trim().length < 2) ? 'Enter at least 2 characters' : null,
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _slugController,
+                        decoration: const InputDecoration(
+                          labelText: 'Slug (optional)',
+                          helperText: 'Lowercase letters, numbers and hyphens',
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _skuController,
+                        decoration: const InputDecoration(labelText: 'SKU *'),
+                        validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _shortDescriptionController,
+                        maxLines: 2,
+                        decoration: const InputDecoration(labelText: 'Short description'),
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: _descriptionController,
+                        maxLines: 4,
+                        decoration: const InputDecoration(labelText: 'Description'),
+                      ),
+                      const SizedBox(height: 12),
+                      categoriesAsync.when(
+                        data: (categories) {
+                          final hasSelected = _categoryId.isEmpty ||
+                              categories.any((c) => c.id == _categoryId);
+                          return DropdownButtonFormField<String>(
+                            key: ValueKey('category-$_categoryId-${categories.length}'),
+                            initialValue: hasSelected
+                                ? _categoryId
+                                : (categories.isNotEmpty ? categories.first.id : ''),
+                            decoration: const InputDecoration(labelText: 'Category'),
+                            items: [
+                              const DropdownMenuItem(value: '', child: Text('No category')),
+                              ...categories.map(
+                                (c) => DropdownMenuItem(
+                                  value: c.id,
+                                  child: Text(c.isActive ? c.name : '${c.name} (inactive)'),
                                 ),
+                              ),
                             ],
+                            onChanged: (value) => setState(() => _categoryId = value ?? ''),
+                          );
+                        },
+                        loading: () => const LinearProgressIndicator(),
+                        error: (_, __) => const Text(
+                          'Could not load categories',
+                          style: TextStyle(color: SreeponAdminTheme.red600),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: _basePriceController,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              decoration: const InputDecoration(labelText: 'Selling price (₹) *'),
+                              validator: (v) {
+                                final price = double.tryParse(v?.trim() ?? '');
+                                return (price == null || price < 0) ? 'Enter a valid price' : null;
+                              },
+                            ),
                           ),
-                          const SizedBox(height: 12),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _mrpPriceController,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              decoration: const InputDecoration(labelText: 'MRP (₹)'),
+                            ),
+                          ),
                         ],
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Switch(
-                        value: formState.isActive,
-                        onChanged: (v) => ref.read(productFormProvider.notifier).setField(isActive: v),
-                        activeColor: SreeponAdminTheme.flame600,
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: DropdownButtonFormField<String>(
+                              initialValue: _unit,
+                              decoration: const InputDecoration(labelText: 'Unit'),
+                              items: _units
+                                  .map((u) => DropdownMenuItem(value: u, child: Text(u)))
+                                  .toList(),
+                              onChanged: (value) => setState(() => _unit = value ?? 'BOX'),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _piecesPerBoxController,
+                              keyboardType: TextInputType.number,
+                              decoration: const InputDecoration(labelText: 'Pieces per box'),
+                            ),
+                          ),
+                        ],
                       ),
-                      const Text('Active'),
-                      const SizedBox(width: 24),
-                      Switch(
-                        value: formState.isFeatured,
-                        onChanged: (v) => ref.read(productFormProvider.notifier).setField(isFeatured: v),
-                        activeColor: SreeponAdminTheme.flame600,
+                      const SizedBox(height: 16),
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text('Product image',
+                                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700)),
+                              const SizedBox(height: 4),
+                              const Text(
+                                'Uploaded to Cloudinary and attached to the product.',
+                                style: TextStyle(fontSize: 12, color: SreeponAdminTheme.slate500),
+                              ),
+                              const SizedBox(height: 12),
+                              Wrap(
+                                spacing: 12,
+                                runSpacing: 12,
+                                crossAxisAlignment: WrapCrossAlignment.center,
+                                children: [
+                                  if (_newImageBytes != null)
+                                    _ImageBox(
+                                      child: Image.memory(_newImageBytes!,
+                                          width: 96, height: 96, fit: BoxFit.cover),
+                                    )
+                                  else if (_existingImages.isNotEmpty)
+                                    _ImageBox(
+                                      child: Image.network(_existingImages.first.url,
+                                          width: 96, height: 96, fit: BoxFit.cover),
+                                    ),
+                                  Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      OutlinedButton.icon(
+                                        onPressed: _saving ? null : _pickImage,
+                                        icon: const Icon(Icons.image_outlined),
+                                        label: Text(_newImageBytes == null ? 'Pick image' : 'Change image'),
+                                      ),
+                                      if (_newImageBytes != null)
+                                        TextButton(
+                                          onPressed: () => setState(() {
+                                            _newImageBytes = null;
+                                            _newImageName = null;
+                                          }),
+                                          child: const Text('Remove new image'),
+                                        ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              if (_existingImages.length > 1) ...[
+                                const SizedBox(height: 8),
+                                Text('${_existingImages.length} images already attached',
+                                    style: const TextStyle(
+                                        fontSize: 12, color: SreeponAdminTheme.slate500)),
+                              ],
+                            ],
+                          ),
+                        ),
                       ),
-                      const Text('Featured'),
+                      const SizedBox(height: 12),
+                      Card(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Column(
+                            children: [
+                              SwitchListTile(
+                                value: _isActive,
+                                onChanged: (v) => setState(() => _isActive = v),
+                                activeThumbColor: SreeponAdminTheme.flame600,
+                                title: const Text('Published'),
+                                subtitle: const Text('Visible on the storefront when approved'),
+                              ),
+                              SwitchListTile(
+                                value: _isApproved,
+                                onChanged: (v) => setState(() => _isApproved = v),
+                                activeThumbColor: SreeponAdminTheme.flame600,
+                                title: const Text('Approved'),
+                                subtitle: const Text('Required for the product to go live'),
+                              ),
+                              SwitchListTile(
+                                value: _isFeatured,
+                                onChanged: (v) => setState(() => _isFeatured = v),
+                                activeThumbColor: SreeponAdminTheme.flame600,
+                                title: const Text('Featured'),
+                                subtitle: const Text('Highlight on the homepage'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        height: 48,
+                        child: FilledButton(
+                          onPressed: _saving ? null : _save,
+                          child: _saving
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                )
+                              : Text(_isEdit ? 'Save changes' : 'Create product'),
+                        ),
+                      ),
                     ],
                   ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: FilledButton(
-                      onPressed: formState.isLoading ? null : _save,
-                      child: const Text('Save product'),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                ),
     );
+  }
+}
+
+class _ImageBox extends StatelessWidget {
+  const _ImageBox({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return ClipRRect(borderRadius: BorderRadius.circular(8), child: child);
   }
 }

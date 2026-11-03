@@ -20,6 +20,7 @@ import { runWithRequestPrisma } from './dist/infrastructure/prisma.js';
 import { runScheduledMaintenance } from './dist/modules/maintenance/service.js';
 import { keepWorkerAlive } from './dist/modules/maintenance/service.js';
 import { checkAndDeployLatest } from './dist/modules/maintenance/service.js';
+import { runOrderSweep } from './dist/modules/notifications/order-sweep.service.js';
 import { APP } from './dist/config/constants.js';
 import { env } from './dist/config/env.js';
 import { logger } from './dist/utils/logger.js';
@@ -48,11 +49,18 @@ export default {
   // Cloudflare Cron Trigger (see `[triggers]` in wrangler.toml). A scheduled
   // event is not an HTTP request, but it needs the same per-invocation Prisma
   // client lifecycle, so it goes through the same helper.
+  //
+  // The account plan allows 5 cron triggers in total and 3 are already used
+  // here, so jobs share a schedule instead of adding a fourth entry.
   async scheduled(controller, env, ctx) {
     const cron = controller.cron;
-    // Keep-alive: hit /health every 5 minutes to prevent cold starts.
-    if (cron === '*/5 * * * *') {
-      await runWithRequestPrisma(() => keepWorkerAlive(env), ctx);
+    // Every 2 minutes: keep the isolate warm and sweep for new orders that
+    // missed the inline admin notification in `POST /orders` (safety net).
+    if (cron === '*/2 * * * *') {
+      await runWithRequestPrisma(async () => {
+        await keepWorkerAlive(env);
+        await runOrderSweep(cron);
+      }, ctx);
       return;
     }
     // Deploy-check: every 10 minutes, verify the latest git commit is deployed;

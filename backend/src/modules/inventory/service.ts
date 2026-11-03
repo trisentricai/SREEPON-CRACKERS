@@ -92,6 +92,12 @@ export async function adjustStock(
   if (!product) throw ApiError.notFound('Product not found');
   if (!product.sku) throw ApiError.unprocessable('Product has no SKU; cannot adjust inventory');
 
+  // `InventoryTransaction.adminId` references `Admin.id`, while the auth
+  // middleware exposes the Supabase uid. Resolve the row so the FK holds.
+  const admin = adminId
+    ? await prisma.admin.findUnique({ where: { supabaseUid: adminId }, select: { id: true } })
+    : null;
+
   const now = new Date();
 
   await prisma.$transaction(async (tx) => {
@@ -118,7 +124,7 @@ export async function adjustStock(
     await tx.inventoryTransaction.create({
       data: {
         productId,
-        adminId: adminId ?? undefined,
+        adminId: admin?.id,
         type: InventoryTransactionType.ADJUSTMENT,
         delta: input.delta,
         note: input.note ?? input.reason,

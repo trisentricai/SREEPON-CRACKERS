@@ -1,8 +1,9 @@
 import type { Request, Response } from 'express';
 import { getValidatedQuery } from '../../middleware/validation.middleware';
 import { asyncHandler, ok, routeParam } from '../../utils/http';
-import type { ListNotificationsQuery, RegisterDeviceInput } from './schema';
+import type { ListNotificationsQuery, RegisterDeviceInput, SweepOrdersInput } from './schema';
 import * as service from './admin.service';
+import { sweepNewOrders } from './order-sweep.service';
 
 export const listAdminNotifications = asyncHandler(async (req: Request, res: Response) => {
   const query = getValidatedQuery<ListNotificationsQuery>(req);
@@ -51,4 +52,22 @@ export const createAdminNotification = asyncHandler(async (req: Request, res: Re
   };
   const notification = await service.createAdminNotification({ adminId, type: type as any, title, body, data });
   res.status(201).json(ok(notification, 'Notification created'));
+});
+
+/**
+ * Run the new-order sweep now (same idempotent job as the 2-minute cron).
+ * Handy to verify the cron wiring without waiting, or to backfill notifications
+ * after an outage.
+ */
+export const sweepOrders = asyncHandler(async (req: Request, res: Response) => {
+  const input = (req.body ?? {}) as SweepOrdersInput;
+  const result = await sweepNewOrders(input);
+  res.json(
+    ok(
+      result,
+      result.created > 0
+        ? `Created ${result.created} admin notification(s) for ${result.orderNumbers.length} order(s)`
+        : 'No orders are missing admin notifications',
+    ),
+  );
 });

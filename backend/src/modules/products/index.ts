@@ -38,6 +38,7 @@ productsRouter.use(
 );
 
 productsRouter.get('/admin/products', validate({ query: adminProductQuerySchema }), controller.adminListProducts);
+productsRouter.get('/admin/products/:id', controller.adminGetProduct);
 productsRouter.post('/admin/products', validate({ body: createProductSchema }), controller.createProduct);
 productsRouter.patch('/admin/products/:id', validate({ body: updateProductSchema }), controller.updateProduct);
 productsRouter.delete('/admin/products/:id', controller.deleteProduct);
@@ -52,13 +53,13 @@ productsRouter.post(
   controller.addProductImage,
 );
 productsRouter.patch(
+  '/admin/products/:id/images/reorder',
+  validate({ body: reorderProductImagesSchema }),
+  controller.reorderProductImages,
+);
+productsRouter.patch(
   '/admin/products/:id/images/:imageId',
   validate({ body: updateProductImageSchema }),
   controller.updateProductImage,
 );
 productsRouter.delete('/admin/products/:id/images/:imageId', controller.deleteProductImage);
-productsRouter.patch(
-  '/admin/products/:id/images/reorder',
-  validate({ body: reorderProductImagesSchema }),
-  controller.reorderProductImages,
-);

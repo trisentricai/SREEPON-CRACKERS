@@ -31,6 +31,11 @@ export const getProductById = asyncHandler(async (req: Request, res: Response) =
   res.json(ok(product));
 });
 
+export const adminGetProduct = asyncHandler(async (req: Request, res: Response) => {
+  const product = await service.getForAdmin(routeParam(req, 'id'));
+  res.json(ok(product));
+});
+
 export const adminListProducts = asyncHandler(async (req: Request, res: Response) => {
   const query = getValidatedQuery<AdminProductQuery>(req);
   const result = await service.listForAdmin(query);

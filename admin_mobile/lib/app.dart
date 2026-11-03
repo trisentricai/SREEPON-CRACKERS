@@ -52,7 +52,7 @@ class SreeponAdminApp extends ConsumerWidget {
           builder: (context, state) => const LoginScreen(),
         ),
         ShellRoute(
-          builder: (context, state, child) => _AdminShell(child: child),
+          builder: (context, state, child) => _AdminShell(location: state.uri.path, child: child),
           routes: [
             GoRoute(path: '/', builder: (context, state) => const DashboardScreen()),
             GoRoute(path: '/analytics', builder: (context, state) => const AnalyticsScreen()),
@@ -85,32 +85,51 @@ class SreeponAdminApp extends ConsumerWidget {
 
 /// Admin shell — drawer navigation + body area.
 class _AdminShell extends ConsumerStatefulWidget {
-  const _AdminShell({required this.child});
+  const _AdminShell({required this.child, required this.location});
 
   final Widget child;
+  final String location;
 
   @override
   ConsumerState<_AdminShell> createState() => _AdminShellState();
 }
 
 class _AdminShellState extends ConsumerState<_AdminShell> {
-  int _selectedIndex = 0;
   Timer? _notificationPoller;
 
-  static const List<_NavItem> _items = [
+  /// Bottom-bar destinations.
+  static const List<_NavItem> _primaryItems = [
     _NavItem(label: 'Dashboard', icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard, route: '/'),
     _NavItem(label: 'Orders', icon: Icons.receipt_outlined, activeIcon: Icons.receipt, route: '/orders'),
     _NavItem(label: 'Products', icon: Icons.shopping_bag_outlined, activeIcon: Icons.shopping_bag, route: '/products'),
+    _NavItem(label: 'Inventory', icon: Icons.inventory_2_outlined, activeIcon: Icons.inventory_2, route: '/inventory'),
     _NavItem(label: 'Customers', icon: Icons.people_outlined, activeIcon: Icons.people, route: '/customers'),
   ];
 
+  /// Extra destinations exposed through the drawer.
+  static const List<_NavItem> _secondaryItems = [
+    _NavItem(label: 'Analytics', icon: Icons.bar_chart_outlined, activeIcon: Icons.bar_chart, route: '/analytics'),
+    _NavItem(label: 'Categories', icon: Icons.category_outlined, activeIcon: Icons.category, route: '/categories'),
+    _NavItem(label: 'Coupons', icon: Icons.local_offer_outlined, activeIcon: Icons.local_offer, route: '/coupons'),
+    _NavItem(label: 'Banners', icon: Icons.image_outlined, activeIcon: Icons.image, route: '/banners'),
+    _NavItem(label: 'Homepage', icon: Icons.web_outlined, activeIcon: Icons.web, route: '/homepage'),
+  ];
+
+  int get _selectedIndex {
+    final index = _primaryItems.indexWhere((item) => _matches(widget.location, item.route));
+    return index < 0 ? 0 : index;
+  }
+
+  static bool _matches(String location, String route) {
+    if (route == '/') return location == '/';
+    return location == route || location.startsWith('$route/');
+  }
+
   void _onItemTapped(int index) {
-    setState(() => _selectedIndex = index);
-    context.go(_items[index].route);
+    context.go(_primaryItems[index].route);
   }
 
   void _onDrawerItem(String route) {
-    setState(() => _selectedIndex = _items.indexWhere((i) => i.route == route));
     context.pop(); // close drawer
     context.go(route);
   }
@@ -158,9 +177,28 @@ class _AdminShellState extends ConsumerState<_AdminShell> {
               accountEmail: Text(user?.email ?? ''),
               currentAccountPicture: const CircleAvatar(child: Icon(Icons.store, color: Colors.white)),
             ),
-            ..._items.map((item) {
-              final active = _selectedIndex == _items.indexOf(item) ||
-                  ModalRoute.of(context)?.settings.name == item.route;
+            ..._primaryItems.map((item) {
+              final active = _matches(widget.location, item.route);
+              return ListTile(
+                leading: Icon(active ? item.activeIcon : item.icon,
+                    color: active ? SreeponAdminTheme.flame600 : SreeponAdminTheme.slate600),
+                title: Text(item.label,
+                    style: TextStyle(
+                      color: active ? SreeponAdminTheme.slate900 : SreeponAdminTheme.slate600,
+                      fontWeight: active ? FontWeight.w600 : FontWeight.normal,
+                    )),
+                selected: active,
+                onTap: () => _onDrawerItem(item.route),
+              );
+            }),
+            const Divider(),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 8, 16, 4),
+              child: Text('MANAGE',
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: SreeponAdminTheme.slate400)),
+            ),
+            ..._secondaryItems.map((item) {
+              final active = _matches(widget.location, item.route);
               return ListTile(
                 leading: Icon(active ? item.activeIcon : item.icon,
                     color: active ? SreeponAdminTheme.flame600 : SreeponAdminTheme.slate600),
@@ -197,7 +235,7 @@ class _AdminShellState extends ConsumerState<_AdminShell> {
               onTap: () async {
                 context.pop();
                 await ref.read(authProvider.notifier).signOut();
-                if (mounted) context.go('/login');
+                if (context.mounted) context.go('/login');
               },
             ),
           ],
@@ -247,9 +285,9 @@ class _AdminShellState extends ConsumerState<_AdminShell> {
       ),
       body: widget.child,
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex.clamp(0, _items.length - 1),
+        currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        items: _items
+        items: _primaryItems
             .map((i) => BottomNavigationBarItem(
                   icon: Icon(i.icon),
                   activeIcon: Icon(i.activeIcon),

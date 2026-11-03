@@ -33,10 +33,10 @@ class RevenueLineChart extends StatelessWidget {
           bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 24, interval: 1, getTitlesWidget: (value, meta) {
             if (value < 0 || value >= points.length) return const Text('');
             final p = points[value.toInt()];
-            return SideTitleWidget(child: Text(formatDate(p.day), style: const TextStyle(fontSize: 10, color: SreeponAdminTheme.slate500)), axisSide: meta.axisSide, space: 8);
+            return SideTitleWidget(axisSide: meta.axisSide, space: 8, child: Text(formatDate(p.day), style: const TextStyle(fontSize: 10, color: SreeponAdminTheme.slate500)));
           })),
           leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 50, interval: top / 5, getTitlesWidget: (value, meta) {
-            return SideTitleWidget(child: Text(formatMoney(value.toString()), style: const TextStyle(fontSize: 10, color: SreeponAdminTheme.slate500)), axisSide: meta.axisSide, space: 4);
+            return SideTitleWidget(axisSide: meta.axisSide, space: 4, child: Text(formatMoney(value.toString()), style: const TextStyle(fontSize: 10, color: SreeponAdminTheme.slate500)));
           })),
         ),
         borderData: FlBorderData(show: false),
@@ -94,10 +94,10 @@ class OrdersBarChart extends StatelessWidget {
           topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           bottomTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 24, interval: 1, getTitlesWidget: (value, meta) {
             if (value < 0 || value >= points.length) return const Text('');
-            return SideTitleWidget(child: Text(formatDate(points[value.toInt()].day), style: const TextStyle(fontSize: 10, color: SreeponAdminTheme.slate500)), axisSide: meta.axisSide, space: 8);
+            return SideTitleWidget(axisSide: meta.axisSide, space: 8, child: Text(formatDate(points[value.toInt()].day), style: const TextStyle(fontSize: 10, color: SreeponAdminTheme.slate500)));
           })),
           leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 28, interval: top / 5, getTitlesWidget: (value, meta) {
-            return SideTitleWidget(child: Text(value.toInt().toString(), style: const TextStyle(fontSize: 10, color: SreeponAdminTheme.slate500)), axisSide: meta.axisSide, space: 4);
+            return SideTitleWidget(axisSide: meta.axisSide, space: 4, child: Text(value.toInt().toString(), style: const TextStyle(fontSize: 10, color: SreeponAdminTheme.slate500)));
           })),
         ),
         barGroups: points.asMap().entries.map((e) {
@@ -139,7 +139,7 @@ class TopProductsChart extends StatelessWidget {
           leftTitles: AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 90, interval: 1, getTitlesWidget: (value, meta) {
             if (value < 0 || value >= products.length) return const Text('');
             final p = products[products.length - 1 - value.toInt()];
-            return SideTitleWidget(child: Text(p.name ?? p.productId, style: const TextStyle(fontSize: 10, color: SreeponAdminTheme.slate600), overflow: TextOverflow.ellipsis, maxLines: 1), axisSide: meta.axisSide, space: 8);
+            return SideTitleWidget(axisSide: meta.axisSide, space: 8, child: Text(p.name ?? p.productId, style: const TextStyle(fontSize: 10, color: SreeponAdminTheme.slate600), overflow: TextOverflow.ellipsis, maxLines: 1));
           })),
           bottomTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
@@ -155,7 +155,7 @@ class TopProductsChart extends StatelessWidget {
           return BarTooltipItem('${p.units} units\n${formatMoney(p.revenue)}', const TextStyle(color: Colors.white, fontSize: 11));
         })),
       ),
-      swapAnimationDuration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
     );
   }
 }

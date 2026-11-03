@@ -1,21 +1,25 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sreepon_admin/core/models/homepage.dart';
-import 'package:sreepon_admin/core/models/settings.dart';
 import 'package:sreepon_admin/core/network/api_client.dart';
 
-final homepageProvider = FutureProvider<HomepageResponse>((ref) async {
-  final data = await api.get<Map<String, dynamic>>(
+/// Homepage config (`GET /admin/homepage`) + ordered sections
+/// (`GET /admin/homepage/sections`) in one future.
+final homepageProvider = FutureProvider.autoDispose<HomepageResponse>((ref) async {
+  final configEnvelope = await api.get<Map<String, dynamic>>(
+    '/admin/homepage',
+    fromJson: (json) => json as Map<String, dynamic>,
+  );
+  final sections = await api.get<List<dynamic>>(
     '/admin/homepage/sections',
-    query: {'page': 1, 'limit': 50},
-    fromJson: (json) => json as Map<String, dynamic>,
+    fromJson: (json) => json as List<dynamic>,
   );
-  return HomepageResponse.fromJson(data);
-});
 
-final settingsProvider = FutureProvider<SettingsView>((ref) async {
-  final data = await api.get<Map<String, dynamic>>(
-    '/admin/settings',
-    fromJson: (json) => json as Map<String, dynamic>,
+  final config = configEnvelope['config'];
+  return HomepageResponse(
+    config: config is Map<String, dynamic> ? config : const <String, dynamic>{},
+    sections: sections
+        .whereType<Map<String, dynamic>>()
+        .map(HomepageSection.fromJson)
+        .toList(),
   );
-  return SettingsView.fromJson(data);
 });

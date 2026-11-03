@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../config/env.dart';
@@ -113,6 +112,15 @@ class ApiClient {
     required T Function(Object? json) fromJson,
   }) async {
     final response = await _guard(() => _dio.patch<dynamic>(path, data: body));
+    return _unwrap<T>(response, fromJson);
+  }
+
+  Future<T> put<T>({
+    required String path,
+    Object? body,
+    required T Function(Object? json) fromJson,
+  }) async {
+    final response = await _guard(() => _dio.put<dynamic>(path, data: body));
     return _unwrap<T>(response, fromJson);
   }
 

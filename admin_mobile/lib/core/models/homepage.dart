@@ -1,30 +1,91 @@
-import 'package:sreepon_admin/core/utils/format.dart';
-
+/// Homepage composer models.
+///
+/// Mirrors the backend enums in `backend/src/types/enums.ts` — every section
+/// type the storefront understands must be listed here, otherwise editing a
+/// section would round-trip it to the wrong type.
 enum HomepageSectionType {
   hero,
-  featuredProducts,
   categoryGrid,
+  productCarousel,
+  featuredProducts,
   bestSellers,
+  newArrivals,
   trendingProducts,
-  offers,
+  todaysOffers,
+  promotion,
+  customCollection,
 }
 
-extension HomepageSectionTypeString on HomepageSectionType {
+extension HomepageSectionTypeX on HomepageSectionType {
   String get value {
     switch (this) {
       case HomepageSectionType.hero:
         return 'HERO';
-      case HomepageSectionType.featuredProducts:
-        return 'FEATURED_PRODUCTS';
       case HomepageSectionType.categoryGrid:
         return 'CATEGORY_GRID';
+      case HomepageSectionType.productCarousel:
+        return 'PRODUCT_CAROUSEL';
+      case HomepageSectionType.featuredProducts:
+        return 'FEATURED_PRODUCTS';
       case HomepageSectionType.bestSellers:
         return 'BEST_SELLERS';
+      case HomepageSectionType.newArrivals:
+        return 'NEW_ARRIVALS';
       case HomepageSectionType.trendingProducts:
         return 'TRENDING_PRODUCTS';
-      case HomepageSectionType.offers:
-        return 'OFFERS';
+      case HomepageSectionType.todaysOffers:
+        return 'TODAYS_OFFERS';
+      case HomepageSectionType.promotion:
+        return 'PROMOTION';
+      case HomepageSectionType.customCollection:
+        return 'CUSTOM_COLLECTION';
     }
+  }
+
+  String get label {
+    switch (this) {
+      case HomepageSectionType.hero:
+        return 'Hero banner';
+      case HomepageSectionType.categoryGrid:
+        return 'Category grid';
+      case HomepageSectionType.productCarousel:
+        return 'Product carousel (handpicked)';
+      case HomepageSectionType.featuredProducts:
+        return 'Featured products';
+      case HomepageSectionType.bestSellers:
+        return 'Best sellers';
+      case HomepageSectionType.newArrivals:
+        return 'New arrivals';
+      case HomepageSectionType.trendingProducts:
+        return 'Trending products';
+      case HomepageSectionType.todaysOffers:
+        return "Today's offers";
+      case HomepageSectionType.promotion:
+        return 'Promotion banners';
+      case HomepageSectionType.customCollection:
+        return 'Custom collection (handpicked)';
+    }
+  }
+
+  /// Sections whose products are picked by hand instead of auto-resolved.
+  bool get requiresProductIds =>
+      this == HomepageSectionType.productCarousel || this == HomepageSectionType.customCollection;
+
+  /// Sections that accept a `limit` in their config.
+  bool get supportsLimit =>
+      this == HomepageSectionType.featuredProducts ||
+      this == HomepageSectionType.bestSellers ||
+      this == HomepageSectionType.newArrivals ||
+      this == HomepageSectionType.trendingProducts ||
+      this == HomepageSectionType.todaysOffers ||
+      this == HomepageSectionType.productCarousel ||
+      this == HomepageSectionType.customCollection;
+
+  static HomepageSectionType fromValue(String? value) {
+    return HomepageSectionType.values.firstWhere(
+      (type) => type.value == value,
+      orElse: () => HomepageSectionType.trendingProducts,
+    );
   }
 }
 
@@ -36,21 +97,18 @@ class HomepageSection {
     required this.displayOrder,
     required this.isActive,
     this.config,
-    this.content,
   });
 
   factory HomepageSection.fromJson(Map<String, dynamic> json) {
     return HomepageSection(
       id: json['id'] as String,
-      type: HomepageSectionType.values.firstWhere(
-        (e) => e.value == (json['type'] as String),
-        orElse: () => HomepageSectionType.featuredProducts,
-      ),
+      type: HomepageSectionTypeX.fromValue(json['type'] as String?),
       title: json['title'] as String?,
-      displayOrder: (json['displayOrder'] ?? 0) as int,
-      isActive: (json['isActive'] ?? false) as bool,
-      config: json['config'] as Map<String, dynamic>?,
-      content: json['content'] as Map<String, dynamic>?,
+      displayOrder: (json['displayOrder'] as num?)?.toInt() ?? 0,
+      isActive: json['isActive'] == true,
+      config: json['config'] is Map<String, dynamic>
+          ? json['config'] as Map<String, dynamic>
+          : null,
     );
   }
 
@@ -60,35 +118,18 @@ class HomepageSection {
   final int displayOrder;
   final bool isActive;
   final Map<String, dynamic>? config;
-  final Map<String, dynamic>? content;
-}
 
-class HomepageConfig {
-  const HomepageConfig({required this.heroTitle, required this.heroTagline});
-
-  factory HomepageConfig.fromJson(Map<String, dynamic> json) {
-    return HomepageConfig(
-      heroTitle: json['heroTitle'] as String?,
-      heroTagline: json['heroTagline'] as String?,
-    );
-  }
-
-  final String? heroTitle;
-  final String? heroTagline;
+  String get displayTitle =>
+      (title == null || title!.isEmpty) ? type.label : title!;
 }
 
 class HomepageResponse {
   const HomepageResponse({required this.config, required this.sections});
 
-  factory HomepageResponse.fromJson(Map<String, dynamic> json) {
-    return HomepageResponse(
-      config: HomepageConfig.fromJson(json['config'] as Map<String, dynamic>),
-      sections: (json['sections'] as List<dynamic>)
-          .map((e) => HomepageSection.fromJson(e as Map<String, dynamic>))
-          .toList(),
-    );
-  }
-
-  final HomepageConfig config;
+  /// Raw `homepage` site setting so unknown keys survive a round-trip.
+  final Map<String, dynamic> config;
   final List<HomepageSection> sections;
+
+  String? get heroTitle => config['heroTitle'] as String?;
+  String? get heroTagline => config['heroTagline'] as String?;
 }
