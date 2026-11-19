@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly_plus/flutter_iconly_plus.dart';
 
-import '../../../core/theme/sreepon_theme.dart';
+import '../../../core/theme/sripon_theme.dart';
 import '../../auth/presentation/profile_screen.dart';
 import '../../cart/presentation/cart_screen.dart';
 import '../../cart/presentation/checkout_screen.dart';

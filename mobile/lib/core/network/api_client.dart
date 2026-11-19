@@ -151,6 +151,6 @@ class ApiClient {
 
 /// Global API client — configured once at startup.
 final api = ApiClient(
-  baseUrl: SriPonConfig.instance.apiBaseUrl,
+  baseUrl: SreeponConfig.instance.apiBaseUrl,
   tokenProvider: authTokenProvider,
 );
