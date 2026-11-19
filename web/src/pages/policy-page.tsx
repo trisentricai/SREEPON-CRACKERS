@@ -14,12 +14,12 @@ function PolicyBody({ body, supportEmail }: { body: string; supportEmail?: strin
 
   if (paragraphs.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-ember-200 bg-ember-50/60 p-6 text-sm text-ember-900/70">
+      <div className="rounded-xl border border-dashed border-ember-200 bg-surface-warm p-6 text-sm text-ink-muted">
         <p>This policy is being finalised.</p>
         <p className="mt-2">
           In the meantime, contact us at{' '}
           {supportEmail ? (
-            <a className="font-medium text-flame-600 underline" href={`mailto:${supportEmail}`}>
+            <a className="font-medium text-accent underline" href={`mailto:${supportEmail}`}>
               {supportEmail}
             </a>
           ) : (
@@ -32,7 +32,7 @@ function PolicyBody({ body, supportEmail }: { body: string; supportEmail?: strin
   }
 
   return (
-    <div className="space-y-4 text-sm leading-relaxed text-ember-900/80">
+    <div className="space-y-4 text-sm leading-relaxed text-ink-muted">
       {paragraphs.map((paragraph, index) => (
         <p key={index} className="whitespace-pre-line">
           {paragraph}
@@ -81,10 +81,10 @@ export function PolicyPage() {
   if (!policy) {
     return (
       <section className="mx-auto max-w-3xl px-4 py-12">
-        <h1 className="text-2xl font-bold text-ember-800">Policy not found</h1>
-        <p className="mt-2 text-sm text-ember-900/70">
+        <h1 className="font-display text-3xl font-semibold text-ink">Policy not found</h1>
+        <p className="mt-2 text-sm text-ink-muted">
           We couldn&apos;t find that page. Browse our{' '}
-          <Link className="font-medium text-flame-600 underline" to="/policies">
+          <Link className="font-medium text-accent underline" to="/policies">
             policies
           </Link>{' '}
           instead.
@@ -97,14 +97,14 @@ export function PolicyPage() {
     <section className="mx-auto max-w-5xl px-4 py-12">
       <div className="grid gap-10 lg:grid-cols-[220px_1fr]">
         <nav aria-label="Policies" className="text-sm">
-          <p className="font-display text-xs font-bold uppercase tracking-eyebrow text-ember-800">Policies</p>
+          <p className="font-display text-xs font-bold uppercase tracking-eyebrow text-ink">Policies</p>
           <ul className="mt-3 space-y-2">
             {LEGAL_LINKS.map((entry) => (
               <li key={entry.key}>
                 <Link
                   to={entry.to}
-                  className={`transition-colors hover:text-flame-600 ${
-                    entry.key === policyKey ? 'font-semibold text-flame-600' : 'text-ember-900/70'
+                  className={`transition-colors hover:text-accent ${
+                    entry.key === policyKey ? 'font-semibold text-accent' : 'text-ink-muted'
                   }`}
                 >
                   {legal.data?.policies[entry.key]?.title ?? entry.label}
@@ -115,13 +115,13 @@ export function PolicyPage() {
         </nav>
 
         <article>
-          <h1 className="text-2xl font-bold text-ember-800">{policy.title}</h1>
+          <h1 className="font-display text-3xl font-semibold text-ink">{policy.title}</h1>
           <div className="mt-6">
             <PolicyBody body={policy.body} supportEmail={settings.data?.store.supportEmail} />
           </div>
-          <p className="mt-8 text-xs text-ember-900/50">
+          <p className="mt-8 text-xs text-ink-muted">
             Questions? See our{' '}
-            <Link className="font-medium text-flame-600 underline" to="/policies">
+            <Link className="font-medium text-accent underline" to="/policies">
               other policies
             </Link>{' '}
             or contact support.
@@ -144,8 +144,8 @@ export function PoliciesIndexPage() {
 
   return (
     <section className="mx-auto max-w-3xl px-4 py-12">
-      <h1 className="text-2xl font-bold text-ember-800">Policies &amp; terms</h1>
-      <p className="mt-2 text-sm text-ember-900/70">
+      <h1 className="font-display text-3xl font-semibold text-ink">Policies &amp; terms</h1>
+      <p className="mt-2 text-sm text-ink-muted">
         Everything about ordering, delivery, returns and how we handle your data.
       </p>
 
@@ -160,17 +160,17 @@ export function PoliciesIndexPage() {
           <ErrorState error={legal.error} />
         </div>
       ) : (
-        <ul className="mt-8 divide-y divide-ember-100 overflow-hidden rounded-xl border border-ember-100">
+        <ul className="mt-8 divide-y divide-ember-100 overflow-hidden rounded-3xl border border-line">
           {LEGAL_LINKS.map((entry) => (
             <li key={entry.key}>
               <Link
                 to={entry.to}
-                className="flex items-center justify-between gap-4 px-5 py-4 text-sm transition-colors hover:bg-flame-50"
+                className="flex items-center justify-between gap-4 px-5 py-4 text-sm transition-colors hover:bg-accent-soft"
               >
-                <span className="font-medium text-ember-900">
+                <span className="font-medium text-ink">
                   {legal.data?.policies[entry.key]?.title ?? entry.label}
                 </span>
-                <span aria-hidden className="text-flame-600">
+                <span aria-hidden className="text-accent">
                   →
                 </span>
               </Link>

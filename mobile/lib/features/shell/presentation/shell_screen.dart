@@ -1,7 +1,10 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_iconly_plus/flutter_iconly_plus.dart';
 
 import '../../../core/theme/sripon_theme.dart';
+import '../../../core/widgets/widgets.dart';
 import '../../auth/presentation/profile_screen.dart';
 import '../../cart/presentation/cart_screen.dart';
 import '../../cart/presentation/checkout_screen.dart';
@@ -33,6 +36,8 @@ class ShellScreen extends StatelessWidget {
     switch (name) {
       case '/wishlist':
         screen = const WishlistScreen();
+      case '/cart':
+        screen = const CartScreen();
       case '/checkout':
         screen = const CheckoutScreen();
       case '/orders':
@@ -75,36 +80,47 @@ class _MainTabsState extends State<MainTabs> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(index: _index, children: _screens),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _index,
-        onDestinationSelected: _onDestinationSelected,
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(IconlyLight.home),
-            selectedIcon: Icon(IconlyBold.home),
-            label: 'Home',
+      bottomNavigationBar: ClipRRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+          child: Container(
+            decoration: const BoxDecoration(
+              color: SriPonColors.glass,
+              border: Border(top: BorderSide(color: SriPonColors.line)),
+            ),
+            child: NavigationBar(
+              selectedIndex: _index,
+              onDestinationSelected: _onDestinationSelected,
+              destinations: const [
+                NavigationDestination(
+                  icon: Icon(IconlyLight.home),
+                  selectedIcon: Icon(IconlyBold.home),
+                  label: 'Home',
+                ),
+                NavigationDestination(
+                  icon: Icon(IconlyLight.category),
+                  selectedIcon: Icon(IconlyBold.category),
+                  label: 'Shop',
+                ),
+                NavigationDestination(
+                  icon: Icon(IconlyLight.bag_2),
+                  selectedIcon: Icon(IconlyBold.bag_2),
+                  label: 'Cart',
+                ),
+                NavigationDestination(
+                  icon: Icon(IconlyLight.paper),
+                  selectedIcon: Icon(IconlyBold.paper),
+                  label: 'Orders',
+                ),
+                NavigationDestination(
+                  icon: Icon(IconlyLight.user),
+                  selectedIcon: Icon(IconlyBold.user_2),
+                  label: 'Account',
+                ),
+              ],
+            ),
           ),
-          NavigationDestination(
-            icon: Icon(IconlyLight.category),
-            selectedIcon: Icon(IconlyBold.category),
-            label: 'Shop',
-          ),
-          NavigationDestination(
-            icon: Icon(IconlyLight.bag_2),
-            selectedIcon: Icon(IconlyBold.bag_2),
-            label: 'Cart',
-          ),
-          NavigationDestination(
-            icon: Icon(IconlyLight.paper),
-            selectedIcon: Icon(IconlyBold.paper),
-            label: 'Orders',
-          ),
-          NavigationDestination(
-            icon: Icon(IconlyLight.user),
-            selectedIcon: Icon(IconlyBold.user_2),
-            label: 'Account',
-          ),
-        ],
+        ),
       ),
     );
   }

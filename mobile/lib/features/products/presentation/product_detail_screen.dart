@@ -49,7 +49,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
       ),
       body: product.when(
         loading: () => ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(SriPonMetrics.appPadding),
           children: const [
             SizedBox(height: 320, child: SriPonShimmer(borderRadius: 16)),
             SizedBox(height: 16),
@@ -134,7 +134,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(SriPonMetrics.appPadding),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -266,7 +266,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         FilledButton.icon(
           onPressed: outOfStock || _savingCart ? null : _addToCart,
           icon: _savingCart
-              ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+              ? const SriPonSpinner(size: 18, color: Colors.white)
               : const Icon(IconlyBold.bag_2),
           label: Text(outOfStock ? 'Out of stock' : 'Add to cart'),
         ),

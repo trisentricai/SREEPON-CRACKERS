@@ -50,7 +50,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Orders')),
       body: orders.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: SriPonSpinner(size: 24)),
         error: (error, stack) => ErrorView(
           error: error,
           onRetry: () => ref.invalidate(ordersProvider(_page)),
@@ -71,7 +71,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
             child: ListView.separated(
               controller: _scroll,
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(SriPonMetrics.appPadding),
               itemCount: response.items.length + 1,
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
@@ -116,10 +116,10 @@ class _OrderTile extends StatelessWidget {
     return Card(
       elevation: 0,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SriPonMetrics.rowRadius)),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(SriPonMetrics.rowRadius),
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Column(

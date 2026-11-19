@@ -48,39 +48,49 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            padding: const EdgeInsets.fromLTRB(SriPonMetrics.appPadding, 8, SriPonMetrics.appPadding, 0),
             child: Row(
               children: [
                 Expanded(
-                  child: TextField(
-                    controller: _search,
-                    textInputAction: TextInputAction.search,
-                    decoration: InputDecoration(
-                      hintText: 'Search products…',
-                      prefixIcon: const Icon(IconlyLight.search),
-                      isDense: true,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  child: SizedBox(
+                    height: 52,
+                    child: TextField(
+                      controller: _search,
+                      textInputAction: TextInputAction.search,
+                      decoration: const InputDecoration(
+                        hintText: 'Search products…',
+                        prefixIcon: Icon(IconlyLight.search),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(980))),
+                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(980))),
+                        focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(980))),
+                      ),
+                      onSubmitted: (value) {
+                        setState(() {
+                          _q = value.trim().isEmpty ? null : value.trim();
+                          _page = 1;
+                        });
+                      },
                     ),
-                    onSubmitted: (value) {
-                      setState(() {
-                        _q = value.trim().isEmpty ? null : value.trim();
-                        _page = 1;
-                      });
-                    },
                   ),
                 ),
                 const SizedBox(width: 8),
-                PopupMenuButton<ProductSort>(
-                  icon: const Icon(IconlyLight.filter),
-                  tooltip: 'Sort',
-                  initialValue: _sort,
-                  onSelected: (value) => setState(() {
-                    _sort = value;
-                    _page = 1;
-                  }),
-                  itemBuilder: (context) => _sortOptions.map((option) {
-                    return PopupMenuItem(value: option.value, child: Text(option.label));
-                  }).toList(),
+                Container(
+                  decoration: BoxDecoration(
+                    color: SriPonColors.accentSoft,
+                    borderRadius: BorderRadius.circular(980),
+                  ),
+                  child: PopupMenuButton<ProductSort>(
+                    icon: const Icon(IconlyLight.filter, color: SriPonColors.accent),
+                    tooltip: 'Sort',
+                    initialValue: _sort,
+                    onSelected: (value) => setState(() {
+                      _sort = value;
+                      _page = 1;
+                    }),
+                    itemBuilder: (context) => _sortOptions.map((option) {
+                      return PopupMenuItem(value: option.value, child: Text(option.label));
+                    }).toList(),
+                  ),
                 ),
               ],
             ),
@@ -96,7 +106,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
       loading: () => GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(SriPonMetrics.appPadding),
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
           mainAxisSpacing: 12,
@@ -139,7 +149,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
             physics: const AlwaysScrollableScrollPhysics(),
             slivers: [
               SliverPadding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                padding: const EdgeInsets.fromLTRB(SriPonMetrics.appPadding, 12, SriPonMetrics.appPadding, 0),
                 sliver: SliverToBoxAdapter(
                   child: Text(
                     '${response.pagination.total} product${response.pagination.total == 1 ? '' : 's'}'
@@ -149,7 +159,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
                 ),
               ),
               SliverPadding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(SriPonMetrics.appPadding),
                 sliver: SliverGrid(
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,
@@ -216,23 +226,10 @@ class _EmptyCatalogue extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(IconlyLight.search, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
-            const SizedBox(height: 12),
-            Text('No products found', style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 6),
-            Text(
-              'Try a different search or category.',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ],
-        ),
-      ),
+    return const SriPonEmptyState(
+      icon: IconlyLight.search,
+      title: 'No products found',
+      message: 'Try a different search or category.',
     );
   }
 }

@@ -3,55 +3,87 @@ import 'package:flutter/material.dart';
 /// Shared, dependency-free UI primitives for the SriPon Flutter shell.
 /// Feature-specific components are added by the mobile phases.
 
-/// SriPon brand palette — single source of truth, byte-identical to the
-/// web design tokens (web/src/index.css).
+/// SriPon brand palette — single source of truth for the customer app.
+///
+/// The values below are the Apple/Morrow-style mockup tokens chosen for the
+/// mobile redesign. Legacy static names are intentionally retained so every
+/// existing call site keeps compiling; the new semantic aliases are preferred
+/// in new code.
 abstract final class SriPonColors {
-  /// Vibrant brand ember (hero gradients, containers, festive accents).
-  static const ember = Color(0xFFE65C00);
-  static const ember100 = Color(0xFFFFE9D6);
-  static const ember300 = Color(0xFFFFB77E);
-  static const ember900 = Color(0xFF7A2D03);
+  // ── Mockup core tokens ────────────────────────────────────────────────────
+  /// Page background.
+  static const bg = Color(0xFFFFFFFF);
+  static const surface = Color(0xFFF5F5F7);
+  static const surfaceWarm = Color(0xFFFBFBFD);
+  static const fg = Color(0xFF1D1D1F);
+  static const muted = Color(0xFF6E6E73);
+  static const line = Color(0xFFD2D2D7);
+  static const accent = Color(0xFF0071E3);
+  static const accentSoft = Color(0xFFEAF3FF);
+  static const accentDeep = Color(0xFF005BBB);
+  static const successSoft = Color(0xFFE7F6EE);
+  static const warning = Color(0xFFB45309);
 
-  /// Action ember — filled buttons/selections (4.5:1 white text).
-  static const emberDeep = Color(0xFFC2410C);
+  /// Translucent "glass" white used by the sticky header and bottom nav.
+  static const glass = Color(0xDBFFFFFF); // white @ .86
 
-  /// Festive gold accent.
-  static const gold = Color(0xFFD9A021);
-  static const gold100 = Color(0xFFF9EFD4);
-  static const gold900 = Color(0xFF5E3F00);
+  // ── Legacy names (remapped to the mockup palette) ────────────────────────
+  /// Neutral raised surface (was festive ember).
+  static const ember = Color(0xFFF5F5F7);
+  static const ember100 = Color(0xFFFBFBFD);
+  static const ember300 = Color(0xFFD2D2D7);
+  static const ember900 = Color(0xFF1D1D1F);
 
-  /// Warm surfaces + ink.
-  static const paper = Color(0xFFFFF8F0);
-  static const paperStrong = Color(0xFFFFFDF8);
-  static const ink = Color(0xFF241B16);
-  static const inkMuted = Color(0xFF6F5A4C);
-  static const line = Color(0xFFE8DDD0);
+  /// Secondary text / quiet actions.
+  static const emberDeep = Color(0xFF6E6E73);
 
-  /// Flame-orange primary + indigo secondary (deep variants keep text/buttons AA) —
-  /// mirrored from the web flame/indigo tokens.
-  static const flame100 = Color(0xFFFFE8D3);
-  static const flame300 = Color(0xFFFFAB63);
-  static const flame500 = Color(0xFFFF8A3D);
-  static const flame600 = Color(0xFFB94F08);
-  static const flame700 = Color(0xFF93400A);
-  static const indigo100 = Color(0xFFE1E4FC);
-  static const indigo400 = Color(0xFF757BEC);
-  static const indigo500 = Color(0xFF544FD8);
-  static const indigo600 = Color(0xFF4338CA);
-  static const indigo700 = Color(0xFF3730A3);
+  /// Blue accent (was festive gold).
+  static const gold = Color(0xFF0071E3);
+  static const gold100 = Color(0xFFEAF3FF);
+  static const gold900 = Color(0xFF005BBB);
+
+  /// White paper + ink.
+  static const paper = Color(0xFFFFFFFF);
+  static const paperStrong = Color(0xFFFFFFFF);
+  static const ink = Color(0xFF1D1D1F);
+  static const inkMuted = Color(0xFF6E6E73);
+
+  /// Primary blue family.
+  static const flame100 = Color(0xFFEAF3FF);
+  static const flame300 = Color(0xFFA8D0FF);
+  static const flame500 = Color(0xFF0071E3);
+  static const flame600 = Color(0xFF0071E3);
+  static const flame700 = Color(0xFF005BBB);
+
+  /// Secondary blue family.
+  static const indigo100 = Color(0xFFEAF3FF);
+  static const indigo400 = Color(0xFF6FB3FF);
+  static const indigo500 = Color(0xFF0071E3);
+  static const indigo600 = Color(0xFF0071E3);
+  static const indigo700 = Color(0xFF005BBB);
 
   /// Semantic status.
-  static const success = Color(0xFF1B7A33);
-  static const danger = Color(0xFFB3261E);
+  static const success = Color(0xFF0B7D4B);
+  static const danger = Color(0xFFB42318);
 
   /// Legacy aliases (kept for compatibility).
   static const saffron = ember;
   static const saffron600 = emberDeep;
 }
 
+/// Mockup shape + layout tokens for shared use across feature screens.
+abstract final class SriPonMetrics {
+  static const double appPadding = 18;
+  static const double navHeight = 72;
+  static const double cardRadius = 24;
+  static const double rowRadius = 16;
+  static const double touchTarget = 44;
+  static const double displayTracking = -0.015;
+}
+
 /// Inline loading indicator used by buttons and refresh actions.
 class SriPonSpinner extends StatelessWidget {
-  const SriPonSpinner({super.key, this.size = 18, this.color = Colors.white});
+  const SriPonSpinner({super.key, this.size = 18, this.color = SriPonColors.muted});
 
   final double size;
   final Color color;
@@ -66,8 +98,9 @@ class SriPonSpinner extends StatelessWidget {
   }
 }
 
-/// Shimmering placeholder surface for skeletons (loading cards, image wells).
-/// A soft ember highlight sweeps left→right over [SriPonColors.paperStrong].
+/// Neutral shimmer placeholder for skeletons (loading cards, image wells).
+/// A soft white highlight sweeps left→right over [SriPonColors.surface].
+/// The sweep is disabled when the user has requested reduced motion.
 class SriPonShimmer extends StatefulWidget {
   const SriPonShimmer({super.key, this.borderRadius = 8});
 
@@ -78,8 +111,22 @@ class SriPonShimmer extends StatefulWidget {
 }
 
 class _SriPonShimmerState extends State<SriPonShimmer> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 1300))..repeat();
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1300),
+  );
+  bool _reduceMotion = false;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _reduceMotion = MediaQuery.disableAnimationsOf(context);
+    if (_reduceMotion) {
+      if (_controller.isAnimating) _controller.stop();
+    } else if (!_controller.isAnimating) {
+      _controller.repeat();
+    }
+  }
 
   @override
   void dispose() {
@@ -89,8 +136,16 @@ class _SriPonShimmerState extends State<SriPonShimmer> with SingleTickerProvider
 
   @override
   Widget build(BuildContext context) {
-    final base = SriPonColors.line.withValues(alpha: 0.55);
-    final glow = Colors.white.withValues(alpha: 0.85);
+    const base = SriPonColors.surface;
+    if (_reduceMotion) {
+      return Container(
+        decoration: BoxDecoration(
+          color: base,
+          borderRadius: BorderRadius.circular(widget.borderRadius),
+        ),
+      );
+    }
+    final glow = Colors.white.withValues(alpha: 0.9);
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) {
@@ -127,6 +182,7 @@ class _SweepGradientTransform extends GradientTransform {
 
 /// Empty-state placeholder that keeps the shell usable before live data
 /// arrives (browsing continues, cart/wishlist show honest empty content).
+/// Rendered as a neutral card with a small blue icon tile.
 class SriPonEmptyState extends StatelessWidget {
   const SriPonEmptyState({
     super.key,
@@ -143,35 +199,46 @@ class SriPonEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 72,
-              height: 72,
-              decoration: BoxDecoration(
-                color: scheme.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
+        padding: const EdgeInsets.fromLTRB(18, 24, 18, 32),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(20, 22, 20, 22),
+          decoration: BoxDecoration(
+            color: SriPonColors.surfaceWarm,
+            borderRadius: BorderRadius.circular(SriPonMetrics.cardRadius),
+            border: Border.all(color: SriPonColors.line),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: SriPonColors.accentSoft,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(icon, size: 22, color: SriPonColors.accent),
               ),
-              child: Icon(icon, size: 34, color: scheme.primary),
-            ),
-            const SizedBox(height: 18),
-            Text(title, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: Theme.of(context)
-                  .textTheme
-                  .bodyMedium
-                  ?.copyWith(color: SriPonColors.inkMuted),
-            ),
-            if (action != null) ...[const SizedBox(height: 20), action!],
-          ],
+              const SizedBox(height: 14),
+              Text(
+                title,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 18),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                message,
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: SriPonColors.muted, fontSize: 13),
+              ),
+              if (action != null) ...[const SizedBox(height: 18), action!],
+            ],
+          ),
         ),
       ),
     );

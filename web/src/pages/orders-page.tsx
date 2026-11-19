@@ -38,14 +38,14 @@ function OrdersContent() {
 
   if (ordersQuery.isLoading) {
     return (
-      <section className="mx-auto max-w-7xl px-4 py-12">
+      <section className="mx-auto max-w-5xl px-4 py-12">
         <Spinner label="Loading your orders…" />
       </section>
     );
   }
   if (ordersQuery.isError) {
     return (
-      <section className="mx-auto max-w-7xl px-4 py-12">
+      <section className="mx-auto max-w-5xl px-4 py-12">
         <ErrorState error={ordersQuery.error} />
       </section>
     );
@@ -55,12 +55,12 @@ function OrdersContent() {
 
   if (items.length === 0) {
     return (
-      <section className="mx-auto max-w-7xl px-4 py-12">
-        <h1 className="text-2xl font-bold text-ember-800">Orders</h1>
+      <section className="mx-auto max-w-5xl px-4 py-12">
+        <h1 className="font-display text-3xl font-semibold text-ink">Orders</h1>
         <div className="mt-4">
           <EmptyState title="No orders yet">
             <p>
-              <Link to="/products" className="font-medium text-flame-600 underline">Browse the catalogue</Link> and
+              <Link to="/products" className="font-medium text-accent underline">Browse the catalogue</Link> and
               place your first order.
             </p>
           </EmptyState>
@@ -70,25 +70,25 @@ function OrdersContent() {
   }
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-8">
-      <h1 className="text-2xl font-bold text-ember-800">Orders</h1>
+    <section className="mx-auto max-w-5xl px-4 py-8">
+      <h1 className="font-display text-3xl font-semibold text-ink">Orders</h1>
       <ul className="mt-6 space-y-4">
         {items.map((order) => (
           <li key={order.id}>
             <Link
               to={`/orders/${order.id}`}
-              className="flex flex-col gap-3 rounded-xl border border-ember-100 bg-white p-4 transition hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-3 rounded-3xl border border-line bg-white p-4 transition hover:shadow-md sm:flex-row sm:items-center sm:justify-between"
             >
               <div>
-                <p className="font-mono text-sm font-semibold text-ember-900">{order.orderNumber}</p>
-                <p className="mt-0.5 text-xs text-ember-900/50">{formatDateTime(order.createdAt)}</p>
-                <p className="mt-1 text-sm text-ember-900/70">
+                <p className="font-mono text-sm font-semibold text-ink">{order.orderNumber}</p>
+                <p className="mt-0.5 text-xs text-ink-muted">{formatDateTime(order.createdAt)}</p>
+                <p className="mt-1 text-sm text-ink-muted">
                   {order.items.length} item{order.items.length === 1 ? '' : 's'} · {order.items[0]?.productName}
                   {order.items.length > 1 ? ' +' : ''}
                 </p>
               </div>
               <div className="flex items-center gap-4">
-                <p className="font-bold text-ember-800">{formatMoney(order.grandTotal)}</p>
+                <p className="font-bold text-ink">{formatMoney(order.grandTotal)}</p>
                 <OrderStatusBadge status={order.status} />
                 <PaymentBadge status={order.paymentStatus} />
               </div>
@@ -102,17 +102,17 @@ function OrdersContent() {
           <button
             disabled={page <= 1}
             onClick={() => setPage((p) => p - 1)}
-            className="rounded-lg border border-ember-200 px-3 py-1.5 text-sm disabled:opacity-40"
+            className="rounded-lg border border-line px-3 py-1.5 text-sm disabled:opacity-40"
           >
             Previous
           </button>
-          <span className="px-2 text-sm text-ember-900/60">
+          <span className="px-2 text-sm text-ink-muted">
             Page {pagination.page} of {pagination.pages}
           </span>
           <button
             disabled={page >= pagination.pages}
             onClick={() => setPage((p) => p + 1)}
-            className="rounded-lg border border-ember-200 px-3 py-1.5 text-sm disabled:opacity-40"
+            className="rounded-lg border border-line px-3 py-1.5 text-sm disabled:opacity-40"
           >
             Next
           </button>

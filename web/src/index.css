@@ -1,102 +1,115 @@
-@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;500;600;700&family=Rubik:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 /* ------------------------------------------------------------------ */
-/* SriPon design tokens — banked against the Flutter app palette       */
-/* (mobile/lib/core/widgets/widgets.dart: ember = saffron, gold,       */
-/* paper, ink, line — kept byte-identical so both apps match).         */
+/* SriPon storefront tokens — Apple/Morrow-style neutral + blue.       */
+/* Existing utility names (ember/flame/indigo/gold/paper/ink/line) are  */
+/* kept so no component has to be rewritten just to change palette.    */
 /* ------------------------------------------------------------------ */
 
 @theme {
-  --font-sans: "Nunito Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Rubik", "Nunito Sans", ui-sans-serif, sans-serif;
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", sans-serif;
   --default-font-family: var(--font-sans);
 
-  /* Ember — primary brand orange (saffron #e65c00, deep #c2410c). */
-  --color-ember-50: #fff6ed;
-  --color-ember-100: #ffe9d6;
-  --color-ember-200: #ffd2ae;
-  --color-ember-300: #ffb77e;
-  --color-ember-400: #f7934a;
-  --color-ember-500: #ef751f;
-  --color-ember-600: #e65c00;
-  --color-ember-700: #c2410c;
-  --color-ember-800: #9a3b05;
-  --color-ember-900: #7a2d03;
-  --color-ember-950: #4c1c02;
+  /* Neutral surface ramp — warm tints become cool grays. */
+  --color-ember-50: #fbfbfd;
+  --color-ember-100: #f5f5f7;
+  --color-ember-200: #d2d2d7;
+  --color-ember-300: #b8b8bd;
+  --color-ember-400: #8e8e93;
+  --color-ember-500: #6e6e73;
+  --color-ember-600: #424245;
+  --color-ember-700: #2d2d30;
+  --color-ember-800: #1d1d1f;
+  --color-ember-900: #1d1d1f;
+  --color-ember-950: #000000;
 
-  /* Gold — secondary festive accent. */
-  --color-gold-100: #f9efd4;
-  --color-gold-200: #f2dfa4;
-  --color-gold-300: #e9cc72;
-  --color-gold-400: #e0b94a;
-  --color-gold-500: #d9a021;
-  --color-gold-600: #b98315;
-  --color-gold-700: #9e6a00;
-  --color-gold-800: #7d5400;
-  --color-gold-900: #5e3f00;
+  /* Primary accent (flame token name → Apple blue). */
+  --color-flame-50: #f5f9ff;
+  --color-flame-100: #eaf3ff;
+  --color-flame-200: #cfe5ff;
+  --color-flame-300: #a8d0ff;
+  --color-flame-400: #6fb3ff;
+  --color-flame-500: #0071e3;
+  --color-flame-600: #0071e3;
+  --color-flame-700: #005bbb;
 
-  /* Flame — engaging primary orange (anchor #ff8a3d); deep variants keep text/buttons AA. */
-  --color-flame-50: #fff6ec;
-  --color-flame-100: #ffe8d3;
-  --color-flame-200: #ffcf9f;
-  --color-flame-300: #ffab63;
-  --color-flame-400: #ff9440;
-  --color-flame-500: #ff8a3d;
-  --color-flame-600: #b94f08;
-  --color-flame-700: #93400a;
+  /* Secondary accent (indigo token name → same blue scale). */
+  --color-indigo-50: #eaf3ff;
+  --color-indigo-100: #d8eaff;
+  --color-indigo-200: #b6d8ff;
+  --color-indigo-300: #82bbff;
+  --color-indigo-400: #4294f0;
+  --color-indigo-500: #0071e3;
+  --color-indigo-600: #0071e3;
+  --color-indigo-700: #005bbb;
 
-  /* Indigo — engaging secondary (anchor #4338ca); deep variants keep text/buttons AA. */
-  --color-indigo-50: #eef0fd;
-  --color-indigo-100: #e1e4fc;
-  --color-indigo-200: #c6cbf9;
-  --color-indigo-300: #a2a8f4;
-  --color-indigo-400: #757bec;
-  --color-indigo-500: #544fd8;
-  --color-indigo-600: #4338ca;
-  --color-indigo-700: #3730a3;
+  /* Former festive accent → blue / ink. */
+  --color-gold-100: #eaf3ff;
+  --color-gold-200: #cfe5ff;
+  --color-gold-300: #a8d0ff;
+  --color-gold-400: #6fb3ff;
+  --color-gold-500: #0071e3;
+  --color-gold-600: #0071e3;
+  --color-gold-700: #005bbb;
+  --color-gold-800: #1d1d1f;
+  --color-gold-900: #1d1d1f;
 
-  /* Warm surfaces + ink. */
-  --color-paper: #fff8f0;
-  --color-paper-strong: #fffdf8;
-  --color-ink: #241b16;
-  --color-ink-muted: #6f5a4c;
-  --color-line: #e8ddd0;
+  /* Surfaces + ink. */
+  --color-paper: #ffffff;
+  --color-paper-strong: #ffffff;
+  --color-ink: #1d1d1f;
+  --color-ink-muted: #6e6e73;
+  --color-line: #d2d2d7;
+  --color-surface: #f5f5f7;
+  --color-surface-warm: #fbfbfd;
+  --color-accent: #0071e3;
+  --color-accent-soft: #eaf3ff;
 
-  /* Semantic aliases. */
-  --color-background: #fff8f0;
-  --color-foreground: #241b16;
+  /* Semantic status colors. */
+  --color-success: #0b7d4b;
+  --color-success-soft: #e7f6ee;
+  --color-warning: #b45309;
+  --color-danger: #b42318;
 
-  /* Elevated surfaces — soft warm shadows for the card/shadow scale. */
-  --shadow-card: 0 1px 2px rgb(74 36 12 / 0.05), 0 5px 14px rgb(74 36 12 / 0.07);
-  --shadow-lifted: 0 2px 4px rgb(74 36 12 / 0.06), 0 18px 36px rgb(74 36 12 / 0.14);
-  --shadow-pop: 0 1px 2px rgb(74 36 12 / 0.08), 0 10px 24px rgb(74 36 12 / 0.18);
-  --shadow-cta: 0 8px 20px rgb(185 79 8 / 0.35);
+  --color-background: #ffffff;
+  --color-foreground: #1d1d1f;
 
-  /* Shape scale — Apple-style: generous radii. */
-  --radius-card: 1.5rem;
-  --radius-lift: 1.75rem;
-  --radius-sheet: 2rem;
+  /* Neutral elevation scale. */
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.06);
+  --shadow-md: 0 12px 34px rgb(0 0 0 / 0.10);
+  --shadow-lg: 0 28px 80px rgb(0 0 0 / 0.16);
+  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.06);
+  --shadow-lifted: 0 12px 34px rgb(0 0 0 / 0.10);
+  --shadow-pop: 0 12px 34px rgb(0 0 0 / 0.10);
+  --shadow-cta: 0 12px 34px rgb(0 113 227 / 0.22);
+  --shadow-material: 0 1px 2px rgb(0 0 0 / 0.06);
+  --shadow-material-lg: 0 12px 34px rgb(0 0 0 / 0.10);
 
-  /* Material / glass surfaces (Apple-style translucency). */
-  --color-glass: rgb(255 255 255 / 0.72);
-  --shadow-material: 0 1px 2px rgb(0 0 0 / 0.04), 0 12px 34px rgb(0 0 0 / 0.08);
-  --shadow-material-lg: 0 2px 4px rgb(0 0 0 / 0.06), 0 28px 80px rgb(0 0 0 / 0.14);
+  /* Shape scale — rounded-xl is the 24px card radius. */
+  --radius-card: 24px;
+  --radius-lift: 28px;
+  --radius-sheet: 32px;
+  --radius-xl: 24px;
+  --radius-lg: 14px;
+  --radius-md: 14px;
+  --radius-2xl: 28px;
 
-  /* Spring-ish transition easings (Apple-style). */
+  /* Glass surface for the sticky nav. */
+  --color-glass: rgb(255 255 255 / 0.86);
+
+  /* Spring-ish transition easings. */
   --ease-spring: cubic-bezier(0.32, 0.72, 0, 1);
   --ease-spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
 
-  /* Typography details for display faces. */
-  --tracking-display: -0.02em;
-  --tracking-eyebrow: 0.12em;
-
-  /* Festive sparkle pattern (inline SVG, subtle gold on transparent). */
-  --background-image-sparkle: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44' viewBox='0 0 44 44'%3E%3Cpath d='M22 7l2.4 7.6L32 17l-7.6 2.4L22 27l-2.4-7.6L12 17l7.6-2.4z' fill='%23ffd98a' fill-opacity='0.22'/%3E%3Cpath d='M40 34l1.2 3.8L45 39l-3.8 1.2L40 44l-1.2-3.8L35 39l3.8-1.2z' fill='%23ffd98a' fill-opacity='0.18'/%3E%3C/svg%3E");
+  /* Typography details. */
+  --tracking-display: -0.015em;
+  --tracking-eyebrow: 0.11em;
 }
 
 @layer base {
   html {
+    scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
@@ -104,16 +117,19 @@
   body {
     background-color: var(--color-background);
     color: var(--color-ink);
+    font-size: 17px;
+    line-height: 1.5;
   }
 
   ::selection {
-    background-color: var(--color-flame-100);
+    background-color: var(--color-accent-soft);
     color: var(--color-ink);
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-indigo-600);
+    outline: 2px solid var(--color-accent);
     outline-offset: 2px;
+    box-shadow: 0 0 0 4px rgb(0 113 227 / 0.18);
   }
 
   h1,
@@ -125,18 +141,18 @@
 }
 
 @layer components {
-  /* Skeleton shimmer loader — respects prefers-reduced-motion via the global block. */
+  /* Neutral skeleton shimmer — no warm tint. */
   .shimmer {
     position: relative;
     overflow: hidden;
-    background-color: var(--color-ember-100);
+    background-color: var(--color-surface);
   }
   .shimmer::after {
     content: '';
     position: absolute;
     inset: 0;
     transform: translateX(-100%);
-    background-image: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.6), transparent);
+    background-image: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.5), transparent);
     animation: shimmer-sweep 1.6s infinite;
   }
   @keyframes shimmer-sweep {
@@ -145,22 +161,7 @@
     }
   }
 
-  /* Announcement ribbon marquee. */
-  .marquee {
-    overflow: hidden;
-  }
-  .marquee-track {
-    display: flex;
-    width: max-content;
-    animation: marquee-scroll 26s linear infinite;
-  }
-  @keyframes marquee-scroll {
-    to {
-      transform: translateX(-50%);
-    }
-  }
-
-  /* Gentle float for hero accents and floating badges. */
+  /* Gentle float for the hero art — disabled under reduced motion. */
   .animate-float {
     animation: float-y 7s ease-in-out infinite;
   }
@@ -174,12 +175,28 @@
     }
   }
 
+  /* Orbit rings behind the hero product stage. */
+  .hero-orbit {
+    position: absolute;
+    width: min(430px, 92%);
+    aspect-ratio: 1;
+    border: 1px solid var(--color-line);
+    border-radius: 50%;
+  }
+  .hero-orbit::after {
+    content: '';
+    position: absolute;
+    inset: 52px;
+    border: 1px solid var(--color-line);
+    border-radius: 50%;
+  }
+
   /* Apple-style material navigation bar (translucent, content scrolls under). */
   .material-nav {
     background: var(--color-glass);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border-bottom: 1px solid rgb(0 0 0 / 0.06);
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    border-bottom: 1px solid var(--color-line);
   }
 
   /* Spring hover lift for cards/buttons. */
@@ -188,17 +205,23 @@
   }
   .spring-lift:hover {
     transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
   }
 
-  /* Pill CTA — Apple-style. */
+  /* Pill CTA — mockup geometry with press feedback. */
   .pill-cta {
     border-radius: 980px;
     padding: 0.75rem 1.75rem;
     font-weight: 600;
-    transition: transform 200ms var(--ease-spring), background-color 200ms var(--ease-spring);
+    transition: transform 200ms var(--ease-spring), background-color 200ms var(--ease-spring),
+      box-shadow 200ms var(--ease-spring);
+  }
+  .pill-cta:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
   }
   .pill-cta:active {
-    transform: scale(0.97);
+    transform: scale(0.95);
   }
 }
 
@@ -207,9 +230,16 @@
   ::before,
   ::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+  .animate-float,
+  .shimmer::after {
+    animation: none !important;
+    opacity: 0;
   }
 }
 
@@ -224,8 +254,12 @@
 @media (prefers-contrast: more) {
   :root {
     --color-line: #8a8a8e;
+    --color-ink-muted: #424245;
   }
   .material-nav {
-    border-bottom: 2px solid #000000;
+    border-bottom-width: 2px;
+  }
+  :focus-visible {
+    outline-width: 3px;
   }
 }

@@ -1,36 +1,69 @@
 @import "tailwindcss";
 
+/* ------------------------------------------------------------------ */
+/* Sreepon admin tokens — aligned with the customer storefront's       */
+/* Apple/Morrow palette (user-selected mockup theme). Legacy token     */
+/* names are preserved so existing admin utilities keep working.       */
+/* ------------------------------------------------------------------ */
+
 @theme {
-  /* Aligned with the customer storefront (web/src/index.css) so both apps share a brand. */
-  --color-ember-50: #fff6ed;
-  --color-ember-100: #ffe9d6;
-  --color-ember-200: #ffd2ae;
-  --color-ember-300: #ffb77e;
-  --color-ember-400: #f7934a;
-  --color-ember-500: #ef751f;
-  --color-ember-600: #e65c00;
-  --color-ember-700: #c2410c;
-  --color-ember-800: #9a3b05;
-  --color-ember-900: #7a2d03;
-  --color-ember-950: #4c1c02;
+  /* Neutral surfaces + ink. */
+  --color-ember-50: #fbfbfd;
+  --color-ember-100: #f5f5f7;
+  --color-ember-200: #d2d2d7;
+  --color-ember-300: #b8b8bd;
+  --color-ember-400: #8e8e93;
+  --color-ember-500: #6e6e73;
+  --color-ember-600: #424245;
+  --color-ember-700: #2d2d30;
+  --color-ember-800: #1d1d1f;
+  --color-ember-900: #1d1d1f;
+  --color-ember-950: #000000;
 
-  --color-flame-50: #FFF6EC;
-  --color-flame-100: #FFE8D3;
-  --color-flame-200: #FFCF9F;
-  --color-flame-300: #FFAB63;
-  --color-flame-400: #FF9440;
-  --color-flame-500: #FF8A3D;
-  --color-flame-600: #B94F08;
-  --color-flame-700: #93400A;
+  /* Accent blue. flame-* is the primary action; indigo-* is secondary. */
+  --color-flame-50: #f5f9ff;
+  --color-flame-100: #eaf3ff;
+  --color-flame-200: #cfe5ff;
+  --color-flame-300: #a8d0ff;
+  --color-flame-400: #6fb3ff;
+  --color-flame-500: #0071e3;
+  --color-flame-600: #0071e3;
+  --color-flame-700: #005bbb;
 
-  --color-indigo-50: #EEF0FD;
-  --color-indigo-100: #E1E4FC;
-  --color-indigo-200: #C6CBF9;
-  --color-indigo-300: #A2A8F4;
-  --color-indigo-400: #757BEC;
-  --color-indigo-500: #544FD8;
-  --color-indigo-600: #4338CA;
-  --color-indigo-700: #3730A3;
+  --color-indigo-50: #eaf3ff;
+  --color-indigo-100: #d8eaff;
+  --color-indigo-200: #b6d8ff;
+  --color-indigo-300: #82bbff;
+  --color-indigo-400: #6fb3ff;
+  --color-indigo-500: #0071e3;
+  --color-indigo-600: #0071e3;
+  --color-indigo-700: #005bbb;
+
+  --color-gold-100: #eaf3ff;
+  --color-gold-300: #a8d0ff;
+  --color-gold-400: #6fb3ff;
+  --color-gold-500: #0071e3;
+  --color-gold-600: #0071e3;
+  --color-gold-700: #005bbb;
+  --color-gold-800: #1d1d1f;
+  --color-gold-900: #1d1d1f;
+
+  --color-paper: #ffffff;
+  --color-paper-strong: #ffffff;
+  --color-ink: #1d1d1f;
+  --color-ink-muted: #6e6e73;
+  --color-line: #d2d2d7;
+  --color-background: #ffffff;
+  --color-foreground: #1d1d1f;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
+    "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-sans);
+  --tracking-display: -0.015em;
+
+  --radius-md: 0.875rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.5rem;
 }
 
 html,
@@ -41,16 +74,20 @@ body,
 
 body {
   margin: 0;
-  background-color: #f8fafc;
-  color: #1e293b;
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    "Segoe UI",
-    Roboto,
-    "Helvetica Neue",
-    Arial,
-    sans-serif;
+  background-color: #f5f5f7;
+  color: #1d1d1f;
+  font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3 {
+  letter-spacing: var(--tracking-display);
+}
+
+:focus-visible {
+  outline: 2px solid #0071e3;
+  outline-offset: 2px;
 }

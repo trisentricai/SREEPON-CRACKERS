@@ -9,7 +9,8 @@ import '../models/models.dart';
 import '../utils/format.dart';
 import 'widgets.dart';
 
-export 'widgets.dart' show SriPonEmptyState, SriPonSpinner, SriPonMinusIcon, SriPonColors;
+export 'widgets.dart'
+    show SriPonEmptyState, SriPonSpinner, SriPonMinusIcon, SriPonColors, SriPonMetrics;
 
 /// Map a focal-point preset to a Flutter [Alignment] for image cropping.
 Alignment imagePositionAlignment(ImagePosition position) {
@@ -56,13 +57,12 @@ class SriponImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     final placeholder = Container(
       width: width,
       height: height,
-      color: scheme.surfaceContainerHighest,
+      color: SriPonColors.surface,
       alignment: Alignment.center,
-      child: Icon(IconlyLight.ticket_star, color: scheme.primary.withValues(alpha: 0.4)),
+      child: Icon(IconlyLight.ticket_star, color: SriPonColors.accent.withValues(alpha: 0.32)),
     );
 
     final value = url;
@@ -80,19 +80,24 @@ class SriponImage extends StatelessWidget {
         return SizedBox(
           width: width,
           height: height,
-          child: SriPonShimmer(borderRadius: 0),
+          child: const SriPonShimmer(borderRadius: 0),
         );
       },
     );
   }
 }
 
-/// Horizontal product card used in grids and carousels.
+/// Mockup-style product card: white 16px surface, neutral image well, 14px
+/// bold name, muted note, price, and an optional 44px circular Add button.
 class ProductCard extends StatefulWidget {
-  const ProductCard({super.key, required this.product, this.onTap});
+  const ProductCard({super.key, required this.product, this.onTap, this.onAdd});
 
   final Product product;
   final VoidCallback? onTap;
+
+  /// When supplied, shows the circular quick-add button (cart mutation is
+  /// owned by the caller so auth/API behaviour stays in the feature layer).
+  final VoidCallback? onAdd;
 
   @override
   State<ProductCard> createState() => _ProductCardState();
@@ -105,91 +110,132 @@ class _ProductCardState extends State<ProductCard> {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     final discount = discountPercent(product.basePrice, product.mrpPrice);
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: scheme.outlineVariant),
+        borderRadius: BorderRadius.circular(SriPonMetrics.rowRadius),
+        border: Border.all(color: SriPonColors.line),
+        boxShadow: const [
+          BoxShadow(color: Color(0x0F000000), blurRadius: 2, offset: Offset(0, 1)),
+        ],
       ),
       child: AnimatedPhysicalModel(
         duration: const Duration(milliseconds: 180),
         curve: Curves.easeOut,
-        elevation: _pressed ? 4 : 0,
-        borderRadius: BorderRadius.circular(14),
-        color: scheme.surfaceContainerLow,
-        shadowColor: Colors.black.withValues(alpha: 0.22),
+        elevation: _pressed ? 6 : 0,
+        borderRadius: BorderRadius.circular(SriPonMetrics.rowRadius),
+        color: SriPonColors.bg,
+        shadowColor: Colors.black.withValues(alpha: 0.12),
         clipBehavior: Clip.antiAlias,
-        child: InkWell(
-          onTap: widget.onTap,
-          onHighlightChanged: (value) => setState(() => _pressed = value),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    SriponImage(url: product.coverUrl, alignment: imagePositionAlignment(product.coverPosition)),
-                    if (discount != null)
-                      Positioned(
-                        top: 8,
-                        left: 8,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: scheme.tertiaryContainer,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            '$discount% off',
-                            style: TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w700,
-                              color: scheme.onTertiaryContainer,
-                            ),
+        child: Stack(
+          children: [
+            InkWell(
+              onTap: widget.onTap,
+              onHighlightChanged: (value) => setState(() => _pressed = value),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: AspectRatio(
+                      aspectRatio: 1.18,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: SizedBox.expand(
+                          child: SriponImage(
+                            url: product.coverUrl,
+                            width: double.infinity,
+                            height: double.infinity,
+                            alignment: imagePositionAlignment(product.coverPosition),
                           ),
                         ),
                       ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(10),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      product.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleSmall,
                     ),
-                    const SizedBox(height: 4),
-                    if (product.category != null)
-                      Text(
-                        product.category!.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: Theme.of(context)
-                            .textTheme
-                            .bodySmall
-                            ?.copyWith(color: scheme.onSurfaceVariant),
-                      ),
-                    const SizedBox(height: 6),
-                    PriceRow(basePrice: product.basePrice, mrpPrice: product.mrpPrice),
-                  ],
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 58),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          product.name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: -0.01,
+                              ),
+                        ),
+                        const SizedBox(height: 3),
+                        if (product.category != null)
+                          Text(
+                            product.category!.name,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: SriPonColors.muted,
+                                  fontSize: 11.5,
+                                ),
+                          ),
+                        const SizedBox(height: 5),
+                        PriceRow(basePrice: product.basePrice, mrpPrice: product.mrpPrice, size: 'compact'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (discount != null)
+              Positioned(
+                top: 18,
+                left: 18,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: SriPonColors.accentSoft,
+                    borderRadius: BorderRadius.circular(980),
+                  ),
+                  child: Text(
+                    '$discount% off',
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: SriPonColors.accentDeep,
+                    ),
+                  ),
                 ),
               ),
-            ],
-          ),
+            if (widget.onAdd != null)
+              Positioned(
+                right: 9,
+                bottom: 9,
+                child: Semantics(
+                  button: true,
+                  label: 'Add ${product.name} to cart',
+                  child: Material(
+                    color: SriPonColors.fg,
+                    shape: const CircleBorder(),
+                    clipBehavior: Clip.antiAlias,
+                    child: InkWell(
+                      onTap: widget.onAdd,
+                      child: const SizedBox(
+                        width: 44,
+                        height: 44,
+                        child: Icon(IconlyLight.plus, size: 18, color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
   }
 }
 
-/// Compact circular category tile (home page + category rail).
+/// Compact pill category chip (home category rail, category sections).
 class CategoryTile extends StatelessWidget {
   const CategoryTile({super.key, required this.name, required this.imageUrl, this.onTap});
 
@@ -199,37 +245,37 @@ class CategoryTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ClipOval(
-            child: SizedBox(
-              width: 64,
-              height: 64,
-              child: imageUrl == null
-                  ? Container(
-                      color: scheme.surfaceContainerHighest,
-                      child: Icon(IconlyLight.category, color: scheme.primary),
-                    )
-                  : SriponImage(url: imageUrl, fit: BoxFit.cover),
-            ),
+    return Material(
+      color: SriPonColors.bg,
+      borderRadius: BorderRadius.circular(980),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(980),
+        child: Container(
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(980),
+            border: Border.all(color: SriPonColors.line),
           ),
-          const SizedBox(height: 6),
-          SizedBox(
-            width: 72,
-            child: Text(
-              name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.labelMedium,
-            ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(IconlyLight.category, size: 16, color: SriPonColors.accent),
+              const SizedBox(width: 8),
+              Text(
+                name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                      color: SriPonColors.muted,
+                    ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -245,26 +291,28 @@ class PriceRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final heading = size == 'large' ? Theme.of(context).textTheme.titleLarge : Theme.of(context).textTheme.titleMedium;
-    final label = size == 'large' ? Theme.of(context).textTheme.bodyMedium : Theme.of(context).textTheme.bodySmall;
+    final theme = Theme.of(context).textTheme;
+    final compact = size == 'compact';
+    final heading = switch (size) {
+      'compact' => theme.bodyMedium?.copyWith(
+          fontSize: 13, fontWeight: FontWeight.w700, color: SriPonColors.fg),
+      'large' => theme.titleLarge?.copyWith(fontWeight: FontWeight.w700, color: SriPonColors.accent),
+      _ => theme.titleMedium?.copyWith(fontWeight: FontWeight.w700, color: SriPonColors.accent),
+    };
+    final label = compact
+        ? theme.bodySmall?.copyWith(fontSize: 11, color: SriPonColors.muted)
+        : theme.bodySmall?.copyWith(color: SriPonColors.muted);
     final hasDiscount = discountPercent(basePrice, mrpPrice) != null;
     return Wrap(
       spacing: 6,
       runSpacing: 2,
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
-        Text(
-          formatMoney(basePrice),
-          style: heading?.copyWith(color: scheme.primary, fontWeight: FontWeight.w700),
-        ),
+        Text(formatMoney(basePrice), style: heading),
         if (hasDiscount && mrpPrice != null)
           Text(
             formatMoney(mrpPrice),
-            style: label?.copyWith(
-              color: scheme.onSurfaceVariant,
-              decoration: TextDecoration.lineThrough,
-            ),
+            style: label?.copyWith(decoration: TextDecoration.lineThrough),
           ),
       ],
     );
@@ -277,46 +325,46 @@ class StatusChip extends StatelessWidget {
 
   final String label;
 
+  static const Color _neutral = Color(0xFF6E6E73);
   static const Map<String, Color> _colors = {
-    'PENDING': Color(0xFF8A6D1D),
-    'CONFIRMED': Color(0xFF1F6F43),
-    'PROCESSING': Color(0xFF1F6F43),
-    'PACKED': Color(0xFF1F6F43),
-    'SHIPPED': Color(0xFF2962B0),
-    'OUT_FOR_DELIVERY': Color(0xFF2962B0),
-    'DELIVERED': Color(0xFF1B7A33),
-    'CANCELLED': Color(0xFFB3261E),
-    'RETURN_REQUESTED': Color(0xFF8A3A9B),
-    'RETURNED': Color(0xFF6E6E6E),
-    'PAID': Color(0xFF1B7A33),
-    'FAILED': Color(0xFFB3261E),
-    'REFUNDED': Color(0xFF6E6E6E),
-    'PARTIALLY_REFUNDED': Color(0xFF8A6D1D),
+    'PENDING': SriPonColors.warning,
+    'CONFIRMED': SriPonColors.success,
+    'PROCESSING': SriPonColors.success,
+    'PACKED': SriPonColors.success,
+    'SHIPPED': SriPonColors.accent,
+    'OUT_FOR_DELIVERY': SriPonColors.accent,
+    'DELIVERED': SriPonColors.success,
+    'CANCELLED': SriPonColors.danger,
+    'RETURN_REQUESTED': SriPonColors.warning,
+    'RETURNED': _neutral,
+    'PAID': SriPonColors.success,
+    'FAILED': SriPonColors.danger,
+    'REFUNDED': _neutral,
+    'PARTIALLY_REFUNDED': SriPonColors.warning,
   };
 
   @override
   Widget build(BuildContext context) {
-    final color = _colors[label] ?? const Color(0xFF6E6E6E);
+    final color = _colors[label] ?? _neutral;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(980),
       ),
       child: Text(
         label.split('_').map((part) => part[0] + part.substring(1).toLowerCase()).join(' '),
         style: TextStyle(
           fontSize: 11,
-          fontWeight: FontWeight.w600,
+          fontWeight: FontWeight.w700,
           color: color,
-          letterSpacing: 0.2,
         ),
       ),
     );
   }
 }
 
-/// Generic API error placeholder with retry.
+/// Generic API error placeholder with retry, on a neutral card.
 class ErrorView extends StatelessWidget {
   const ErrorView({super.key, required this.error, this.onRetry});
 
@@ -325,25 +373,45 @@ class ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(IconlyLight.danger, size: 40, color: scheme.error),
-            const SizedBox(height: 12),
-            Text(
-              error.toString(),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: scheme.onSurfaceVariant),
-            ),
-            if (onRetry != null) ...[
-              const SizedBox(height: 16),
-              FilledButton.tonalIcon(onPressed: onRetry, icon: const Icon(IconlyLight.swap), label: const Text('Retry')),
+        padding: const EdgeInsets.fromLTRB(18, 24, 18, 32),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+          decoration: BoxDecoration(
+            color: SriPonColors.surfaceWarm,
+            borderRadius: BorderRadius.circular(SriPonMetrics.cardRadius),
+            border: Border.all(color: SriPonColors.line),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: SriPonColors.danger.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: const Icon(IconlyLight.danger, size: 22, color: SriPonColors.danger),
+              ),
+              const SizedBox(height: 14),
+              Text(
+                error.toString(),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: SriPonColors.muted),
+              ),
+              if (onRetry != null) ...[
+                const SizedBox(height: 18),
+                FilledButton.icon(
+                  onPressed: onRetry,
+                  icon: const Icon(IconlyLight.swap, size: 18),
+                  label: const Text('Retry'),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -361,39 +429,30 @@ class SectionHeading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      padding: const EdgeInsets.fromLTRB(18, 8, 18, 10),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (overline != null) ...[
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 22,
-                        height: 3,
-                        decoration: BoxDecoration(
-                          color: SriPonColors.gold,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        overline!,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: SriPonColors.gold900,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 1.6,
-                            ),
-                      ),
-                    ],
+                  Text(
+                    overline!.toUpperCase(),
+                    style: const TextStyle(
+                      fontSize: 10.5,
+                      fontWeight: FontWeight.w700,
+                      color: SriPonColors.accent,
+                      letterSpacing: 1.2,
+                    ),
                   ),
-                  const SizedBox(height: 6),
+                  const SizedBox(height: 4),
                 ],
-                Text(title, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                Text(
+                  title,
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 20),
+                ),
               ],
             ),
           ),

@@ -36,7 +36,7 @@ class WishlistScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Wishlist')),
       body: wishlist.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: SriPonSpinner(size: 24)),
         error: (error, stack) => ErrorView(
           error: error,
           onRetry: () => ref.invalidate(wishlistProvider),
@@ -53,7 +53,7 @@ class WishlistScreen extends ConsumerWidget {
             onRefresh: () async => ref.invalidate(wishlistProvider),
             child: ListView.separated(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(SriPonMetrics.appPadding),
               itemCount: items.length,
               separatorBuilder: (_, __) => const SizedBox(height: 12),
               itemBuilder: (context, index) {
@@ -86,10 +86,10 @@ class _WishlistTile extends ConsumerWidget {
     return Card(
       elevation: 0,
       margin: EdgeInsets.zero,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SriPonMetrics.rowRadius)),
       child: InkWell(
         onTap: onOpen,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(SriPonMetrics.rowRadius),
         child: Padding(
           padding: const EdgeInsets.all(12),
           child: Row(
@@ -137,8 +137,7 @@ class _WishlistTile extends ConsumerWidget {
                       children: [
                         FilledButton.tonal(
                           style: FilledButton.styleFrom(
-                            visualDensity: VisualDensity.compact,
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            padding: const EdgeInsets.symmetric(horizontal: 14),
                           ),
                           onPressed: item.availableStock <= 0
                               ? null

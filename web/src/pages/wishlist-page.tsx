@@ -58,14 +58,14 @@ function WishlistContent() {
 
   if (wishlistQuery.isLoading) {
     return (
-      <section className="mx-auto max-w-7xl px-4 py-12">
+      <section className="mx-auto max-w-5xl px-4 py-12">
         <Spinner label="Loading your wishlist…" />
       </section>
     );
   }
   if (wishlistQuery.isError) {
     return (
-      <section className="mx-auto max-w-7xl px-4 py-12">
+      <section className="mx-auto max-w-5xl px-4 py-12">
         <ErrorState error={wishlistQuery.error} />
       </section>
     );
@@ -74,12 +74,12 @@ function WishlistContent() {
   const items = wishlistQuery.data ?? [];
   if (items.length === 0) {
     return (
-      <section className="mx-auto max-w-7xl px-4 py-12">
-        <h1 className="text-2xl font-bold text-ember-800">Wishlist</h1>
+      <section className="mx-auto max-w-5xl px-4 py-12">
+        <h1 className="font-display text-3xl font-semibold text-ink">Wishlist</h1>
         <div className="mt-4">
           <EmptyState title="Your wishlist is empty">
             <p>
-              <Link to="/products" className="font-medium text-flame-600 underline">Browse the catalogue</Link>{' '}
+              <Link to="/products" className="font-medium text-accent underline">Browse the catalogue</Link>{' '}
               and save the items you like.
             </p>
           </EmptyState>
@@ -89,15 +89,15 @@ function WishlistContent() {
   }
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-8">
-      <h1 className="text-2xl font-bold text-ember-800">Wishlist ({items.length})</h1>
+    <section className="mx-auto max-w-5xl px-4 py-8">
+      <h1 className="font-display text-3xl font-semibold text-ink">Wishlist ({items.length})</h1>
       {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {items.map((item) => (
-          <article key={item.id} className="flex flex-col rounded-xl border border-ember-100 bg-white p-4">
+          <article key={item.id} className="flex flex-col rounded-3xl border border-line bg-white p-4">
             <Link to={`/products/slug/${item.product.slug}`} className="flex items-center gap-4">
-              <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-ember-50">
+              <div className="h-20 w-20 shrink-0 overflow-hidden rounded-lg bg-surface">
                 {item.product.imageUrl ? (
                   <img src={item.product.imageUrl} alt={item.product.name} className="h-full w-full object-cover" />
                 ) : (
@@ -107,26 +107,26 @@ function WishlistContent() {
                 )}
               </div>
               <div>
-                <h2 className="font-semibold text-ember-900 hover:text-flame-700">{item.product.name}</h2>
-                <p className="text-xs text-ember-900/50">{formatUnit(item.product.unit)}</p>
+                <h2 className="font-semibold text-ink hover:text-accent">{item.product.name}</h2>
+                <p className="text-xs text-ink-muted">{formatUnit(item.product.unit)}</p>
               </div>
             </Link>
             <div className="mt-3 flex items-end justify-between">
-              <p className="font-bold text-ember-800">{formatMoney(item.product.basePrice)}</p>
+              <p className="font-bold text-ink">{formatMoney(item.product.basePrice)}</p>
               {!item.isAvailable && <p className="text-xs font-medium text-red-600">Out of stock</p>}
             </div>
             <div className="mt-3 flex gap-2">
               <button
                 onClick={() => moveToCart.mutate(item.product.id)}
                 disabled={!item.isAvailable || moveToCart.isPending}
-                className="flex-1 rounded-lg bg-flame-600 px-3 py-2 text-sm font-semibold text-white hover:bg-flame-700 disabled:opacity-50"
+                className="flex-1 pill-cta rounded-full bg-accent px-3 py-2 text-sm font-semibold text-white hover:bg-accent/90 disabled:opacity-50"
               >
                 Move to cart
               </button>
               <button
                 onClick={() => removeItem.mutate(item.product.id)}
                 disabled={removeItem.isPending}
-                className="rounded-lg border border-flame-200 px-3 py-2 text-sm text-flame-600 hover:bg-flame-50 disabled:opacity-50"
+                className="rounded-lg border border-flame-200 px-3 py-2 text-sm text-accent hover:bg-accent-soft disabled:opacity-50"
               >
                 Remove
               </button>

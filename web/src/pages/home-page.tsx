@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import type { ReactNode } from 'react';
-import { Paper, Send, ShieldDone, Star, TicketStar, TickSquare } from 'react-iconly';
+import { ArrowRight, Bag2, Location, Paper, Send, ShieldDone, Star, TicketStar, TickSquare } from 'react-iconly';
 import { Link } from 'react-router-dom';
 import { api } from '@/api/client';
 import type { ApiEnvelope, BrandBanner, CategoryTreeNode, HomepageData, HomepageSectionType, PublicSettings } from '@/api/types';
@@ -22,7 +22,6 @@ const TRUST_CHIPS = [
   { icon: ShieldDone, label: 'Licensed stock' },
   { icon: Send, label: '24–48h dispatch' },
   { icon: Paper, label: 'GST invoice' },
-  { icon: TickSquare, label: 'CE / ISI compliant' },
 ];
 
 /** Storefront landing page composed from the backend-designed homepage. */
@@ -103,7 +102,7 @@ export function HomePage() {
     return (
       <div>
         <section className="bg-ember-50">
-          <div className="mx-auto max-w-7xl px-4 py-16 text-center">
+          <div className="mx-auto max-w-5xl px-4 py-16 text-center">
             <Skeleton className="mx-auto h-6 w-44 rounded-full" />
             <Skeleton className="mx-auto mt-6 h-12 w-72 rounded-xl" />
             <Skeleton className="mx-auto mt-4 h-5 w-96 max-w-full rounded-lg" />
@@ -113,7 +112,7 @@ export function HomePage() {
             </div>
           </div>
         </section>
-        <section className="mx-auto max-w-7xl px-4 py-10">
+        <section className="mx-auto max-w-5xl px-4 py-10">
           <ProductGridSkeleton />
         </section>
       </div>
@@ -122,7 +121,7 @@ export function HomePage() {
 
   if (homepage.isError || settings.isError) {
     return (
-      <section className="mx-auto max-w-7xl px-4 py-12">
+      <section className="mx-auto max-w-5xl px-4 py-12">
         <ErrorState error={homepage.error ?? settings.error} />
       </section>
     );
@@ -169,14 +168,14 @@ export function HomePage() {
       ))}
 
       {sections.length === 0 && visibleCategories.length > 0 && (
-        <section className="mx-auto max-w-7xl px-4 py-12">
+        <section className="mx-auto max-w-5xl px-4 py-12">
           <SectionHeading title="Shop by category" overline="Curated for you" />
           <CategoryGrid categories={visibleCategories} />
         </section>
       )}
 
       {sections.length === 0 && (
-        <section className="mx-auto max-w-7xl px-4 pb-12">
+        <section className="mx-auto max-w-5xl px-4 pb-12">
           <SectionHeading title="Fresh from the showroom" overline="Bestsellers" to="/products" />
           <EmptyStateSlim />
         </section>
@@ -187,71 +186,71 @@ export function HomePage() {
 
 function EmptyStateSlim() {
   return (
-    <div className="rounded-xl border border-dashed border-ember-200 bg-ember-50/60 p-10 text-center">
-      <p className="font-medium text-ember-800">The catalogue is live</p>
-      <p className="mt-1 text-sm text-ember-900/60">Browse products and add your favourites to the cart.</p>
+    <div className="rounded-3xl border border-dashed border-line bg-surface-warm p-10 text-center">
+      <p className="font-medium text-ink">The catalogue is live</p>
+      <p className="mt-1 text-sm text-ink-muted">Browse products and add your favourites to the cart.</p>
     </div>
   );
 }
 
 function HeroFallback({ storeName, tagline }: { storeName?: string; tagline?: string }) {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-flame-500 via-flame-600 to-flame-700 text-white">
-      {/* Sparkle field + tall colour washes. */}
-      <div
-        className="pointer-events-none absolute inset-0 opacity-20 [background-image:var(--background-image-sparkle)]"
-        aria-hidden
-      />
-      <div className="pointer-events-none absolute inset-0" aria-hidden>
-        <div className="absolute -right-16 -top-24 h-80 w-80 rounded-full bg-gold-400/30 blur-3xl animate-float" />
-        <div className="absolute -bottom-28 -left-20 h-80 w-80 rounded-full bg-ember-400/30 blur-3xl animate-float" style={{ animationDelay: '2.4s' }} />
-        <Star className="absolute left-10 top-12 h-6 w-6 text-gold-300/80 animate-float" />
-        <Star className="absolute bottom-16 right-1/4 h-5 w-5 text-white/70 animate-float" style={{ animationDelay: '1.2s' }} />
-        <Star className="absolute right-14 top-24 h-4 w-4 text-indigo-300/80 animate-float" style={{ animationDelay: '3.6s' }} />
-      </div>
-
-      <div className="relative mx-auto max-w-7xl px-4 py-24 text-center sm:py-28">
+    <section className="relative overflow-hidden bg-white">
+      <div className="mx-auto grid max-w-5xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1.05fr_0.95fr]">
         <Reveal>
-          <span className="inline-flex items-center gap-2 rounded-full border border-gold-300/50 bg-gold-400/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-gold-100 backdrop-blur-sm">
-            <Star className="h-3.5 w-3.5" />
-            Festive green crackers or candles &amp; fireworks
-          </span>
-        </Reveal>
-        <Reveal delay={80}>
-          <h1 className="mt-6 font-display text-4xl font-extrabold tracking-tight sm:text-6xl">
+          <p className="text-xs font-bold uppercase tracking-eyebrow text-accent">Celebrate brighter</p>
+          <h1 className="mt-4 font-display text-5xl font-semibold leading-[1.05] text-ink sm:text-7xl">
             {storeName ?? 'Sreepon'}
+            <span className="block text-accent">green crackers or candles.</span>
           </h1>
-          <span className="mx-auto mt-3 block h-2 w-28 rounded-full bg-gradient-to-r from-flame-200 via-gold-300 to-flame-200" />
-        </Reveal>
-        <Reveal delay={160}>
-          <p className="mx-auto mt-5 max-w-2xl text-base text-ember-50/90 sm:text-lg">
-            {tagline ?? 'Celebrate responsibly'} — lights, sparks and colour for every festival, delivered safe to your door.
+          <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-muted">
+            {tagline ?? 'Celebrate responsibly'} — a curated range of green crackers or candles, packed with care and
+            delivered safe to your door.
           </p>
-        </Reveal>
-        <Reveal delay={240}>
-          <div className="mt-9 flex flex-wrap justify-center gap-4">
-            <Link
-              to="/products"
-              className="rounded-full bg-white px-7 py-3 font-semibold text-flame-600 shadow-cta transition duration-300 hover:-translate-y-0.5 hover:bg-flame-50 active:scale-95"
-            >
-              Shop now
+          <div className="mt-9 flex flex-wrap items-center gap-3">
+            <Link to="/products" className="pill-cta inline-flex items-center justify-center bg-accent text-white hover:bg-accent/90">
+              Shop the collection
+              <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
             <Link
               to="/wishlist"
-              className="rounded-full border border-white/40 bg-white/10 px-7 py-3 font-semibold text-white backdrop-blur transition duration-300 hover:bg-white/20 active:scale-95"
+              className="pill-cta inline-flex items-center justify-center border border-line bg-white text-ink hover:bg-surface"
             >
-              Browse all
+              Your wishlist
             </Link>
           </div>
-        </Reveal>
-        <Reveal delay={340}>
-          <div className="mx-auto mt-12 flex max-w-3xl flex-wrap items-center justify-center gap-x-8 gap-y-3 border-t border-white/15 pt-6 text-sm">
+          <div className="mt-12 flex flex-wrap items-center gap-x-7 gap-y-3 border-t border-line pt-6">
             {TRUST_CHIPS.map((chip) => (
-              <span key={chip.label} className="inline-flex items-center gap-2 font-medium text-ember-50/95">
-                <chip.icon className="h-4 w-4 text-gold-300" />
+              <span key={chip.label} className="inline-flex items-center gap-2 text-sm font-medium text-ink-muted">
+                <chip.icon className="h-4 w-4 text-accent" />
                 {chip.label}
               </span>
             ))}
+          </div>
+        </Reveal>
+
+        <Reveal delay={120}>
+          <div className="relative mx-auto flex aspect-square w-full max-w-[460px] items-center justify-center overflow-hidden rounded-3xl bg-surface">
+            <div className="hero-orbit" aria-hidden />
+            <div className="hero-orbit scale-[0.62]" aria-hidden />
+            <div className="relative z-10 flex h-32 w-32 items-center justify-center rounded-full bg-white shadow-md animate-float">
+              <Bag2 className="h-14 w-14 text-accent" />
+            </div>
+            <div className="absolute bottom-8 right-6 z-10 flex items-center gap-3 rounded-2xl border border-line bg-white/90 px-4 py-3 shadow-md backdrop-blur animate-float" style={{ animationDelay: '1.6s' }}>
+              <span className="grid h-9 w-9 place-items-center rounded-full bg-accent-soft text-accent">
+                <Send className="h-4 w-4" />
+              </span>
+              <span>
+                <span className="block text-sm font-semibold text-ink">Fast delivery</span>
+                <span className="block text-xs text-ink-muted">Across India in 24–48h</span>
+              </span>
+            </div>
+            <div className="absolute left-6 top-8 z-10 flex items-center gap-2 rounded-full border border-line bg-white/90 px-3 py-1.5 text-xs font-semibold text-ink shadow-sm backdrop-blur">
+              <TickSquare className="h-3.5 w-3.5 text-success" />
+              <span>Sealed &amp; genuine</span>
+            </div>
+            <Location className="absolute right-10 top-14 h-5 w-5 text-accent/40" aria-hidden />
+            <Star className="absolute bottom-16 left-10 h-5 w-5 text-accent/40" aria-hidden />
           </div>
         </Reveal>
       </div>
@@ -356,7 +355,7 @@ function HomeSection({
       const banners = section.content.banners ?? [];
       if (banners.length === 0) return null;
       return (
-        <section className="mx-auto max-w-7xl px-4 py-8">
+        <section className="mx-auto max-w-5xl px-4 py-8">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {banners.map((banner) => (
               <BannerCard key={banner.id} banner={banner} />
@@ -371,7 +370,7 @@ function HomeSection({
       );
       if (categories.length === 0) return null;
       return (
-        <section className="mx-auto max-w-7xl px-4 py-10">
+        <section className="mx-auto max-w-5xl px-4 py-10">
           <SectionHeading title={section.title ?? 'Shop by category'} overline="Browse the range" />
           <CategoryGrid categories={categories} />
         </section>
@@ -389,7 +388,7 @@ function HomeSection({
       const meta =
         PRODUCT_SECTION_META[section.type] ?? PRODUCT_SECTION_META.PRODUCT_CAROUSEL!;
       return (
-        <section className="mx-auto max-w-7xl px-4 py-10">
+        <section className="mx-auto max-w-5xl px-4 py-10">
           <SectionHeading
             title={section.title ?? meta.title}
             subtitle={meta.subtitle}
@@ -430,20 +429,20 @@ function BannerStrip({
         />
       )}
       <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-transparent" />
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r from-gold-400 via-flame-400 to-indigo-400" aria-hidden />
-      <div className="relative z-10 mx-auto flex min-h-[320px] max-w-7xl flex-col justify-center px-4 py-16 text-white">
-        <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-eyebrow text-gold-300">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-1.5 bg-accent" aria-hidden />
+      <div className="relative z-10 mx-auto flex min-h-[320px] max-w-5xl flex-col justify-center px-4 py-16 text-white sm:px-6">
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-eyebrow text-flame-200">
           <Star className="h-3.5 w-3.5" />
           Featured deal
         </span>
         {banner.title && (
-          <h2 className="mt-2 max-w-xl font-display text-3xl font-extrabold sm:text-4xl">{banner.title}</h2>
+          <h2 className="mt-2 max-w-xl font-display text-3xl font-semibold sm:text-4xl">{banner.title}</h2>
         )}
-        {banner.subtitle && <p className="mt-3 max-w-lg text-ember-100">{banner.subtitle}</p>}
+        {banner.subtitle && <p className="mt-3 max-w-lg text-white/80">{banner.subtitle}</p>}
         {href && (
           <BannerLink
             href={href}
-            className="mt-6 inline-block w-fit rounded-full bg-gold-500 px-7 py-2.5 font-semibold text-ink shadow-cta transition duration-300 hover:-translate-y-0.5 hover:bg-gold-400 active:scale-95"
+            className="pill-cta mt-6 inline-flex w-fit items-center justify-center bg-accent text-white hover:bg-accent/90"
           >
             Shop now
           </BannerLink>
@@ -460,11 +459,11 @@ function BannerCard({
 }) {
   const href = bannerHref(banner);
   const className =
-    'group relative overflow-hidden rounded-xl border border-line bg-paper-strong shadow-card transition duration-300 hover:-translate-y-1 hover:border-flame-200 hover:shadow-lifted';
+    'group relative overflow-hidden rounded-3xl border border-line bg-white shadow-card transition duration-300 hover:-translate-y-1 hover:shadow-lifted';
   const content = (
     <>
-      <div className="pointer-events-none absolute right-3 top-3 h-10 w-10 rounded-full border border-gold-300/70 bg-gold-100/40 flex items-center justify-center" aria-hidden>
-        <Star className="h-4 w-4 text-gold-600" />
+      <div className="pointer-events-none absolute right-3 top-3 grid h-9 w-9 place-items-center rounded-full border border-line bg-white/90 text-accent backdrop-blur" aria-hidden>
+        <Star className="h-4 w-4" />
       </div>
       {banner.imageUrl && (
         <img
@@ -477,11 +476,11 @@ function BannerCard({
       )}
       <div className="p-5">
         {banner.title && (
-          <h3 className="font-display text-lg font-semibold text-ember-900 group-hover:text-flame-600">{banner.title}</h3>
+          <h3 className="font-display text-lg font-semibold text-ink group-hover:text-accent">{banner.title}</h3>
         )}
-        {banner.subtitle && <p className="mt-1 text-sm text-ember-900/60">{banner.subtitle}</p>}
-        <span className="mt-3 inline-block text-sm font-semibold text-flame-600 transition-transform duration-300 group-hover:translate-x-1">
-          Explore →
+        {banner.subtitle && <p className="mt-1 text-sm text-ink-muted">{banner.subtitle}</p>}
+        <span className="mt-3 inline-flex items-center gap-1 text-sm font-semibold text-accent transition-transform duration-300 group-hover:translate-x-1">
+          Explore <ArrowRight className="h-3.5 w-3.5" />
         </span>
       </div>
     </>
@@ -501,7 +500,7 @@ function BannerCard({
 function SecondaryBannerRow({ banners }: { banners: BrandBanner[] }) {
   if (banners.length === 0) return null;
   return (
-    <section className="mx-auto max-w-7xl px-4 pt-8">
+    <section className="mx-auto max-w-5xl px-4 pt-8">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {banners.map((banner) => (
           <BannerCard key={banner.id} banner={banner} />
@@ -522,10 +521,10 @@ function CategoryGrid({
         <Link
           key={category.slug}
           to={`/products/${category.slug}`}
-          className="group flex flex-col items-center gap-3 rounded-xl border border-line bg-paper-strong p-6 text-center shadow-card transition duration-300 hover:-translate-y-1 hover:border-flame-200 hover:shadow-lifted"
+          className="group flex flex-col items-center gap-3 rounded-3xl border border-line bg-white p-6 text-center shadow-card transition duration-300 hover:-translate-y-1 hover:shadow-lifted"
         >
           {category.bannerImageUrl ? (
-            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-ember-50">
+            <div className="relative aspect-[4/3] w-full overflow-hidden rounded-2xl bg-surface">
               <img
                 src={category.bannerImageUrl}
                 alt=""
@@ -537,13 +536,13 @@ function CategoryGrid({
             </div>
           ) : (
             <div className="relative" aria-hidden>
-              <div className="flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-flame-100 to-gold-100 text-flame-600 transition duration-300 group-hover:scale-105">
+              <div className="grid h-16 w-16 place-items-center rounded-full bg-accent-soft text-accent transition duration-300 group-hover:scale-105">
                 <TicketStar className="h-7 w-7" />
               </div>
-              <Star className="absolute -right-1 -top-1 h-4 w-4 text-gold-500 transition-transform duration-300 group-hover:rotate-45" />
+              <Star className="absolute -right-1 -top-1 h-4 w-4 text-accent transition-transform duration-300 group-hover:rotate-45" />
             </div>
           )}
-          <p className="font-display font-semibold text-ember-900 group-hover:text-flame-600">{category.name}</p>
+          <p className="font-display font-semibold text-ink group-hover:text-accent">{category.name}</p>
         </Link>
       ))}
     </div>

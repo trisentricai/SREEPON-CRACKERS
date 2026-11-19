@@ -92,7 +92,7 @@ function RevenueLineChart({ points }: { points: RevenuePoint[] }) {
         </g>
       ))}
       <path d={areaPath} fill="url(#revGrad)" />
-      <path d={linePath} fill="none" stroke="#4338ca" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+      <path d={linePath} fill="none" stroke="#0071e3" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
       {coords.map((c, i) => (
         <circle key={i} cx={c.x} cy={c.y} r="3" fill="#4338ca">
           <title>{`${c.p.day}: ${formatMoney(c.p.revenue)} (${c.p.orders} orders)`}</title>

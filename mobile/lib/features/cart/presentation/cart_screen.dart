@@ -28,7 +28,7 @@ class CartScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Cart')),
       body: cart.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: SriPonSpinner(size: 24)),
         error: (error, stack) => ErrorView(
           error: error,
           onRetry: () => ref.invalidate(cartProvider),
@@ -41,7 +41,7 @@ class CartScreen extends ConsumerWidget {
             onRefresh: () async => ref.invalidate(cartProvider),
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(SriPonMetrics.appPadding),
               children: [
                 for (final item in value.items) _CartItemTile(item: item, cartId: value.id),
                 const SizedBox(height: 16),
@@ -49,7 +49,7 @@ class CartScreen extends ConsumerWidget {
                   elevation: 0,
                   color: Theme.of(context).colorScheme.surfaceContainerLow,
                   child: Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(SriPonMetrics.appPadding),
                     child: Column(
                       children: [
                         _summaryRow(context, 'Subtotal', formatMoney(value.subtotal)),
@@ -124,7 +124,7 @@ class _CartItemTile extends ConsumerWidget {
     return Card(
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 12),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SriPonMetrics.rowRadius)),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
@@ -170,7 +170,6 @@ class _CartItemTile extends ConsumerWidget {
                   Row(
                     children: [
                       IconButton.outlined(
-                        visualDensity: VisualDensity.compact,
                         icon: const SriPonMinusIcon(size: 18),
                         onPressed: item.quantity <= 1 || item.isOutOfStock
                             ? null
@@ -181,7 +180,6 @@ class _CartItemTile extends ConsumerWidget {
                         child: Text('${item.quantity}', style: Theme.of(context).textTheme.titleSmall),
                       ),
                       IconButton.outlined(
-                        visualDensity: VisualDensity.compact,
                         icon: const Icon(IconlyLight.plus, size: 18),
                         onPressed: item.quantity >= item.availableStock
                             ? null
@@ -239,7 +237,7 @@ class _EmptyCart extends StatelessWidget {
     return const SriPonEmptyState(
       icon: IconlyLight.bag_2,
       title: 'Your cart is empty',
-      message: 'Browse the catalogue and add some crackers to get started.',
+      message: 'Browse the catalogue and add some green crackers or candles to get started.',
     );
   }
 }

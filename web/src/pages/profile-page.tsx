@@ -65,7 +65,7 @@ export function ProfilePage() {
 
   if (isLoading) {
     return (
-      <section className="mx-auto max-w-7xl px-4 py-12">
+      <section className="mx-auto max-w-5xl px-4 py-12">
         <Spinner label="Checking your session…" />
       </section>
     );
@@ -74,14 +74,14 @@ export function ProfilePage() {
   if (isAuthenticated && user) {
     if (profile.isLoading || addresses.isLoading) {
       return (
-        <section className="mx-auto max-w-7xl px-4 py-12">
+        <section className="mx-auto max-w-5xl px-4 py-12">
           <Spinner label="Loading your profile…" />
         </section>
       );
     }
     if (profile.isError || !profile.data) {
       return (
-        <section className="mx-auto max-w-7xl px-4 py-12">
+        <section className="mx-auto max-w-5xl px-4 py-12">
           {profile.isError ? <ErrorState error={profile.error} /> : <Spinner label="Loading your profile…" />}
         </section>
       );
@@ -108,8 +108,8 @@ export function ProfilePage() {
   }
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-12">
-      <h1 className="text-2xl font-bold text-ember-800">Sign in to Sreepon</h1>
+    <section className="mx-auto max-w-5xl px-4 py-12">
+      <h1 className="font-display text-3xl font-semibold text-ink">Sign in to Sreepon</h1>
       <form
         className="mx-auto mt-6 flex max-w-sm flex-col gap-3"
         onSubmit={(e) => {
@@ -123,7 +123,7 @@ export function ProfilePage() {
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="rounded-lg border border-ember-200 px-3 py-2 text-sm"
+          className="rounded-lg border border-line px-3 py-2 text-sm"
         />
         <input
           type="password"
@@ -132,22 +132,22 @@ export function ProfilePage() {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="rounded-lg border border-ember-200 px-3 py-2 text-sm"
+          className="rounded-lg border border-line px-3 py-2 text-sm"
         />
-        <button type="submit" className="rounded-lg bg-flame-600 px-4 py-2 text-white hover:bg-flame-700">
+        <button type="submit" className="pill-cta rounded-full bg-accent px-4 py-2 text-white hover:bg-accent/90">
           Sign in
         </button>
         <button
           type="button"
           onClick={() => void handleAuth('register')}
-          className="rounded-lg border border-flame-300 px-4 py-2 text-flame-600 hover:bg-flame-50"
+          className="pill-cta rounded-full border border-flame-300 px-4 py-2 text-accent hover:bg-accent-soft"
         >
           Create account
         </button>
         <button
           type="button"
           onClick={handleGoogle}
-          className="rounded-lg border border-flame-300 px-4 py-2 text-flame-600 hover:bg-flame-50"
+          className="pill-cta rounded-full border border-flame-300 px-4 py-2 text-accent hover:bg-accent-soft"
         >
           Continue with Google
         </button>
@@ -162,7 +162,7 @@ export function ProfilePage() {
               .then(() => setInfo('Password reset email sent.'))
               .catch((e) => setError(friendlyAuthError(e)));
           }}
-          className="text-sm text-flame-600 underline"
+          className="text-sm text-accent underline"
         >
           Forgot password?
         </button>
@@ -206,14 +206,14 @@ function ProfileSummary({
   });
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-8">
+    <section className="mx-auto max-w-5xl px-4 py-8">
       <header className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold text-ember-800">Your Profile</h1>
+        <h1 className="font-display text-3xl font-semibold text-ink">Your Profile</h1>
         <div className="flex items-center gap-4 text-sm">
-          <Link to="/orders" className="text-flame-600 underline">Orders</Link>
-          <Link to="/wishlist" className="text-flame-600 underline">Wishlist</Link>
-          <Link to="/cart" className="text-flame-600 underline">Cart</Link>
-          <button onClick={onLogout} className="text-flame-600 underline">
+          <Link to="/orders" className="text-accent underline">Orders</Link>
+          <Link to="/wishlist" className="text-accent underline">Wishlist</Link>
+          <Link to="/cart" className="text-accent underline">Cart</Link>
+          <button onClick={onLogout} className="text-accent underline">
             Sign out
           </button>
         </div>
@@ -221,20 +221,20 @@ function ProfileSummary({
 
       <div className="mt-8 grid gap-8 lg:grid-cols-2">
         {/* Profile */}
-        <div className="rounded-xl border border-ember-100 bg-white p-5">
-          <h2 className="text-lg font-semibold text-ember-900">Account details</h2>
+        <div className="rounded-3xl border border-line bg-white p-5">
+          <h2 className="text-lg font-semibold text-ink">Account details</h2>
           <dl className="mt-3 space-y-2 text-sm">
             <div>
-              <dt className="text-ember-900/50">Email</dt>
-              <dd className="font-medium text-ember-900">{profile.email}</dd>
+              <dt className="text-ink-muted">Email</dt>
+              <dd className="font-medium text-ink">{profile.email}</dd>
             </div>
             <div>
-              <dt className="text-ember-900/50">Member since</dt>
-              <dd className="font-medium text-ember-900">{formatDate(profile.createdAt)}</dd>
+              <dt className="text-ink-muted">Member since</dt>
+              <dd className="font-medium text-ink">{formatDate(profile.createdAt)}</dd>
             </div>
             {profile.avatarUrl && (
               <div>
-                <dt className="text-ember-900/50">Avatar</dt>
+                <dt className="text-ink-muted">Avatar</dt>
                 <dd className="mt-1">
                   <img src={profile.avatarUrl} alt="Profile" className="h-16 w-16 rounded-full object-cover" />
                 </dd>
@@ -251,26 +251,26 @@ function ProfileSummary({
             }}
           >
             <label className="block text-sm">
-              <span className="text-ember-900/60">Name</span>
+              <span className="text-ink-muted">Name</span>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-ember-200 px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
               />
             </label>
             <label className="block text-sm">
-              <span className="text-ember-900/60">Phone</span>
+              <span className="text-ink-muted">Phone</span>
               <input
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
-                className="mt-1 w-full rounded-lg border border-ember-200 px-3 py-2 text-sm"
+                className="mt-1 w-full rounded-lg border border-line px-3 py-2 text-sm"
               />
             </label>
             {saveError && <p className="text-sm text-red-600">{saveError}</p>}
             <button
               type="submit"
               disabled={saving}
-              className="rounded-lg bg-flame-600 px-4 py-2 text-sm font-semibold text-white hover:bg-flame-700 disabled:opacity-50"
+              className="pill-cta rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent/90 disabled:opacity-50"
             >
               {saving ? 'Saving…' : 'Save changes'}
             </button>
@@ -278,9 +278,9 @@ function ProfileSummary({
         </div>
 
         {/* Addresses */}
-        <div className="rounded-xl border border-ember-100 bg-white p-5">
-          <h2 className="text-lg font-semibold text-ember-900">Addresses</h2>
-          <p className="mt-1 text-sm text-ember-900/50">Saved addresses can be selected at checkout.</p>
+        <div className="rounded-3xl border border-line bg-white p-5">
+          <h2 className="text-lg font-semibold text-ink">Addresses</h2>
+          <p className="mt-1 text-sm text-ink-muted">Saved addresses can be selected at checkout.</p>
           <AddressBook addresses={addresses} />
         </div>
       </div>
@@ -322,13 +322,13 @@ function AddressBook({ addresses }: { addresses: Address[] }) {
       )}
       <ul className="space-y-3">
         {addresses.map((address) => (
-          <li key={address.id} className="rounded-lg border border-ember-100 p-3 text-sm">
+          <li key={address.id} className="rounded-2xl border border-line p-3 text-sm">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="font-medium text-ember-900">
-                  {address.fullName} <span className="text-ember-900/40">· {address.label}</span>
+                <p className="font-medium text-ink">
+                  {address.fullName} <span className="text-ink-muted/70">· {address.label}</span>
                 </p>
-                <p className="mt-0.5 text-ember-900/60">
+                <p className="mt-0.5 text-ink-muted">
                   {address.line1}
                   {address.line2 ? `, ${address.line2}` : ''}, {address.city}, {address.state} {address.pincode}
                   <br />
@@ -339,11 +339,11 @@ function AddressBook({ addresses }: { addresses: Address[] }) {
             </div>
             <div className="mt-2 flex gap-3 text-xs">
               {!address.isDefault && (
-                <button onClick={() => setDefault.mutate(address.id)} className="text-flame-600 underline hover:text-flame-700">
+                <button onClick={() => setDefault.mutate(address.id)} className="text-accent underline hover:text-accent">
                   Set default
                 </button>
               )}
-              <button onClick={() => remove.mutate(address.id)} className="text-ember-900/50 underline hover:text-red-600">
+              <button onClick={() => remove.mutate(address.id)} className="text-ink-muted underline hover:text-red-600">
                 Remove
               </button>
             </div>
@@ -353,7 +353,7 @@ function AddressBook({ addresses }: { addresses: Address[] }) {
 
       {adding && <AddressForm onDone={() => { setAdding(false); void invalidate(); }} onError={setMessage} />}
       {!adding && (
-        <button onClick={() => setAdding(true)} className="mt-3 rounded-lg border border-flame-300 px-4 py-2 text-sm font-semibold text-flame-600 hover:bg-flame-50">
+        <button onClick={() => setAdding(true)} className="mt-3 pill-cta rounded-full border border-flame-300 px-4 py-2 text-sm font-semibold text-accent hover:bg-accent-soft">
           + Add address
         </button>
       )}
@@ -393,30 +393,30 @@ function AddressForm({ onDone, onError }: { onDone: () => void; onError: (messag
 
   return (
     <form
-      className="mt-4 grid grid-cols-1 gap-3 rounded-lg border border-ember-100 bg-ember-50/40 p-4 sm:grid-cols-2"
+      className="mt-4 grid grid-cols-1 gap-3 rounded-2xl border border-line bg-surface-warm p-4 sm:grid-cols-2"
       onSubmit={(e) => {
         e.preventDefault();
         void save();
       }}
     >
-      <input required placeholder="Label (Home, Office…)" value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} className="rounded-lg border border-ember-200 px-3 py-2 text-sm" />
-      <input required placeholder="Full name" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} className="rounded-lg border border-ember-200 px-3 py-2 text-sm" />
-      <input required placeholder="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="rounded-lg border border-ember-200 px-3 py-2 text-sm" />
-      <input required placeholder="Address line 1" value={form.line1} onChange={(e) => setForm({ ...form, line1: e.target.value })} className="rounded-lg border border-ember-200 px-3 py-2 text-sm sm:col-span-2" />
-      <input placeholder="Address line 2 (optional)" value={form.line2} onChange={(e) => setForm({ ...form, line2: e.target.value })} className="rounded-lg border border-ember-200 px-3 py-2 text-sm sm:col-span-2" />
-      <input required placeholder="City" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="rounded-lg border border-ember-200 px-3 py-2 text-sm" />
-      <input required placeholder="State" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} className="rounded-lg border border-ember-200 px-3 py-2 text-sm" />
-      <input required placeholder="Pincode" value={form.pincode} onChange={(e) => setForm({ ...form, pincode: e.target.value })} className="rounded-lg border border-ember-200 px-3 py-2 text-sm" />
-      <input placeholder="Country" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} className="rounded-lg border border-ember-200 px-3 py-2 text-sm" />
+      <input required placeholder="Label (Home, Office…)" value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })} className="rounded-lg border border-line px-3 py-2 text-sm" />
+      <input required placeholder="Full name" value={form.fullName} onChange={(e) => setForm({ ...form, fullName: e.target.value })} className="rounded-lg border border-line px-3 py-2 text-sm" />
+      <input required placeholder="Phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className="rounded-lg border border-line px-3 py-2 text-sm" />
+      <input required placeholder="Address line 1" value={form.line1} onChange={(e) => setForm({ ...form, line1: e.target.value })} className="rounded-lg border border-line px-3 py-2 text-sm sm:col-span-2" />
+      <input placeholder="Address line 2 (optional)" value={form.line2} onChange={(e) => setForm({ ...form, line2: e.target.value })} className="rounded-lg border border-line px-3 py-2 text-sm sm:col-span-2" />
+      <input required placeholder="City" value={form.city} onChange={(e) => setForm({ ...form, city: e.target.value })} className="rounded-lg border border-line px-3 py-2 text-sm" />
+      <input required placeholder="State" value={form.state} onChange={(e) => setForm({ ...form, state: e.target.value })} className="rounded-lg border border-line px-3 py-2 text-sm" />
+      <input required placeholder="Pincode" value={form.pincode} onChange={(e) => setForm({ ...form, pincode: e.target.value })} className="rounded-lg border border-line px-3 py-2 text-sm" />
+      <input placeholder="Country" value={form.country} onChange={(e) => setForm({ ...form, country: e.target.value })} className="rounded-lg border border-line px-3 py-2 text-sm" />
       <label className="flex items-center gap-2 text-sm sm:col-span-2">
-        <input type="checkbox" checked={form.isDefault} onChange={(e) => setForm({ ...form, isDefault: e.target.checked })} className="h-4 w-4 accent-ember-600" />
+        <input type="checkbox" checked={form.isDefault} onChange={(e) => setForm({ ...form, isDefault: e.target.checked })} className="h-4 w-4 accent-flame-600" />
         Set as default
       </label>
       <div className="flex gap-2 sm:col-span-2">
-        <button type="submit" disabled={saving} className="rounded-lg bg-flame-600 px-4 py-2 text-sm font-semibold text-white hover:bg-flame-700 disabled:opacity-50">
+        <button type="submit" disabled={saving} className="pill-cta rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent/90 disabled:opacity-50">
           {saving ? 'Saving…' : 'Save address'}
         </button>
-        <button type="button" onClick={onDone} className="rounded-lg border border-flame-300 px-4 py-2 text-sm text-flame-600 hover:bg-flame-50">
+        <button type="button" onClick={onDone} className="pill-cta rounded-full border border-flame-300 px-4 py-2 text-sm text-accent hover:bg-accent-soft">
           Cancel
         </button>
       </div>

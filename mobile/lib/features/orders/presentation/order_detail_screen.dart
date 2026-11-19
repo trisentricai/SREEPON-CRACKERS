@@ -22,7 +22,7 @@ class OrderDetailScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Order details')),
       body: order.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: SriPonSpinner(size: 24)),
         error: (error, stack) => ErrorView(
           error: error,
           onRetry: () => ref.invalidate(orderByIdProvider(orderId)),
@@ -37,7 +37,7 @@ class OrderDetailScreen extends ConsumerWidget {
       onRefresh: () async => ref.invalidate(orderByIdProvider(orderId)),
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(SriPonMetrics.appPadding),
         children: [
           Row(
             children: [
@@ -287,7 +287,7 @@ class OrderDetailScreen extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(12),
             child: SizedBox(
               width: 48,
               height: 48,

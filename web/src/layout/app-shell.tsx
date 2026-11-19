@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { ArrowUp, Bag2, Heart, Logout, Star, User } from 'react-iconly';
-import { useEffect, useState } from 'react';
-import { Link, NavLink, Outlet } from 'react-router-dom';
+import { ArrowUp, Bag2, Heart, Logout, Search, Star, User } from 'react-iconly';
+import { useState, type FormEvent } from 'react';
+import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { api } from '@/api/client';
 import type { ApiEnvelope, Cart } from '@/api/types';
 import { BrandMark } from '@/components/storefront-ui';
@@ -25,11 +25,10 @@ const FACEBOOK_PATH =
 const YOUTUBE_PATH =
   'M21.6 7.2a2.5 2.5 0 0 0-1.76-1.77C18.27 5 12 5 12 5s-6.27 0-7.84.43A2.5 2.5 0 0 0 2.4 7.2C2 8.78 2 12 2 12s0 3.22.4 4.8a2.5 2.5 0 0 0 1.76 1.77C5.73 19 12 19 12 19s6.27 0 7.84-.43a2.5 2.5 0 0 0 1.76-1.77C22 15.22 22 12 22 12s0-3.22-.4-4.8ZM10 15.2V8.8L15.5 12 10 15.2Z';
 
-/** Public shell: announcement ribbon, header, main outlet, footer. */
+/** Public shell: glass header, main outlet, compact footer. */
 export function AppShell() {
   return (
-    <div className="flex min-h-screen flex-col">
-      <USPRibbon />
+    <div className="flex min-h-screen flex-col bg-white text-ink">
       <SiteHeader />
       <main className="flex-1">
         <Outlet />
@@ -60,7 +59,7 @@ function WhatsAppFab() {
       target="_blank"
       rel="noreferrer noopener"
       aria-label="Chat with us on WhatsApp"
-      className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-flame-600 text-white shadow-pop transition duration-200 hover:-translate-y-0.5 hover:bg-flame-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-flame-700 active:scale-95"
+      className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-white shadow-md transition duration-200 hover:-translate-y-0.5 hover:bg-accent/90 active:scale-95"
     >
       <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor" aria-hidden>
         <path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.14-.14.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.38-.02-.53-.08-.15-.68-1.63-.93-2.23-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.03 1.01-1.03 2.46s1.06 2.86 1.2 3.06c.15.2 2.07 3.17 5.02 4.44.7.3 1.25.48 1.68.62.7.22 1.35.19 1.86.11.57-.08 1.76-.72 2-1.41.25-.7.25-1.29.18-1.41-.08-.13-.28-.2-.58-.35Zm-5.42 7.1h-.01a9.9 9.9 0 0 1-5.04-1.38l-.36-.21-3.75.98 1-3.65-.23-.38a9.87 9.87 0 0 1-1.52-5.27c0-5.46 4.45-9.9 9.92-9.9a9.86 9.86 0 0 1 7.01 2.9 9.83 9.83 0 0 1 2.9 7c0 5.46-4.45 9.9-9.92 9.9Zm8.43-18.34A11.82 11.82 0 0 0 12.05 0C5.5 0 .17 5.33.17 11.88c0 2.09.55 4.14 1.6 5.94L.07 24l6.33-1.66a11.85 11.85 0 0 0 5.65 1.44h.01c6.55 0 11.88-5.33 11.88-11.88 0-3.17-1.24-6.15-3.48-8.39Z" />
@@ -69,35 +68,10 @@ function WhatsAppFab() {
   );
 }
 
-function USPRibbon() {
-  const items = [...USPS, ...USPS];
-  return (
-    <div
-      className="marquee bg-gradient-to-r from-ember-700 via-flame-600 to-ember-700 text-white"
-      role="note"
-    >
-      <div className="marquee-track items-center py-1.5 text-xs font-semibold">
-        {items.map((text, index) => (
-          <span key={index} className="flex items-center gap-2 px-6" aria-hidden={index >= USPS.length}>
-            <Star className="h-3 w-3 text-gold-300" />
-            <span className="tracking-wide">{text}</span>
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 function SiteHeader() {
   const { isAuthenticated, isLoading, logout } = useAuth();
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 4);
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
+  const navigate = useNavigate();
+  const [search, setSearch] = useState('');
 
   const cartCount = useQuery({
     queryKey: ['cart'],
@@ -106,93 +80,91 @@ function SiteHeader() {
       return data.data;
     },
     enabled: isAuthenticated,
+    staleTime: 30_000,
   });
 
   const navLink = ({ isActive }: { isActive: boolean }) =>
-    `relative py-1.5 transition-colors duration-200 hover:text-flame-600 ${isActive ? 'text-flame-600' : 'text-ember-900/80'}`;
+    `rounded-full px-3.5 py-2 text-sm font-medium transition duration-200 ${
+      isActive ? 'bg-accent-soft text-accent' : 'text-ink-muted hover:bg-surface hover:text-ink'
+    }`;
+
+  function onSearch(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const trimmed = search.trim();
+    navigate(trimmed ? `/products?search=${encodeURIComponent(trimmed)}` : '/products');
+  }
 
   return (
-    <header
-      className={`sticky top-0 z-40 transition-all duration-300 material-nav ${
-        scrolled ? 'shadow-material' : ''
-      }`}
-    >
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
+    <header className="material-nav sticky top-0 z-40">
+      <div className="mx-auto flex h-[72px] max-w-5xl items-center gap-3 px-4 sm:gap-4 sm:px-6">
         <BrandMark name={SITE.name} />
 
-        <nav className="hidden items-center gap-7 text-sm font-medium md:flex">
-          <NavLink to="/products" className={navLink} end={false}>
-            Shop
+        <nav className="ml-1 hidden items-center gap-0.5 md:flex" aria-label="Main">
+          <NavLink to="/" end className={navLink}>
+            Home
           </NavLink>
-          <NavLink to="/wishlist" className={navLink}>
-            Wishlist
+          <NavLink to="/products" className={navLink}>
+            Shop
           </NavLink>
           <NavLink to="/orders" className={navLink}>
             Orders
           </NavLink>
         </nav>
 
-        <div className="flex items-center gap-2 text-sm md:gap-3">
-          <Link
-            to="/cart"
-            className="relative flex h-10 w-10 items-center justify-center rounded-full hover:bg-flame-50 hover:text-flame-600 md:hidden"
-            aria-label="Cart"
-          >
-            <Bag2 className="h-5 w-5" />
-            {!isLoading && isAuthenticated && (cartCount.data?.totalQuantity ?? 0) > 0 && (
-              <span
-                key={cartCount.data?.totalQuantity ?? 0}
-                className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 animate-pop items-center justify-center rounded-full bg-flame-600 px-1 text-[10px] font-bold text-white shadow-sm"
-              >
-                {cartCount.data?.totalQuantity ?? 0}
-              </span>
-            )}
-          </Link>
+        <form onSubmit={onSearch} role="search" className="ml-auto hidden min-w-0 flex-1 justify-end sm:flex">
+          <label className="relative w-full max-w-[220px]">
+            <span className="sr-only">Search products</span>
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-ink-muted" />
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search…"
+              className="h-10 w-full rounded-full border border-line bg-white pl-10 pr-4 text-sm text-ink placeholder:text-ink-muted/70 transition focus:border-accent focus:outline-none"
+            />
+          </label>
+        </form>
 
+        <div className="ml-auto flex items-center gap-1 sm:ml-0">
           <Link
             to="/wishlist"
-            className="hidden h-10 w-10 items-center justify-center rounded-full hover:bg-flame-50 hover:text-flame-600 md:flex"
             aria-label="Wishlist"
+            className="grid h-11 w-11 place-items-center rounded-full text-ink-muted transition duration-200 hover:bg-accent-soft hover:text-accent active:scale-95"
           >
             <Heart className="h-5 w-5" />
           </Link>
           <Link
             to="/cart"
-            className="relative hidden h-10 w-10 items-center justify-center rounded-full hover:bg-flame-50 hover:text-flame-600 md:flex"
-            aria-label="Cart"
+            aria-label={`Cart${(cartCount.data?.totalQuantity ?? 0) > 0 ? `, ${cartCount.data?.totalQuantity} items` : ''}`}
+            className="relative grid h-11 w-11 place-items-center rounded-full text-ink-muted transition duration-200 hover:bg-accent-soft hover:text-accent active:scale-95"
           >
             <Bag2 className="h-5 w-5" />
             {!isLoading && isAuthenticated && (cartCount.data?.totalQuantity ?? 0) > 0 && (
-              <span
-                key={cartCount.data?.totalQuantity ?? 0}
-                className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 animate-pop items-center justify-center rounded-full bg-flame-600 px-1 text-[10px] font-bold text-white shadow-sm"
-              >
+              <span className="absolute right-0 top-0 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-accent px-1 text-[10px] font-bold leading-none text-white">
                 {cartCount.data?.totalQuantity ?? 0}
               </span>
             )}
           </Link>
 
-          <div className="mx-1 hidden h-6 w-px bg-ember-200 md:block" aria-hidden />
-
           {isLoading ? null : isAuthenticated ? (
             <>
-              <Link to="/profile" className="hidden h-10 items-center gap-2 rounded-full px-3 font-medium hover:text-flame-600 sm:inline-flex">
+              <Link
+                to="/profile"
+                className="hidden h-11 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-ink-muted transition hover:bg-surface hover:text-ink sm:inline-flex"
+              >
                 <User className="h-4 w-4" />
                 Profile
               </Link>
               <button
                 onClick={() => void logout()}
-                className="inline-flex h-10 items-center gap-2 rounded-full px-3 font-medium text-ember-700 hover:bg-flame-50 hover:text-flame-600"
+                aria-label="Log out"
+                className="grid h-11 w-11 place-items-center rounded-full text-ink-muted transition duration-200 hover:bg-surface hover:text-ink active:scale-95"
               >
-                <Logout className="h-4 w-4" />
-                <span className="hidden sm:inline">Log out</span>
+                <Logout className="h-[18px] w-[18px]" />
               </button>
             </>
           ) : (
-            <Link
-              to="/profile"
-              className="rounded-full bg-flame-600 px-5 py-2 font-semibold text-white shadow-cta transition duration-200 hover:-translate-y-0.5 hover:bg-flame-700 active:scale-95"
-            >
+            <Link to="/profile" className="pill-cta inline-flex items-center bg-accent px-5 text-sm text-white hover:bg-accent/90">
               Sign in
             </Link>
           )}
@@ -236,25 +208,25 @@ function SiteFooter() {
   const scrollTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
-    <footer className="mt-16 border-t border-ember-100 bg-gradient-to-b from-ember-50 to-ember-100/60">
-      <div className="mx-auto max-w-7xl px-4 py-12">
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
-          <div>
+    <footer className="border-t border-line bg-surface-warm">
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+        <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+          <div className="max-w-xs">
             <BrandMark name={store?.name || SITE.name} />
-            <p className="mt-3 max-w-xs text-sm text-ember-900/70">{store?.tagline || SITE.tagline}</p>
-            <div className="mt-4 flex flex-wrap gap-2">
+            <p className="mt-2 text-sm text-ink-muted">{store?.tagline || SITE.tagline}</p>
+            <div className="mt-3 flex flex-wrap gap-1.5">
               {USPS.slice(0, 2).map((usp) => (
                 <span
                   key={usp}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-ember-200 bg-paper-strong px-3 py-1 text-xs font-medium text-ember-800"
+                  className="inline-flex items-center gap-1 rounded-full border border-line bg-white px-2.5 py-1 text-[11px] font-medium text-ink-muted"
                 >
-                  <Star className="h-3 w-3 text-gold-600" />
+                  <Star className="h-3 w-3 text-accent" />
                   {usp}
                 </span>
               ))}
             </div>
             {socials.length > 0 && (
-              <div className="mt-5 flex items-center gap-2">
+              <div className="mt-3 flex items-center gap-2">
                 {socials.map((entry) => (
                   <a
                     key={entry.key}
@@ -262,7 +234,7 @@ function SiteFooter() {
                     target="_blank"
                     rel="noreferrer noopener"
                     aria-label={entry.label}
-                    className="flex h-9 w-9 items-center justify-center rounded-full border border-ember-200 bg-paper-strong text-ember-900/70 transition hover:border-flame-300 hover:text-flame-600"
+                    className="grid h-9 w-9 place-items-center rounded-full border border-line bg-white text-ink-muted transition hover:border-accent hover:text-accent"
                   >
                     <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden>
                       <path d={entry.path} />
@@ -273,26 +245,26 @@ function SiteFooter() {
             )}
           </div>
 
-          <FooterCol title="Shop" links={shopLinks} />
-          <FooterCol title="Help" links={helpLinks} />
-          <FooterCol title="Policies" links={legalLinks} />
+          <div className="grid flex-1 grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 sm:justify-items-end">
+            <FooterCol title="Shop" links={shopLinks} />
+            <FooterCol title="Help" links={helpLinks} />
+            <FooterCol title="Policies" links={legalLinks} />
+          </div>
         </div>
 
-        <div className="mt-10 border-t border-ember-200/70 pt-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs text-ember-900/60">
-              © {new Date().getFullYear()} {store?.name || SITE.name}.
-              {settings.data?.tax.gstin ? ` GSTIN ${settings.data.tax.gstin}.` : ''} Fireworks are age-gated — adults
-              must supervise use.
-            </p>
-            <button
-              onClick={scrollTop}
-              className="inline-flex w-fit items-center gap-2 rounded-full border border-ember-300 bg-paper-strong px-4 py-2 text-sm font-semibold text-flame-600 transition duration-200 hover:bg-flame-50 active:scale-95"
-            >
-              Back to top
-              <ArrowUp className="h-4 w-4" />
-            </button>
-          </div>
+        <div className="mt-6 flex flex-col gap-3 border-t border-line pt-5 text-xs text-ink-muted sm:flex-row sm:items-center sm:justify-between">
+          <p>
+            © {new Date().getFullYear()} {store?.name || SITE.name}.
+            {settings.data?.tax.gstin ? ` GSTIN ${settings.data.tax.gstin}.` : ''} Age-gated products — adults must
+            supervise use.
+          </p>
+          <button
+            onClick={scrollTop}
+            className="inline-flex w-fit items-center gap-1.5 rounded-full border border-line bg-white px-4 py-2 text-xs font-semibold text-accent transition duration-200 hover:bg-accent-soft active:scale-95"
+          >
+            Back to top
+            <ArrowUp className="h-3.5 w-3.5" />
+          </button>
         </div>
       </div>
     </footer>
@@ -308,16 +280,16 @@ function FooterCol({
 }) {
   return (
     <div>
-      <p className="font-display text-sm font-bold uppercase tracking-eyebrow text-ember-800">{title}</p>
-      <ul className="mt-3 space-y-2 text-sm">
+      <p className="text-xs font-bold uppercase tracking-eyebrow text-ink">{title}</p>
+      <ul className="mt-2 space-y-1.5 text-xs">
         {links.map((link) => (
           <li key={`${link.label}-${link.to ?? link.href ?? ''}`}>
             {link.href ? (
-              <a href={link.href} className="break-all text-ember-900/70 transition-colors hover:text-flame-600">
+              <a href={link.href} className="break-all text-ink-muted transition-colors hover:text-accent">
                 {link.label}
               </a>
             ) : (
-              <Link to={link.to ?? '/'} className="text-ember-900/70 transition-colors hover:text-flame-600">
+              <Link to={link.to ?? '/'} className="text-ink-muted transition-colors hover:text-accent">
                 {link.label}
               </Link>
             )}

@@ -1,8 +1,8 @@
 <style>
-  :root { --flame: #ff8a3d; --indigo: #4338ca; }
-  h1, h2 { border-bottom: 2px solid #ff8a3d; padding-bottom: 6px; }
-  h3 { color: #4338ca; }
-  code { color: #c2410c; }
+  :root { --bg: #ffffff; --surface: #f5f5f7; --fg: #1d1d1f; --accent: #0071e3; }
+  h1, h2 { border-bottom: 2px solid #0071e3; padding-bottom: 6px; }
+  h3 { color: #0071e3; }
+  code { color: #005bbb; }
 </style>
 
 # SriPon — Agent Rules for Figma ↔ Code Design Integration
@@ -11,10 +11,37 @@
 > into code for the **SriPon** monorepo. Use this as the single reference for design
 > tokens, components, styling, assets, icons, and layout conventions so that design
 > work stays byte-identical across **web**, **admin**, **mobile**, and **backend** layers.
->
-> Accent colors used throughout this document: **#ff8a3d (Flame)** · **#4338ca (Indigo)**.
-> They appear below as the shipped **flame (primary action) + indigo (secondary)** system built
-> on the warm **ember/gold/paper** baseline, and as the reference palette for Figma variables.
+
+---
+
+## Current theme override — authoritative (Apple/Morrow mockups)
+
+The user selected the **exact mockup palette** from `C:\Users\Prath\Downloads\index.html`
+(web) and `C:\Users\Prath\Downloads\mobile.html` (app). This supersedes the older
+flame/indigo warm-ember palette described in the historical sections below.
+
+| Role | Token | Value |
+|---|---|---|
+| Page background | `paper` / `background` | `#ffffff` |
+| Surface | `ember-100` | `#f5f5f7` |
+| Surface warm | `ember-50` | `#fbfbfd` |
+| Ink / foreground | `ink` / `foreground` / `ember-800` | `#1d1d1f` |
+| Muted text | `ink-muted` / `ember-500` | `#6e6e73` |
+| Hairline | `line` / `ember-200` | `#d2d2d7` |
+| Primary accent / CTA | `flame-500` / `flame-600` / `indigo-600` | `#0071e3` |
+| Accent hover / deep | `flame-700` / `indigo-700` | `#005bbb` |
+| Accent soft | `flame-100` / `indigo-50` | `#eaf3ff` |
+| Success | `success` | `#0b7d4b` on `#e7f6ee` |
+
+Legacy token **names** (`ember-*`, `flame-*`, `indigo-*`, `gold-*`, `paper*`, `ink*`, `line`)
+are intentionally preserved in `web/src/index.css`, `admin/src/index.css`, and
+`mobile/lib/core/widgets/widgets.dart`; their **values** are now the mockup palette.
+Keep the three files in sync. Typography is system/SF-like (Inter is the Flutter fallback),
+headings use `-0.015em` tracking, cards are 24px radius, controls are pills with 44px
+minimum touch targets, and all motion must honor `prefers-reduced-motion`.
+
+The flame/indigo/warm-ember tables below are retained as historical context only; do not
+reintroduce those hex values into the live UI.
 
 ---
 

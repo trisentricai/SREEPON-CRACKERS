@@ -64,14 +64,14 @@ function CartContent() {
 
   if (cartQuery.isLoading) {
     return (
-      <section className="mx-auto max-w-7xl px-4 py-12">
+      <section className="mx-auto max-w-5xl px-4 py-12">
         <Spinner label="Loading your cart…" />
       </section>
     );
   }
   if (cartQuery.isError) {
     return (
-      <section className="mx-auto max-w-7xl px-4 py-12">
+      <section className="mx-auto max-w-5xl px-4 py-12">
         <ErrorState error={cartQuery.error} />
       </section>
     );
@@ -80,12 +80,12 @@ function CartContent() {
   const cart = cartQuery.data;
   if (!cart || cart.items.length === 0) {
     return (
-      <section className="mx-auto max-w-7xl px-4 py-12">
-        <h1 className="text-2xl font-bold text-ember-800">Shopping cart</h1>
+      <section className="mx-auto max-w-5xl px-4 py-12">
+        <h1 className="font-display text-3xl font-semibold text-ink">Shopping cart</h1>
         <div className="mt-4">
           <EmptyState title="Your cart is empty">
             <p>
-              <Link to="/products" className="font-medium text-flame-600 underline">Browse the catalogue</Link>{' '}
+              <Link to="/products" className="font-medium text-accent underline">Browse the catalogue</Link>{' '}
               and add your favourites.
             </p>
           </EmptyState>
@@ -95,8 +95,8 @@ function CartContent() {
   }
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-8">
-      <h1 className="text-2xl font-bold text-ember-800">Shopping cart</h1>
+    <section className="mx-auto max-w-5xl px-4 py-8">
+      <h1 className="font-display text-3xl font-semibold text-ink">Shopping cart</h1>
       {cart.outOfStockCount > 0 && (
         <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">
           One or more items are out of stock and can't be ordered. Remove them or adjust quantities below.
@@ -106,8 +106,8 @@ function CartContent() {
       <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_320px]">
         <ul className="space-y-4">
           {cart.items.map((item) => (
-            <li key={item.id} className="flex gap-4 rounded-xl border border-ember-100 bg-white p-4">
-              <Link to={`/products/slug/${item.product.slug}`} className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-ember-50">
+            <li key={item.id} className="flex gap-4 rounded-3xl border border-line bg-white p-4">
+              <Link to={`/products/slug/${item.product.slug}`} className="h-24 w-24 shrink-0 overflow-hidden rounded-lg bg-surface">
                 {item.product.imageUrl ? (
                   <img src={item.product.imageUrl} alt={item.product.name} className="h-full w-full object-cover" />
                 ) : (
@@ -117,12 +117,12 @@ function CartContent() {
                 )}
               </Link>
               <div className="flex flex-1 flex-col">
-                <Link to={`/products/slug/${item.product.slug}`} className="font-semibold text-ember-900 hover:text-flame-600">
+                <Link to={`/products/slug/${item.product.slug}`} className="font-semibold text-ink hover:text-accent">
                   {item.product.name}
                 </Link>
-                <p className="text-xs text-ember-900/50">{formatUnit(item.product.unit)} · {formatMoney(item.product.basePrice)} each</p>
+                <p className="text-xs text-ink-muted">{formatUnit(item.product.unit)} · {formatMoney(item.product.basePrice)} each</p>
                 <div className="mt-auto flex items-center justify-between pt-2">
-                  <label className="flex items-center gap-2 text-sm text-ember-900/70">
+                  <label className="flex items-center gap-2 text-sm text-ink-muted">
                     Qty
                     <select
                       value={item.quantity}
@@ -136,11 +136,11 @@ function CartContent() {
                     </select>
                   </label>
                   <div className="text-right">
-                    <p className="font-bold text-ember-800">{formatMoney(item.lineTotal)}</p>
+                    <p className="font-bold text-ink">{formatMoney(item.lineTotal)}</p>
                     <button
                       onClick={() => removeItem.mutate(item.id)}
                       disabled={removeItem.isPending}
-                      className="text-xs text-ember-900/50 underline hover:text-red-600"
+                      className="text-xs text-ink-muted underline hover:text-red-600"
                     >
                       Remove
                     </button>
@@ -151,32 +151,32 @@ function CartContent() {
           ))}
         </ul>
 
-        <aside className="h-fit rounded-xl border border-ember-100 bg-ember-50/50 p-5">
-          <h2 className="text-lg font-semibold text-ember-900">Order summary</h2>
+        <aside className="h-fit rounded-3xl border border-line bg-surface-warm p-5">
+          <h2 className="text-lg font-semibold text-ink">Order summary</h2>
           <dl className="mt-4 space-y-2 text-sm">
             <div className="flex justify-between">
-              <dt className="text-ember-900/60">Subtotal ({cart.totalQuantity} item{cart.totalQuantity === 1 ? '' : 's'})</dt>
-              <dd className="font-medium text-ember-900">{formatMoney(cart.subtotal)}</dd>
+              <dt className="text-ink-muted">Subtotal ({cart.totalQuantity} item{cart.totalQuantity === 1 ? '' : 's'})</dt>
+              <dd className="font-medium text-ink">{formatMoney(cart.subtotal)}</dd>
             </div>
             <div className="flex justify-between">
-              <dt className="text-ember-900/60">Delivery</dt>
-              <dd className="text-ember-900/60">Calculated at checkout</dd>
+              <dt className="text-ink-muted">Delivery</dt>
+              <dd className="text-ink-muted">Calculated at checkout</dd>
             </div>
             <div className="flex justify-between border-t border-ember-100 pt-3 text-base">
-              <dt className="font-semibold text-ember-900">Total</dt>
-              <dd className="font-bold text-ember-800">{formatMoney(cart.subtotal)}</dd>
+              <dt className="font-semibold text-ink">Total</dt>
+              <dd className="font-bold text-ink">{formatMoney(cart.subtotal)}</dd>
             </div>
           </dl>
           <Link
             to="/checkout"
-            className="mt-5 block rounded-lg bg-flame-600 px-4 py-2.5 text-center font-semibold text-white hover:bg-flame-700"
+            className="mt-5 block pill-cta rounded-full bg-accent px-4 py-2.5 text-center font-semibold text-white hover:bg-accent/90"
           >
             Proceed to checkout
           </Link>
           <button
             onClick={() => clearCart.mutate()}
             disabled={clearCart.isPending}
-            className="mt-2 w-full rounded-lg border border-flame-200 px-4 py-2 text-sm text-flame-600 hover:bg-flame-50 disabled:opacity-50"
+            className="mt-2 w-full pill-cta rounded-full border border-flame-200 px-4 py-2 text-sm text-accent hover:bg-accent-soft disabled:opacity-50"
           >
             Clear cart
           </button>

@@ -26,32 +26,62 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 68,
         title: Row(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Image.asset(
-              'assets/brand/logo.webp',
-              width: 30,
-              height: 30,
-              fit: BoxFit.contain,
-              errorBuilder: (_, __, ___) => Container(
-                width: 30,
-                height: 30,
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [SriPonColors.flame500, SriPonColors.flame700],
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: SriPonColors.fg,
+                borderRadius: BorderRadius.circular(14),
+              ),
+              clipBehavior: Clip.antiAlias,
+              child: Image.asset(
+                'assets/brand/logo.webp',
+                width: 42,
+                height: 42,
+                fit: BoxFit.contain,
+                errorBuilder: (_, __, ___) => const Center(
+                  child: Text(
+                    'S',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.3,
+                    ),
                   ),
-                  borderRadius: BorderRadius.circular(9),
                 ),
-                child: const Icon(IconlyBold.ticket_star, color: Colors.white, size: 17),
               ),
             ),
-            const SizedBox(width: 10),
-            Text(
-              storeName,
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'GOOD EVENING',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: SriPonColors.muted,
+                      letterSpacing: 0.7,
+                    ),
+                  ),
+                  const SizedBox(height: 1),
+                  Text(
+                    storeName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                        ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -71,6 +101,28 @@ class HomeScreen extends ConsumerWidget {
             ),
           ),
         ],
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(30),
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(18, 0, 18, 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Home · Saved address',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 12, color: SriPonColors.muted),
+                  ),
+                ),
+                Text(
+                  'Ready when you are',
+                  style: TextStyle(fontSize: 12, color: SriPonColors.muted),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
       body: RefreshIndicator(
         onRefresh: () async => ref.invalidate(homepageProvider),
@@ -97,6 +149,8 @@ class HomeScreen extends ConsumerWidget {
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
       children: [
+        const _MockupHero(),
+        const _BrowseRail(),
         const _TrustChips(),
         if (hero.isNotEmpty) _HeroBanner(banners: hero),
         if (secondary.isNotEmpty) _SecondaryBannersRow(banners: secondary),
@@ -127,6 +181,200 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
+/// Mockup hero: soft-blue card with an uppercase kicker, 29px display heading,
+/// muted copy and a subtle decorative ring.
+class _MockupHero extends StatelessWidget {
+  const _MockupHero();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(SriPonMetrics.appPadding, 14, SriPonMetrics.appPadding, 0),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(SriPonMetrics.cardRadius),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(22),
+          decoration: BoxDecoration(
+            color: SriPonColors.accentSoft,
+            borderRadius: BorderRadius.circular(SriPonMetrics.cardRadius),
+            border: Border.all(color: SriPonColors.line),
+          ),
+          child: Stack(
+            children: [
+              const Positioned(
+                right: -34,
+                top: -42,
+                child: Opacity(
+                  opacity: 0.46,
+                  child: SizedBox(
+                    width: 150,
+                    height: 150,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.fromBorderSide(
+                          BorderSide(color: Colors.white, width: 26),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'FESTIVE ESSENTIALS',
+                    style: TextStyle(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      color: SriPonColors.accent,
+                      letterSpacing: 0.9,
+                    ),
+                  ),
+                  const SizedBox(height: 9),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 250),
+                    child: Text(
+                      'Green crackers or candles, right when you need them.',
+                      style: Theme.of(context).textTheme.displaySmall?.copyWith(height: 1.06),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 245),
+                    child: Text(
+                      'Thoughtfully chosen festive essentials — delivered to your door.',
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontSize: 14,
+                            color: SriPonColors.muted,
+                          ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// "Browse" category rail with a black active chip (mockup pattern).
+class _BrowseRail extends ConsumerStatefulWidget {
+  const _BrowseRail();
+
+  @override
+  ConsumerState<_BrowseRail> createState() => _BrowseRailState();
+}
+
+class _BrowseRailState extends ConsumerState<_BrowseRail> {
+  String _active = 'All';
+
+  void _select(String? slug, String name) {
+    setState(() => _active = name);
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ProductListScreen(categorySlug: slug, title: name == 'All' ? null : name),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final categories = ref.watch(categoriesTreeProvider);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(SriPonMetrics.appPadding, 18, SriPonMetrics.appPadding, 6),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text('Browse', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontSize: 20)),
+              const Spacer(),
+              const Text('Choose a lane', style: TextStyle(fontSize: 12, color: SriPonColors.muted)),
+            ],
+          ),
+        ),
+        SizedBox(
+          height: 52,
+          child: categories.when(
+            loading: () => const Center(
+              child: SizedBox(width: 20, height: 20, child: SriPonSpinner(size: 20)),
+            ),
+            error: (_, __) => const SizedBox.shrink(),
+            data: (tree) {
+              final tiles = _HomeFallback._activeCategories(tree);
+              return ListView.separated(
+                padding: const EdgeInsets.symmetric(horizontal: SriPonMetrics.appPadding),
+                scrollDirection: Axis.horizontal,
+                itemCount: tiles.length + 1,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  if (index == 0) {
+                    return _CategoryChip(
+                      label: 'All',
+                      active: _active == 'All',
+                      onTap: () => _select(null, 'All'),
+                    );
+                  }
+                  final category = tiles[index - 1];
+                  return _CategoryChip(
+                    label: category.name,
+                    active: _active == category.name,
+                    onTap: () => _select(category.slug, category.name),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CategoryChip extends StatelessWidget {
+  const _CategoryChip({required this.label, required this.active, required this.onTap});
+
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: active ? SriPonColors.fg : SriPonColors.bg,
+      borderRadius: BorderRadius.circular(980),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(980),
+        child: Container(
+          height: 44,
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(980),
+            border: Border.all(color: active ? SriPonColors.fg : SriPonColors.line),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: active ? Colors.white : SriPonColors.muted,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Slim scrolling strip of trust chips (parity with the web USP ribbon).
 class _TrustChips extends StatelessWidget {
   const _TrustChips();
@@ -152,18 +400,18 @@ class _TrustChips extends StatelessWidget {
           return Container(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: SriPonColors.indigo100.withValues(alpha: 0.6),
-              borderRadius: BorderRadius.circular(20),
+              color: SriPonColors.accentSoft,
+              borderRadius: BorderRadius.circular(980),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(icon, size: 14, color: SriPonColors.indigo700),
+                Icon(icon, size: 14, color: SriPonColors.accentDeep),
                 const SizedBox(width: 6),
                 Text(
                   label,
                   style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                        color: SriPonColors.indigo700,
+                        color: SriPonColors.accentDeep,
                         fontWeight: FontWeight.w600,
                       ),
                 ),
@@ -197,7 +445,7 @@ class _HomeSkeleton extends StatelessWidget {
         Row(
           children: [
             for (var i = 0; i < 3; i++) ...[
-              Expanded(
+              const Expanded(
                 child: SizedBox(height: 210, child: SriPonShimmer(borderRadius: 14)),
               ),
               if (i < 2) const SizedBox(width: 12),
@@ -210,7 +458,7 @@ class _HomeSkeleton extends StatelessWidget {
         Row(
           children: [
             for (var i = 0; i < 3; i++) ...[
-              Expanded(
+              const Expanded(
                 child: SizedBox(height: 210, child: SriPonShimmer(borderRadius: 14)),
               ),
               if (i < 2) const SizedBox(width: 12),
@@ -288,11 +536,11 @@ class _HeroSlide extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.fromLTRB(16, 8, 16, 4),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(SriPonMetrics.cardRadius),
           gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [SriPonColors.flame600, SriPonColors.flame700],
+            colors: [SriPonColors.accentSoft, SriPonColors.surfaceWarm],
           ),
         ),
         clipBehavior: Clip.antiAlias,
@@ -311,17 +559,14 @@ class _HeroSlide extends StatelessWidget {
                   children: [
                     Text(
                       banner.title ?? 'Season’s festive collection',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                          ),
+                      style: Theme.of(context).textTheme.displaySmall?.copyWith(fontSize: 26),
                     ),
                     if (banner.subtitle != null) ...[
                       const SizedBox(height: 6),
                       Text(
                         banner.subtitle!,
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.85),
+                              color: SriPonColors.muted,
                             ),
                       ),
                     ],
@@ -331,12 +576,12 @@ class _HeroSlide extends StatelessWidget {
             const Positioned(
               right: 22,
               top: 18,
-              child: Icon(IconlyBold.star, size: 18, color: Colors.white),
+              child: Icon(IconlyBold.star, size: 18, color: SriPonColors.accent),
             ),
             const Positioned(
               right: 40,
               bottom: 16,
-              child: Icon(IconlyBold.star, size: 14, color: Colors.white70),
+              child: Icon(IconlyBold.star, size: 14, color: SriPonColors.flame300),
             ),
           ],
         ),
@@ -359,7 +604,7 @@ class _HomeFallback extends ConsumerWidget {
         categories.when(
           loading: () => const SizedBox(
             height: 96,
-            child: Center(child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))),
+            child: Center(child: SriPonSpinner(size: 24)),
           ),
           error: (_, __) => const SizedBox.shrink(),
           data: (tree) {
@@ -564,17 +809,17 @@ class _PromoBannerCard extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(SriPonMetrics.cardRadius),
         onTap: _bannerHasAction(banner) ? () => _openBanner(context, banner) : null,
         child: Container(
           height: 150,
           width: double.infinity,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(SriPonMetrics.cardRadius),
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [SriPonColors.flame600, SriPonColors.flame700],
+              colors: [SriPonColors.accent, SriPonColors.accentDeep],
             ),
           ),
           clipBehavior: Clip.antiAlias,
@@ -668,15 +913,15 @@ class _FallbackHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+      margin: const EdgeInsets.fromLTRB(SriPonMetrics.appPadding, 8, SriPonMetrics.appPadding, 16),
       padding: const EdgeInsets.all(20),
       height: 150,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(SriPonMetrics.cardRadius),
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [SriPonColors.flame600, SriPonColors.flame700],
+          colors: [SriPonColors.accent, SriPonColors.accentDeep],
         ),
       ),
       child: Stack(
@@ -691,7 +936,7 @@ class _FallbackHero extends StatelessWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                'Diwali crackers, sparklers & gift boxes — straight to your door.',
+                'Diwali green crackers or candles, sparklers & gift boxes — straight to your door.',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white.withValues(alpha: 0.85)),
               ),
             ],

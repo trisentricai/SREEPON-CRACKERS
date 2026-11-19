@@ -41,7 +41,7 @@ export function AdminLayout() {
 
   return (
     <div className="flex min-h-screen">
-      <aside className="flex w-60 shrink-0 flex-col border-r border-slate-200 bg-slate-900 text-slate-100">
+      <aside className="flex w-60 shrink-0 flex-col border-r border-slate-200 bg-ink text-white">
         <div className="flex items-center gap-2 px-5 py-5">
           <span className="text-xl">🎇</span>
           <span className="text-lg font-bold tracking-tight">Sreepon Admin</span>

@@ -15,9 +15,9 @@ export function PhaseState({
   children?: ReactNode;
 }) {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-12">
-      <h1 className="text-2xl font-bold text-ember-800">{title}</h1>
-      <div className="mt-4 rounded-xl border border-ember-100 bg-ember-50/60 p-6 text-sm text-ember-900/70">
+    <section className="mx-auto max-w-5xl px-4 py-12">
+      <h1 className="font-display text-3xl font-semibold text-ink">{title}</h1>
+      <div className="mt-4 rounded-3xl border border-line bg-surface-warm p-6 text-sm text-ink-muted">
         {children ?? 'This section comes online with the feature phases that follow Phase 1 scaffolding.'}
       </div>
     </section>

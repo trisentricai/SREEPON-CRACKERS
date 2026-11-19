@@ -78,7 +78,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     if (cartValue == null || addressesValue == null) {
       return Scaffold(
         appBar: AppBar(title: const Text('Checkout')),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const Center(child: SriPonSpinner(size: 24)),
       );
     }
     return Scaffold(
@@ -108,7 +108,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       },
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(SriPonMetrics.appPadding),
         children: [
           Text('Delivery address', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
           const SizedBox(height: 8),
@@ -120,7 +120,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 elevation: 0,
                 margin: const EdgeInsets.only(bottom: 8),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(SriPonMetrics.rowRadius),
                   side: BorderSide(
                     color: address == effectiveDefault
                         ? Theme.of(context).colorScheme.primary
@@ -129,7 +129,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                   ),
                 ),
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(SriPonMetrics.rowRadius),
                   onTap: () => setState(() => _selectedAddress = address),
                   child: Padding(
                     padding: const EdgeInsets.all(12),
@@ -178,10 +178,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
               Expanded(
                 child: TextField(
                   controller: _coupon,
-                  decoration: InputDecoration(
-                    isDense: true,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                  decoration: const InputDecoration(
                     hintText: 'Enter coupon code',
+                    border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(980))),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(980))),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(980))),
                   ),
                 ),
               ),
@@ -208,7 +209,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
             elevation: 0,
             color: Theme.of(context).colorScheme.surfaceContainerLow,
             child: Padding(
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(SriPonMetrics.appPadding),
               child: Column(
                 children: [
                   _row(context, 'Items', '${cart.itemCount}'),
@@ -231,7 +232,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 child: FilledButton(
                   onPressed: _placing || (effectiveDefault == null && _isInlineAddressEmpty) ? null : _placeOrder,
                   child: _placing
-                      ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                      ? const SriPonSpinner(size: 18, color: Colors.white)
                       : const Text('Place order'),
                 ),
               ),
@@ -260,11 +261,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         child: TextField(
           controller: controller,
           keyboardType: isPincode ? TextInputType.number : TextInputType.text,
-          decoration: InputDecoration(
-            labelText: entry.value,
-            isDense: true,
-            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-          ),
+          decoration: InputDecoration(labelText: entry.value),
         ),
       );
     }).toList();

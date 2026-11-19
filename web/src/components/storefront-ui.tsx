@@ -66,9 +66,9 @@ export function Skeleton({ className = '' }: { className?: string }) {
 
 export function ProductCardSkeleton() {
   return (
-    <div className="overflow-hidden rounded-xl border border-line bg-paper-strong shadow-card">
+    <div className="overflow-hidden rounded-3xl border border-line bg-white shadow-card">
       <Skeleton className="aspect-square rounded-none" />
-      <div className="space-y-2 p-3">
+      <div className="space-y-2 p-5">
         <Skeleton className="h-3 w-2/3" />
         <Skeleton className="h-4 w-4/5" />
         <Skeleton className="h-4 w-1/2" />
@@ -94,12 +94,15 @@ export function ProductGridSkeleton({ count = 8 }: { count?: number }) {
 export function BrandMark({ name, to = '/', light = false }: { name: string; to?: string; light?: boolean }) {
   return (
     <Link to={to} className="group inline-flex items-center gap-2.5" aria-label={name}>
-      <img
-        src="/logo.webp"
-        alt=""
-        className="h-9 w-9 rounded-lg object-contain ring-1 ring-black/5 transition duration-300 group-hover:scale-105"
-      />
-      <span className={cn('font-display text-xl font-bold tracking-display', light ? 'text-white' : 'text-flame-600')}>
+      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-[10px] bg-ink shadow-sm transition duration-300 group-hover:scale-105">
+        <img src="/logo.webp" alt="" className="h-5 w-5 rounded object-contain" />
+      </span>
+      <span
+        className={cn(
+          'text-[21px] font-bold leading-none tracking-tight',
+          light ? 'text-white' : 'text-ink',
+        )}
+      >
         {name}
       </span>
     </Link>
@@ -112,9 +115,9 @@ export function BrandMark({ name, to = '/', light = false }: { name: string; to?
 
 export function Spinner({ label = 'Loading…' }: { label?: string }) {
   return (
-    <div className="flex flex-col items-center gap-3 py-16 text-ember-800/60">
-      <svg className="h-8 w-8 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden>
-        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-25" />
+    <div className="flex flex-col items-center gap-3 py-16 text-ink-muted">
+      <svg className="h-8 w-8 animate-spin text-accent" viewBox="0 0 24 24" fill="none" aria-hidden>
+        <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" className="opacity-20" />
         <path d="M4 12a8 8 0 018-8" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
       </svg>
       <p className="text-sm">{label}</p>
@@ -125,14 +128,14 @@ export function Spinner({ label = 'Loading…' }: { label?: string }) {
 export function ErrorState({ error }: { error: unknown }) {
   if (isPhaseStubError(error)) {
     return (
-      <div className="rounded-xl border border-ember-100 bg-ember-50/60 p-6 text-sm text-ember-900/70">
+      <div className="rounded-3xl border border-line bg-surface p-6 text-sm text-ink-muted">
         This section comes online with the feature phases that follow Phase 1 scaffolding.
       </div>
     );
   }
   const message = error instanceof Error ? error.message : 'Something went wrong';
   return (
-    <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-sm text-red-800">
+    <div className="rounded-3xl border border-danger/20 bg-red-50 p-6 text-sm text-danger">
       <p className="font-medium">Something went wrong</p>
       <p className="mt-1">{message}</p>
     </div>
@@ -141,9 +144,9 @@ export function ErrorState({ error }: { error: unknown }) {
 
 export function EmptyState({ title, children }: { title: string; children?: ReactNode }) {
   return (
-    <div className="rounded-xl border border-ember-100 bg-ember-50/60 p-10 text-center">
-      <p className="font-medium text-ember-800">{title}</p>
-      {children && <div className="mt-2 text-sm text-ember-900/60">{children}</div>}
+    <div className="rounded-3xl border border-dashed border-line bg-surface-warm p-10 text-center">
+      <p className="font-medium text-ink">{title}</p>
+      {children && <div className="mt-2 text-sm text-ink-muted">{children}</div>}
     </div>
   );
 }
@@ -156,13 +159,13 @@ export function Badge({
   tone?: 'neutral' | 'green' | 'red' | 'amber' | 'blue' | 'orange' | 'gold';
 }) {
   const tones: Record<string, string> = {
-    neutral: 'bg-ember-100 text-ember-800',
-    green: 'bg-green-100 text-green-800',
-    red: 'bg-red-100 text-red-800',
-    amber: 'bg-amber-100 text-amber-800',
-    blue: 'bg-blue-100 text-blue-800',
-    orange: 'bg-flame-600 text-white',
-    gold: 'bg-gold-100 text-gold-800',
+    neutral: 'bg-surface text-ink',
+    green: 'bg-success-soft text-success',
+    red: 'bg-red-50 text-danger',
+    amber: 'bg-amber-50 text-warning',
+    blue: 'bg-accent-soft text-accent',
+    orange: 'bg-accent text-white',
+    gold: 'bg-accent-soft text-accent',
   };
   return (
     <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${tones[tone]}`}>
@@ -186,23 +189,21 @@ export function SectionHeading({
     <div className="mb-7 flex items-end justify-between gap-4">
       <Reveal className="min-w-0">
         {overline && (
-          <div className="mb-2 flex items-center gap-2">
-            <span className="h-px w-6 bg-gold-500" aria-hidden />
-            <p className="text-xs font-semibold uppercase tracking-eyebrow text-gold-600">{overline}</p>
+          <div className="mb-3 flex items-center gap-2">
+            <span className="h-px w-6 bg-accent" aria-hidden />
+            <p className="text-xs font-bold uppercase tracking-eyebrow text-accent">{overline}</p>
           </div>
         )}
-        <h2 className="font-display text-xl font-bold text-ember-800 sm:text-2xl">{title}</h2>
-        {subtitle && <p className="mt-1 text-sm text-ember-900/60">{subtitle}</p>}
+        <h2 className="font-display text-3xl font-semibold leading-tight text-ink sm:text-4xl">{title}</h2>
+        {subtitle && <p className="mt-2 text-base text-ink-muted">{subtitle}</p>}
       </Reveal>
       {to && (
         <Link
           to={to}
-          className="group/see shrink-0 rounded-full border border-indigo-200 bg-white/70 px-3.5 py-1.5 text-sm font-medium text-indigo-700 shadow-card transition duration-300 hover:border-indigo-400 hover:bg-indigo-50 hover:shadow-none"
+          className="group/see inline-flex shrink-0 items-center gap-1 rounded-full border border-line bg-white px-4 py-2 text-sm font-semibold text-accent shadow-sm transition duration-200 hover:bg-accent-soft active:scale-95"
         >
-          <span className="inline-flex items-center gap-1">
-            View all
-            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover/see:translate-x-0.5" />
-          </span>
+          View all
+          <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover/see:translate-x-0.5" />
         </Link>
       )}
     </div>
@@ -300,9 +301,9 @@ export function ProductCard({ product }: { product: CardProduct }) {
     <div className="group relative">
       <Link
         to={categoryHref}
-        className="flex flex-col overflow-hidden rounded-xl border border-line bg-paper-strong shadow-card transition duration-300 hover:-translate-y-1 hover:border-flame-200 hover:shadow-lifted"
+        className="flex flex-col overflow-hidden rounded-3xl border border-line bg-white shadow-card transition duration-300 hover:-translate-y-1 hover:shadow-lifted"
       >
-        <div className="relative aspect-square overflow-hidden bg-ember-50">
+        <div className="relative aspect-square overflow-hidden bg-surface">
           {image ? (
             <img
               src={image}
@@ -313,50 +314,55 @@ export function ProductCard({ product }: { product: CardProduct }) {
             />
           ) : (
             <div className="flex h-full items-center justify-center" aria-hidden>
-              <TicketStar className="h-12 w-12 text-ember-600/40" />
+              <TicketStar className="h-12 w-12 text-accent/30" />
             </div>
           )}
           {discount !== null && (
-            <span className="absolute left-2 top-2 rounded-full bg-gradient-to-br from-gold-400 to-gold-600 px-2 py-0.5 text-xs font-bold text-ink shadow-sm">
+            <span className="absolute left-3 top-3 rounded-full bg-accent px-2.5 py-0.5 text-xs font-bold text-white shadow-sm">
               {discount}% off
             </span>
           )}
           {product.inStock === false && (
-            <span className="absolute bottom-2 left-2 rounded-full bg-ink/70 px-2 py-0.5 text-xs font-semibold text-white backdrop-blur">
+            <span className="absolute bottom-3 left-3 rounded-full bg-ink/80 px-2.5 py-0.5 text-xs font-semibold text-white backdrop-blur">
               Out of stock
             </span>
           )}
         </div>
-        <div className="flex flex-1 flex-col p-3">
+        <div className="flex flex-1 flex-col p-5 pb-[72px]">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-xs text-ember-900/50">{product.category?.name ?? formatUnit(product.unit)}</p>
+            <p className="truncate text-[11px] font-bold uppercase tracking-[0.06em] text-accent">
+              {product.category?.name ?? formatUnit(product.unit)}
+            </p>
             {product.inStock ? (
-              <span className="inline-flex items-center gap-1 text-xs font-medium text-indigo-700">
-                <span className="h-1.5 w-1.5 rounded-full bg-indigo-600" aria-hidden />
+              <span className="inline-flex shrink-0 items-center gap-1 text-[11px] font-medium text-success">
+                <span className="h-1.5 w-1.5 rounded-full bg-success" aria-hidden />
                 In stock
               </span>
             ) : null}
           </div>
-          <h3 className="mt-0.5 line-clamp-2 font-display text-sm font-semibold text-ember-900 group-hover:text-flame-600">
+          <h3 className="mt-2 line-clamp-2 text-base font-semibold leading-snug text-ink group-hover:text-accent">
             {product.name}
           </h3>
-          <div className="mt-2 flex items-baseline gap-2">
-            <span className="font-display font-bold text-flame-600">{formatMoney(product.basePrice)}</span>
+          {product.shortDescription && (
+            <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-ink-muted">{product.shortDescription}</p>
+          )}
+          <div className="mt-3 flex items-baseline gap-2">
+            <span className="text-lg font-bold text-ink">{formatMoney(product.basePrice)}</span>
             {product.mrpPrice && (
-              <span className="text-xs text-ember-900/40 line-through">{formatMoney(product.mrpPrice)}</span>
+              <span className="text-xs text-ink-muted line-through">{formatMoney(product.mrpPrice)}</span>
             )}
           </div>
         </div>
       </Link>
 
-      {/* Floating quick actions — siblings of the card link, so no nested interactive elements. */}
+      {/* Quick actions are siblings of the card link — never nested interactive elements. */}
       <button
         type="button"
         onClick={onWishlist}
         aria-label={wished ? 'Added to wishlist' : 'Add to wishlist'}
         className={cn(
-          'absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full shadow-card transition duration-200 hover:scale-110 active:scale-95',
-          wished ? 'bg-flame-600 text-white' : 'bg-white/90 text-ember-700 backdrop-blur hover:text-flame-600',
+          'absolute right-2.5 top-2.5 z-10 flex h-11 w-11 items-center justify-center rounded-full shadow-sm transition duration-200 hover:scale-105 active:scale-95',
+          wished ? 'bg-accent text-white' : 'bg-white/90 text-ink backdrop-blur hover:text-accent',
         )}
       >
         <Heart className="h-4 w-4" filled={wished} />
@@ -366,12 +372,15 @@ export function ProductCard({ product }: { product: CardProduct }) {
         onClick={onQuickAdd}
         disabled={addToCart.isPending}
         aria-label={`Add ${product.name} to cart`}
-        className="absolute bottom-[92px] right-2 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-flame-600 text-white opacity-0 shadow-cta transition duration-200 hover:bg-flame-700 hover:scale-110 active:scale-95 group-hover:opacity-100 disabled:opacity-60"
+        className="absolute bottom-4 right-4 z-10 inline-flex h-11 min-w-[76px] items-center justify-center gap-1.5 rounded-full bg-accent px-4 text-sm font-bold text-white shadow-md transition duration-200 hover:bg-ink active:scale-95 disabled:opacity-60"
       >
         {addToCart.isPending ? (
           <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />
         ) : (
-          <Plus className="h-4 w-4" stroke="bold" />
+          <>
+            <Plus className="h-4 w-4" stroke="bold" />
+            Add
+          </>
         )}
       </button>
     </div>
@@ -394,17 +403,17 @@ export function ProductGrid({ children }: { children: ReactNode }) {
 export function AuthGate({ isAuthenticated, isLoading, children, title }: { isAuthenticated: boolean; isLoading: boolean; children: ReactNode; title: string }) {
   if (isLoading) {
     return (
-      <section className="mx-auto max-w-7xl px-4 py-12">
+      <section className="mx-auto max-w-5xl px-4 py-12">
         <Spinner label="Checking your session…" />
       </section>
     );
   }
   if (!isAuthenticated) {
     return (
-      <section className="mx-auto max-w-7xl px-4 py-16">
+      <section className="mx-auto max-w-5xl px-4 py-16">
         <EmptyState title={title}>
           <p className="mt-3">
-            <Link to="/profile" className="font-medium text-indigo-600 underline">
+            <Link to="/profile" className="font-medium text-accent underline">
               Sign in
             </Link>{' '}
             to continue.

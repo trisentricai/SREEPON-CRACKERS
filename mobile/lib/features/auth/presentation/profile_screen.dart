@@ -34,7 +34,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget build(BuildContext context) {
     final auth = ref.watch(authControllerProvider);
     if (auth.isLoading) {
-      return Scaffold(appBar: AppBar(title: const Text('Account')), body: const Center(child: CircularProgressIndicator()));
+      return Scaffold(appBar: AppBar(title: const Text('Account')), body: const Center(child: SriPonSpinner(size: 24)));
     }
     if (auth.isAuthenticated) {
       return _ProfileView();
@@ -46,7 +46,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Account')),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(SriPonMetrics.appPadding),
         children: [
           const SizedBox(height: 8),
           Row(
@@ -76,13 +76,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           TextField(
             controller: _email,
             keyboardType: TextInputType.emailAddress,
-            decoration: const InputDecoration(labelText: 'Email', border: OutlineInputBorder(), isDense: true),
+            decoration: const InputDecoration(labelText: 'Email'),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: _password,
             obscureText: true,
-            decoration: const InputDecoration(labelText: 'Password', border: OutlineInputBorder(), isDense: true),
+            decoration: const InputDecoration(labelText: 'Password'),
           ),
           if (_authError != null)
             Padding(
@@ -93,7 +93,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
           FilledButton(
             onPressed: _busy ? null : () => _authenticate(_signIn),
             child: _busy
-                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                ? const SriPonSpinner(size: 18, color: Colors.white)
                 : const Text('Sign in'),
           ),
           const SizedBox(height: 8),
@@ -200,10 +200,10 @@ class _ProfileViewState extends ConsumerState<_ProfileView> {
         ],
       ),
       body: profile.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: SriPonSpinner(size: 24)),
         error: (error, stack) => ErrorView(error: error, onRetry: () => ref.invalidate(profileProvider)),
         data: (data) => ListView(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(SriPonMetrics.appPadding),
           children: [
             Row(
               children: [
@@ -241,13 +241,13 @@ class _ProfileViewState extends ConsumerState<_ProfileView> {
               children: [
                 TextField(
                   controller: _name..text = data.name ?? '',
-                  decoration: const InputDecoration(labelText: 'Name', border: OutlineInputBorder(), isDense: true),
+                  decoration: const InputDecoration(labelText: 'Name'),
                 ),
                 const SizedBox(height: 10),
                 TextField(
                   controller: _phone..text = data.phone ?? '',
                   keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(labelText: 'Phone', border: OutlineInputBorder(), isDense: true),
+                  decoration: const InputDecoration(labelText: 'Phone'),
                 ),
                 const SizedBox(height: 12),
                 Align(
@@ -255,7 +255,7 @@ class _ProfileViewState extends ConsumerState<_ProfileView> {
                   child: FilledButton.tonal(
                     onPressed: _saving ? null : () => _saveProfile(data),
                     child: _saving
-                        ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                        ? const SriPonSpinner(size: 18)
                         : const Text('Save changes'),
                   ),
                 ),
@@ -318,7 +318,7 @@ class _ProfileViewState extends ConsumerState<_ProfileView> {
     return Card(
       elevation: 0,
       margin: const EdgeInsets.only(bottom: 8),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(SriPonMetrics.rowRadius)),
       child: ListTile(
         dense: true,
         title: Text('${address.fullName} · ${address.label}'),
@@ -354,11 +354,7 @@ class _ProfileViewState extends ConsumerState<_ProfileView> {
           child: TextField(
             controller: _addressForm[entry.key],
             keyboardType: entry.key == 'pincode' ? TextInputType.number : TextInputType.text,
-            decoration: InputDecoration(
-              labelText: entry.value,
-              isDense: true,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-            ),
+            decoration: InputDecoration(labelText: entry.value),
           ),
         ),
       Row(

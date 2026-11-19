@@ -121,7 +121,7 @@ export function ProductDetailsPage() {
 
   if (productQuery.isLoading) {
     return (
-      <section className="mx-auto max-w-7xl px-4 py-12">
+      <section className="mx-auto max-w-5xl px-4 py-12">
         <Skeleton className="h-4 w-64 rounded-lg" />        <div className="mt-8 grid gap-10 lg:grid-cols-2">
           <div>
             <Skeleton className="aspect-square rounded-xl" />
@@ -144,7 +144,7 @@ export function ProductDetailsPage() {
 
   if (productQuery.isError || !productQuery.data) {
     return (
-      <section className="mx-auto max-w-7xl px-4 py-12">
+      <section className="mx-auto max-w-5xl px-4 py-12">
         <ErrorState error={productQuery.error} />
       </section>
     );
@@ -156,25 +156,25 @@ export function ProductDetailsPage() {
   const inStock = productInStock;
 
   return (
-    <section className="mx-auto max-w-7xl px-4 py-8">
-      <nav className="text-sm text-ember-900/50">
-        <Link to="/products" className="hover:text-flame-700">Catalogue</Link>
+    <section className="mx-auto max-w-5xl px-4 py-8">
+      <nav className="text-sm text-ink-muted">
+        <Link to="/products" className="hover:text-accent">Catalogue</Link>
         {product.category && (
           <>
             {' / '}
-            <Link to={`/products/${product.category.slug}`} className="hover:text-flame-700">
+            <Link to={`/products/${product.category.slug}`} className="hover:text-accent">
               {product.category.name}
             </Link>
           </>
         )}
         {' / '}
-        <span className="text-ember-900/70">{product.name}</span>
+        <span className="text-ink-muted">{product.name}</span>
       </nav>
 
       <div className="mt-6 grid gap-10 lg:grid-cols-2">
         {/* Gallery */}
         <Reveal>
-          <div className="aspect-square overflow-hidden rounded-xl border border-line bg-ember-50 shadow-card">
+          <div className="aspect-square overflow-hidden rounded-xl border border-line bg-surface shadow-card">
             {images ? (
               <img
                 src={images[activeImage]?.url}
@@ -214,73 +214,73 @@ export function ProductDetailsPage() {
             {product.isFeatured && <Badge tone="orange">Featured</Badge>}
             <Badge tone={inStock ? 'green' : 'red'}>{inStock ? 'In stock' : 'Out of stock'}</Badge>
           </div>
-          <h1 className="mt-3 font-display text-3xl font-bold text-ember-900">{product.name}</h1>
-          {product.shortDescription && <p className="mt-2 text-ember-900/70">{product.shortDescription}</p>}
+          <h1 className="mt-3 font-display text-3xl font-bold text-ink">{product.name}</h1>
+          {product.shortDescription && <p className="mt-2 text-ink-muted">{product.shortDescription}</p>}
 
           <div className="mt-4 flex items-baseline gap-3">
-            <span className="text-3xl font-extrabold text-flame-600">{formatMoney(product.basePrice)}</span>
+            <span className="text-3xl font-extrabold text-accent">{formatMoney(product.basePrice)}</span>
             {product.mrpPrice && (
-              <span className="text-lg text-ember-900/40 line-through">{formatMoney(product.mrpPrice)}</span>
+              <span className="text-lg text-ink-muted/70 line-through">{formatMoney(product.mrpPrice)}</span>
             )}
             {discount !== null && <Badge tone="red">{discount}% off</Badge>}
           </div>
-          <p className="mt-1 text-sm text-ember-900/50">per {formatUnit(product.unit).toLowerCase()}</p>
+          <p className="mt-1 text-sm text-ink-muted">per {formatUnit(product.unit).toLowerCase()}</p>
 
-          <dl className="mt-6 grid grid-cols-2 gap-4 rounded-xl border border-line bg-paper-strong p-5 text-sm shadow-card">
+          <dl className="mt-6 grid grid-cols-2 gap-4 rounded-xl border border-line bg-white p-5 text-sm shadow-card">
             <div className="relative">
-              <dt className="text-ember-900/50">SKU</dt>
-              <dd className="font-medium text-ember-900">{product.sku}</dd>
+              <dt className="text-ink-muted">SKU</dt>
+              <dd className="font-medium text-ink">{product.sku}</dd>
               <span className="absolute -left-2 top-0 h-full w-0.5 rounded-full bg-flame-200" aria-hidden />
             </div>
             <div>
-              <dt className="text-ember-900/50">Unit</dt>
-              <dd className="font-medium text-ember-900">{formatUnit(product.unit)}</dd>
+              <dt className="text-ink-muted">Unit</dt>
+              <dd className="font-medium text-ink">{formatUnit(product.unit)}</dd>
             </div>
             {product.piecesPerBox !== null && (
               <div>
-                <dt className="text-ember-900/50">Pieces per box</dt>
-                <dd className="font-medium text-ember-900">{product.piecesPerBox}</dd>
+                <dt className="text-ink-muted">Pieces per box</dt>
+                <dd className="font-medium text-ink">{product.piecesPerBox}</dd>
               </div>
             )}
             {product.minimumAge !== null && (
               <div>
-                <dt className="text-ember-900/50">Minimum age</dt>
-                <dd className="font-medium text-ember-900">{product.minimumAge}+</dd>
+                <dt className="text-ink-muted">Minimum age</dt>
+                <dd className="font-medium text-ink">{product.minimumAge}+</dd>
               </div>
             )}
             {product.weightPerBox && (
               <div>
-                <dt className="text-ember-900/50">Weight per box</dt>
-                <dd className="font-medium text-ember-900">{product.weightPerBox} kg</dd>
+                <dt className="text-ink-muted">Weight per box</dt>
+                <dd className="font-medium text-ink">{product.weightPerBox} kg</dd>
               </div>
             )}
           </dl>
 
           {product.description && (
             <div className="mt-6">
-              <h2 className="mb-2 flex items-center gap-2 text-lg font-semibold text-ember-900">
+              <h2 className="mb-2 flex items-center gap-2 text-lg font-semibold text-ink">
                 <span className="h-4 w-1 rounded-full bg-flame-500" aria-hidden />
                 Description
               </h2>
-              <p className="whitespace-pre-line text-sm text-ember-900/70">{product.description}</p>
+              <p className="whitespace-pre-line text-sm text-ink-muted">{product.description}</p>
             </div>
           )}
 
           {/* Actions */}
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <div className="flex items-center gap-3">
-              <span className="text-sm text-ember-900/70">Qty</span>
-              <div className="flex items-center rounded-full border border-ember-200 bg-paper-strong shadow-sm">
+              <span className="text-sm text-ink-muted">Qty</span>
+              <div className="flex items-center rounded-full border border-line bg-white shadow-sm">
                 <button
                   type="button"
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                   disabled={!isAuthenticated || !inStock || quantity <= 1}
                   aria-label="Decrease quantity"
-                  className="flex h-9 w-9 items-center justify-center rounded-l-full text-ember-800 transition hover:bg-flame-50 active:scale-95 disabled:opacity-40"
+                  className="flex h-9 w-9 items-center justify-center rounded-l-full text-ink transition hover:bg-accent-soft active:scale-95 disabled:opacity-40"
                 >
                   <MinusIcon className="h-4 w-4" />
                 </button>
-                <span className="w-9 text-center text-sm font-bold tabular-nums text-ember-900" aria-live="polite">
+                <span className="w-9 text-center text-sm font-bold tabular-nums text-ink" aria-live="polite">
                   {quantity}
                 </span>
                 <button
@@ -288,7 +288,7 @@ export function ProductDetailsPage() {
                   onClick={() => setQuantity((q) => Math.min(10, q + 1))}
                   disabled={!isAuthenticated || !inStock || quantity >= 10}
                   aria-label="Increase quantity"
-                  className="flex h-9 w-9 items-center justify-center rounded-r-full text-ember-800 transition hover:bg-flame-50 active:scale-95 disabled:opacity-40"
+                  className="flex h-9 w-9 items-center justify-center rounded-r-full text-ink transition hover:bg-accent-soft active:scale-95 disabled:opacity-40"
                 >
                   <Plus className="h-4 w-4" />
                 </button>
@@ -297,20 +297,20 @@ export function ProductDetailsPage() {
             <button
               onClick={() => addToCart.mutate()}
               disabled={!isAuthenticated || !inStock || addToCart.isPending}
-              className="rounded-full bg-flame-600 px-7 py-2.5 font-semibold text-white shadow-cta transition duration-200 hover:-translate-y-0.5 hover:bg-flame-700 active:scale-95 disabled:translate-y-0 disabled:opacity-50"
+              className="rounded-full bg-accent px-7 py-2.5 font-semibold text-white shadow-cta transition duration-200 hover:-translate-y-0.5 hover:bg-accent/90 active:scale-95 disabled:translate-y-0 disabled:opacity-50"
             >
               {addToCart.isPending ? 'Adding…' : 'Add to cart'}
             </button>
             <button
               onClick={() => addToWishlist.mutate()}
               disabled={!isAuthenticated || addToWishlist.isPending}
-              className="rounded-full border border-flame-300 px-6 py-2.5 font-semibold text-flame-600 transition duration-200 hover:bg-flame-50 active:scale-95 disabled:opacity-50"
+              className="rounded-full border border-flame-300 px-6 py-2.5 font-semibold text-accent transition duration-200 hover:bg-accent-soft active:scale-95 disabled:opacity-50"
             >
               {addToWishlist.isPending ? 'Saving…' : 'Add to wishlist'}
             </button>
           </div>
 
-          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-line bg-paper-strong p-4 text-sm text-ember-900/70 shadow-card">
+          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-line bg-white p-4 text-sm text-ink-muted shadow-card">
             <span className="inline-flex items-center gap-1.5">
               <Send className="h-4 w-4 text-indigo-600" /> Ships in 24–48h
             </span>
@@ -323,8 +323,8 @@ export function ProductDetailsPage() {
           </div>
 
           {!isAuthenticated && (
-            <p className="mt-4 text-sm text-ember-900/60">
-              <Link to="/profile" className="font-medium text-flame-600 underline">
+            <p className="mt-4 text-sm text-ink-muted">
+              <Link to="/profile" className="font-medium text-accent underline">
                 Sign in
               </Link>{' '}
               to add items to your cart or wishlist.
