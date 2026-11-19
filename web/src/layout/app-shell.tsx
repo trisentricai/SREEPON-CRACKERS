@@ -113,8 +113,8 @@ function SiteHeader() {
 
   return (
     <header
-      className={`sticky top-0 z-40 transition-all duration-300 ${
-        scrolled ? 'border-b border-line bg-paper-strong/95 shadow-pop backdrop-blur' : 'border-b border-ember-100 bg-ember-50/90 backdrop-blur'
+      className={`sticky top-0 z-40 transition-all duration-300 material-nav ${
+        scrolled ? 'shadow-material' : ''
       }`}
     >
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">
