@@ -80,44 +80,57 @@ class _MainTabsState extends State<MainTabs> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: IndexedStack(index: _index, children: _screens),
-      bottomNavigationBar: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-          child: Container(
-            decoration: const BoxDecoration(
-              color: SriPonColors.glass,
-              border: Border(top: BorderSide(color: SriPonColors.line)),
-            ),
-            child: NavigationBar(
-              selectedIndex: _index,
-              onDestinationSelected: _onDestinationSelected,
-              destinations: const [
-                NavigationDestination(
-                  icon: Icon(IconlyLight.home),
-                  selectedIcon: Icon(IconlyBold.home),
-                  label: 'Home',
-                ),
-                NavigationDestination(
-                  icon: Icon(IconlyLight.category),
-                  selectedIcon: Icon(IconlyBold.category),
-                  label: 'Shop',
-                ),
-                NavigationDestination(
-                  icon: Icon(IconlyLight.bag_2),
-                  selectedIcon: Icon(IconlyBold.bag_2),
-                  label: 'Cart',
-                ),
-                NavigationDestination(
-                  icon: Icon(IconlyLight.paper),
-                  selectedIcon: Icon(IconlyBold.paper),
-                  label: 'Orders',
-                ),
-                NavigationDestination(
-                  icon: Icon(IconlyLight.user),
-                  selectedIcon: Icon(IconlyBold.user_2),
-                  label: 'Account',
-                ),
-              ],
+      bottomNavigationBar: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+        child: DecoratedBox(
+          decoration: const BoxDecoration(
+            color: SriPonColors.glass,
+            borderRadius: BorderRadius.all(Radius.circular(28)),
+            border: Border.fromBorderSide(BorderSide(color: Color(0xCCD2D2D7))),
+            boxShadow: [
+              BoxShadow(
+                color: Color(0x1A1D1D1F),
+                offset: Offset(0, 8),
+                blurRadius: 24,
+                spreadRadius: -6,
+              ),
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(28),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+              child: NavigationBar(
+                selectedIndex: _index,
+                onDestinationSelected: _onDestinationSelected,
+                destinations: const [
+                  NavigationDestination(
+                    icon: Icon(IconlyLight.home),
+                    selectedIcon: Icon(IconlyBold.home),
+                    label: 'Home',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(IconlyLight.category),
+                    selectedIcon: Icon(IconlyBold.category),
+                    label: 'Shop',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(IconlyLight.bag_2),
+                    selectedIcon: Icon(IconlyBold.bag_2),
+                    label: 'Cart',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(IconlyLight.paper),
+                    selectedIcon: Icon(IconlyBold.paper),
+                    label: 'Orders',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(IconlyLight.user),
+                    selectedIcon: Icon(IconlyBold.user_2),
+                    label: 'Account',
+                  ),
+                ],
+              ),
             ),
           ),
         ),
