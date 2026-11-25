@@ -48,10 +48,10 @@ const SECTION_TYPE_LABELS: Record<HomepageSectionType, string> = {
   HERO: 'Hero banner',
   CATEGORY_GRID: 'Category grid',
   PRODUCT_CAROUSEL: 'Product carousel (handpicked)',
-  FEATURED_PRODUCTS: 'Featured products',
+  FEATURED_PRODUCTS: 'Everyday essentials',
   BEST_SELLERS: 'Best sellers',
   NEW_ARRIVALS: 'New arrivals',
-  TRENDING_PRODUCTS: 'Trending products',
+  TRENDING_PRODUCTS: 'Trending near you',
   TODAYS_OFFERS: "Today's offers",
   PROMOTION: 'Promotion banners',
   CUSTOM_COLLECTION: 'Custom collection (handpicked)',
@@ -158,14 +158,14 @@ function HeroCopyForm({ initial }: { initial: HomepageConfig }) {
         <TextInput
           value={draft.heroTitle ?? ''}
           onChange={(e) => setDraft((prev) => ({ ...prev, heroTitle: e.target.value }))}
-          placeholder="Festival crackers, delivered safely"
+          placeholder="Everyday essentials, delivered in minutes"
         />
       </Field>
       <Field label="Hero tagline">
         <TextInput
           value={draft.heroTagline ?? ''}
           onChange={(e) => setDraft((prev) => ({ ...prev, heroTagline: e.target.value }))}
-          placeholder="Licensed stock · 24–48h dispatch · GST invoice"
+          placeholder="10–15 min delivery · GST invoice · Easy returns"
         />
       </Field>
       <div className="flex items-center gap-3">

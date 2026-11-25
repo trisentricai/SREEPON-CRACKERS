@@ -28,7 +28,7 @@ class AuthController extends Notifier<AuthState> {
     _subscription = fb.watchAuth().listen((User? user) async {
       if (user == null) {
         _bridged = false;
-        state = AuthState(user: null, isLoading: false);
+        state = const AuthState(user: null, isLoading: false);
         return;
       }
       if (_bridged) {

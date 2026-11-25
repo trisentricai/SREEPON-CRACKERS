@@ -256,7 +256,7 @@ export function CouponsPage() {
             <TextInput
               value={form.code}
               onChange={(e) => setForm((f) => ({ ...f, code: e.target.value.toUpperCase() }))}
-              placeholder="DIWALI25"
+              placeholder="FIRST15"
             />
           </Field>
           <Field label="Type">

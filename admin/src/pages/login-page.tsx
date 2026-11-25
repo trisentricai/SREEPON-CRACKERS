@@ -37,7 +37,7 @@ export function LoginPage() {
         className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-xl"
       >
         <div className="mb-6 text-center">
-          <span className="text-3xl">🎇</span>
+          <span className="text-3xl">🛍️</span>
           <h1 className="mt-2 text-xl font-bold text-slate-800">SriPon Admin</h1>
           <p className="mt-1 text-sm text-slate-500">Operations sign-in</p>
         </div>

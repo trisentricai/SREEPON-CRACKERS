@@ -28,7 +28,7 @@ class SreeponConfig {
       defaultValue: 'https://sreepon-api.trisentricai.workers.dev/api/v1',
     );
     const firebaseAuthEnabled = bool.fromEnvironment('FIREBASE_AUTH_ENABLED');
-    return SreeponConfig(
+    return const SreeponConfig(
       apiBaseUrl: apiBaseUrl,
       firebaseAuthEnabled: firebaseAuthEnabled,
     );

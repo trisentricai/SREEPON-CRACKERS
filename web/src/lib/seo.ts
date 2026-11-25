@@ -9,9 +9,9 @@ import { SITE } from '@/config/env';
  * and social cards in sync with the route without pulling in a dependency.
  */
 
-export const DEFAULT_TITLE = `${SITE.name} - Premium green crackers or candles & gift boxes`;
+export const DEFAULT_TITLE = `${SITE.name} - Everyday essentials, delivered in 10–15 minutes`;
 export const DEFAULT_DESCRIPTION =
-  'Order licensed, CE/ISI-compliant green crackers or candles and gift boxes from Sreepon. GST invoice on every order, dispatch in 24–48h across India, cash on delivery available.';
+  'Everyday essentials, delivered in 10–15 minutes from a store near you. GST invoice on every order, fresh stock guaranteed, easy returns and cash on delivery available.';
 
 const DEFAULT_IMAGE = `${SITE.baseUrl}/logo.webp`;
 
@@ -39,7 +39,7 @@ export interface PageMeta {
   /** Page title without the store suffix — it is appended automatically. */
   title?: string;
   description?: string;
-  /** Route path used for the canonical URL, e.g. `/products/gift-boxes`. */
+  /** Route path used for the canonical URL, e.g. `/products/snacks-drinks`. */
   path?: string;
   image?: string | null;
   type?: 'website' | 'product' | 'article';

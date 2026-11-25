@@ -45,11 +45,11 @@
 
 | Check | Result |
 |-------|--------|
-| q=sparkler | 3 results ("3 products matching “sparkler”") ✓ |
+| q=chips | 3 results ("3 products matching “chips”") ✓ |
 | Nonsense query (zzzznothing) | "No products found" ✓ |
 | XSS-ish query `<img src=x onerror=alert(1)>` | Escaped, "No products found", no image injected ✓ |
 | Sort price_asc / price_desc / name_asc | Order verified correct (asc: 65,75,420.19; desc: 420.19,85,100,65,75) ✓ |
-| Category filter (/products/sparklers) | Active rail highlight, correct H1 ✓ |
+| Category filter (/products/chips-snacks) | Active rail highlight, correct H1 ✓ |
 | Price filter minPrice/maxPrice | 200, correct items ✓ |
 | Invalid price (minPrice=abc) | 422 ✓ |
 
@@ -101,7 +101,7 @@ Note: Place order button sits outside the address `<form>`, so native required-f
 | Cancel order | CANCELLED, reason captured ✓ |
 | PDP invalid slug | Friendly "Product not found" (no crash) ✓ |
 | Policies pages | Load with placeholder ("This policy is being finalised…") ✓ |
-| 404 page | Client-side "Page not found" with "Shop crackers"/"Back to home" ✓ |
+| 404 page | Client-side "Page not found" with "Shop all essentials"/"Back to home" ✓ |
 | Coupon invalid code | "Coupon not found or inactive" ✓ |
 | Coupon valid code | **Not testable** — no public coupon list endpoint, no coupons seeded, admin creation requires Supabase credentials (not available) |
 | PDP qty stepper (guest) | Disabled (documented: sign-in required); 1–10 range, disabled at bounds ✓ |
@@ -475,7 +475,7 @@ The backup is NOT automatically scheduled. Add a cron job on your Render/Node ho
 
 | Check | Status | Details |
 |-------|--------|---------|
-| Page titles | ✅ | All pages have unique titles via `usePageMeta` (e.g., "SriPon — Premium crackers & gift boxes", "Twinkle Star Sparklers (25 pcs) · SriPon") |
+| Page titles | ✅ | All pages have unique titles via `usePageMeta` (e.g., "SriPon — Everyday essentials, delivered in minutes", "Classic Salted Chips (150 g) · SriPon") |
 | Meta descriptions | ✅ | All pages have descriptions; home page uses DEFAULT_DESCRIPTION, category/PDP pages use dynamic content |
 | sitemap.xml | ✅ | Build-time generation via `scripts/sitemap.mjs`; 22 URLs (home, products, policies, 6 policy pages, product slugs, category pages) |
 | robots.txt | ✅ | `public/robots.txt` with disallow rules for /cart, /checkout, /orders, /profile, /wishlist; sitemap reference |
@@ -486,9 +486,9 @@ The backup is NOT automatically scheduled. Add a cron job on your Render/Node ho
 | Broken links / 404 | ✅ | `pages/not-found-page.tsx` with proper title/noindex; `scripts/copy-404.mjs` copies index.html to 404.html; `_redirects` has `/* /index.html 200` rewrite |
 
 **Verified on live site:**
-- Home: title="SriPon — Premium crackers & gift boxes", robots="index, follow", JSON-LD=Store+WebSite
-- PDP (twinkle-star-sparklers): title="Twinkle Star Sparklers (25 pcs) · SriPon", og:type="product", JSON-LD=Product, canonical=/products/slug/twinkle-star-sparklers
-- Category (sparklers): title="Sparklers — crackers & fireworks · SriPon", robots="index, follow"
+- Home: title="SriPon — Everyday essentials, delivered in minutes", robots="index, follow", JSON-LD=Store+WebSite
+- PDP (classic-salted-chips): title="Classic Salted Chips (150 g) · SriPon", og:type="product", JSON-LD=Product, canonical=/products/slug/classic-salted-chips
+- Category (chips-snacks): title="Chips & Snacks — everyday essentials · SriPon", robots="index, follow"
 - 404: title="Page not found · SriPon", has links to /products and /
 
 ---

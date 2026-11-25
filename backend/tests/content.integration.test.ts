@@ -147,7 +147,7 @@ describe.skipIf(!hasDB)('content against a real database', () => {
   });
 
   it('composes a public homepage from sections, banners, products and categories', async () => {
-    await homepageService.updateHomepageConfig({ heroTitle: `Big Diwali Sale ${stamp}`, heroTagline: 'Fresh stock' });
+    await homepageService.updateHomepageConfig({ heroTitle: `Big Savings Sale ${stamp}`, heroTagline: 'Fresh stock' });
 
     const hero = await homepageService.createSection({ type: HomepageSectionType.HERO, displayOrder: 0, isActive: true });
     const featured = await homepageService.createSection({
@@ -161,7 +161,7 @@ describe.skipIf(!hasDB)('content against a real database', () => {
     sectionIds.push(hero.id, featured.id, grid.id);
 
     const homepage = await homepageService.getHomepage();
-    expect(homepage.config).toEqual({ heroTitle: `Big Diwali Sale ${stamp}`, heroTagline: 'Fresh stock' });
+    expect(homepage.config).toEqual({ heroTitle: `Big Savings Sale ${stamp}`, heroTagline: 'Fresh stock' });
     expect(homepage.sections.length).toBeGreaterThanOrEqual(3);
 
     const typedHero = homepage.sections.find((s) => s.id === hero.id);

@@ -14,7 +14,7 @@ export function NotFoundPage() {
       <p className="mt-1 text-sm text-ink-muted">Looking for something? Browse the {SITE.name} catalogue.</p>
       <div className="mt-6 flex justify-center gap-3">
         <Link to="/products" className="pill-cta rounded-full bg-accent px-5 py-2 text-white hover:bg-accent/90">
-          Shop green crackers or candles
+          Shop all essentials
         </Link>
         <Link to="/" className="pill-cta rounded-full border border-flame-300 px-5 py-2 text-accent hover:bg-accent-soft">
           Back to home

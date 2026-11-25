@@ -23,31 +23,31 @@ void main() {
     test('product parses the public catalog shape', () {
       final product = Product.fromJson({
         'id': 'p1',
-        'name': 'Rocket Bundle',
-        'slug': 'rocket-bundle',
-        'shortDescription': null,
+        'name': 'Classic Salted Chips (150 g)',
+        'slug': 'classic-salted-chips',
+        'shortDescription': 'Crunchy classic salted chips.',
         'description': null,
-        'basePrice': '199.00',
-        'mrpPrice': '249.00',
-        'sku': 'RKT-001',
+        'basePrice': '35.00',
+        'mrpPrice': '40.00',
+        'sku': 'QC-SNK-001',
         'unit': 'PACKET',
-        'piecesPerBox': 12,
+        'piecesPerBox': 1,
         'weightPerBox': null,
-        'minimumAge': 18,
+        'minimumAge': null,
         'isActive': true,
         'isFeatured': true,
         'isApproved': true,
         'createdAt': '2026-01-01T00:00:00Z',
         'updatedAt': '2026-01-01T00:00:00Z',
-        'category': {'id': 'c1', 'name': 'Rockets', 'slug': 'rockets'},
+        'category': {'id': 'c1', 'name': 'Chips & Snacks', 'slug': 'chips-snacks'},
         'images': [
           {'id': 'i1', 'url': 'https://cdn.example/1.jpg', 'altText': null, 'displayOrder': 0},
         ],
-        'inventory': {'quantity': 50, 'lowStockThreshold': 5},
+        'inventory': {'quantity': 300, 'lowStockThreshold': 5},
       });
-      expect(product.name, 'Rocket Bundle');
+      expect(product.name, 'Classic Salted Chips (150 g)');
       expect(product.unit, ProductUnit.packet);
-      expect(product.category?.slug, 'rockets');
+      expect(product.category?.slug, 'chips-snacks');
       expect(product.coverUrl, 'https://cdn.example/1.jpg');
     });
   });

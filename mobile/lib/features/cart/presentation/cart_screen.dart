@@ -237,7 +237,7 @@ class _EmptyCart extends StatelessWidget {
     return const SriPonEmptyState(
       icon: IconlyLight.bag_2,
       title: 'Your cart is empty',
-      message: 'Browse the catalogue and add some green crackers or candles to get started.',
+      message: 'Browse the catalogue and add some everyday essentials to get started.',
     );
   }
 }

@@ -95,7 +95,7 @@ change all three.
   --color-ember-900: #7a2d03;
   --color-ember-950: #4c1c02;
 
-  /* Gold — secondary festive accent. */
+  /* Gold — secondary savings accent. */
   --color-gold-100: #f9efd4;
   --color-gold-200: #f2dfa4;
   --color-gold-300: #e9cc72;
@@ -132,7 +132,7 @@ change all three.
 | Muted text | `text-ember-900/50..70` | alpha of `#7a2d03` | secondary labels, subtitles |
 | Body/ink text | `text-ink` / `text-foreground` | `#241b16` | default text color |
 | Hairlines / borders | `border-line` | `#e8ddd0` | card borders, dividers |
-| Accent / discount | `bg-gold-500`, `text-ink` | `#d9a021` | “% off” badges, festive sparkle |
+| Accent / discount | `bg-gold-500`, `text-ink` | `#d9a021` | “% off” badges, offer highlights |
 | Soft tint surfaces | `bg-ember-50`, `bg-flame-100`, `border-flame-200` | see palette | header band, empty states, chips, selected filters |
 | Error / success | `red-*` / `green-*` (Tailwind stock) | — | form + API errors, success |
 
@@ -161,7 +161,7 @@ change all three.
 
 Contrast guardrails: `#ff8a3d` on white ≈ 2.9:1 (headline/large only, never body text);
 `#544fd8` on white ≈ 5.9:1 (accents OK). Use deep variants `flame-600`/`flame-700` for
-white-text buttons and `indigo-600` for text to keep WCAG AA. Gold `#d9a021` stays the festive
+white-text buttons and `indigo-600` for text to keep WCAG AA. Gold `#d9a021` stays the offer
 discount accent; headings/strong text stay `ember-800/900` on warm surfaces.
 
 ### 2.6 Typography tokens
@@ -400,7 +400,7 @@ When the user pastes a Figma URL or asks for design work, follow this order:
 
 **Do / Don’t**
 - Do use `flame-600` as the primary action/accent color and `indigo-600` for secondary links,
-  resting on the warm ember/paper baseline (headings `ember-800/900`, gold festive accents).
+  resting on the warm ember/paper baseline (headings `ember-800/900`, gold offer accents).
 - Do keep white text off `#ff8a3d`/`#544fd8` (contrast) — use deep variants `flame-600/700`.
 - Do lazy-load images, preserve `alt`, honor `prefers-reduced-motion`.
 - Don’t introduce Tailwind colors not defined in `@theme`.

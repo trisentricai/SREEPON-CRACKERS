@@ -28,7 +28,7 @@ abstract final class SriPonColors {
   static const glass = Color(0xDBFFFFFF); // white @ .86
 
   // ── Legacy names (remapped to the mockup palette) ────────────────────────
-  /// Neutral raised surface (was festive ember).
+  /// Neutral raised surface (legacy ember name).
   static const ember = Color(0xFFF5F5F7);
   static const ember100 = Color(0xFFFBFBFD);
   static const ember300 = Color(0xFFD2D2D7);
@@ -37,7 +37,7 @@ abstract final class SriPonColors {
   /// Secondary text / quiet actions.
   static const emberDeep = Color(0xFF6E6E73);
 
-  /// Blue accent (was festive gold).
+  /// Blue accent (legacy gold name).
   static const gold = Color(0xFF0071E3);
   static const gold100 = Color(0xFFEAF3FF);
   static const gold900 = Color(0xFF005BBB);

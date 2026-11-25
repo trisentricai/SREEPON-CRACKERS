@@ -38,14 +38,14 @@ describe.skipIf(!hasDB)('auth identity service against a real database', () => {
     const { user, created } = await service.findOrCreateFromFirebase({
       uid,
       email,
-      name: 'Diwali Tester',
+      name: 'Quick Tester',
       phone_number: '+919876543210',
     });
 
     expect(created).toBe(true);
     expect(user.id).toBeTruthy();
     expect(user.email).toBe(email);
-    expect(user.name).toBe('Diwali Tester');
+    expect(user.name).toBe('Quick Tester');
     expect(user.phone).toBe('+919876543210');
     expect(user.isActive).toBe(true);
     expect(user.firebaseUid).toBe(uid);
@@ -55,7 +55,7 @@ describe.skipIf(!hasDB)('auth identity service against a real database', () => {
     const { user, created } = await service.findOrCreateFromFirebase({
       uid,
       email,
-      name: 'Diwali Tester',
+      name: 'Quick Tester',
     });
 
     expect(created).toBe(false);

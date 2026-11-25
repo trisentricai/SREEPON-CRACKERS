@@ -1,7 +1,7 @@
 {
-  "name": "Sreepon — Premium green crackers or candles & gift boxes",
+  "name": "Sreepon — Everyday essentials, delivered in minutes",
   "short_name": "Sreepon",
-  "description": "Order licensed, CE/ISI-compliant green crackers or candles and gift boxes from Sreepon. GST invoice on every order, dispatch in 24–48h across India, cash on delivery available.",
+  "description": "Everyday essentials, delivered in 10–15 minutes from a store near you. GST invoice on every order, fresh stock guaranteed, easy returns and cash on delivery available.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
@@ -26,10 +26,10 @@
   ],
   "shortcuts": [
     {
-      "name": "Shop green crackers or candles & gifts",
+      "name": "Shop all essentials",
       "short_name": "Shop",
       "url": "/products",
-      "description": "Browse the full catalogue of licensed green crackers or candles and gift boxes.",
+      "description": "Browse everyday essentials from a store near you.",
       "icons": [{ "src": "/logo-192.png", "sizes": "192x192" }]
     },
     {

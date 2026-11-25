@@ -98,8 +98,12 @@ Verify a deployment with: `GET /health` (DB `connected: true`),
 1. Create a Supabase project.
 2. Set `DATABASE_URL` (pooled, port `5432`) and `DIRECT_DATABASE_URL`
    (direct, port `6543`) from the project's connection settings.
-3. Apply migrations: `cd backend && npm run prisma:deploy`.
-4. Keep the service-role key server-only; enable RLS (see `docs/supabase.md`).
+3. Apply schema migrations: `cd backend && npm run prisma:deploy`.
+4. Convert an existing catalogue to quick commerce (idempotent, soft-retires
+   legacy items so order history is preserved):
+   `cd backend && npx tsx prisma/quickcommerce.ts`.
+   Skip this step for a fresh database and use `npm run prisma:seed` instead.
+5. Keep the service-role key server-only; enable RLS (see `docs/supabase.md`).
 
 ## Redis
 
@@ -153,6 +157,6 @@ Update `CORS_ORIGINS` on the backend to the real web + admin origins.
 - [ ] Cloudinary upload presets restricted (no unsigned public uploads)
 - [ ] Payments: webhook endpoint configured on the gateway, `PAYMENT_WEBHOOK_URL` set, production merchant keys
 - [ ] HTTPS everywhere; SPA rewrites configured for web and admin
-- [ ] Legal pages, safety notices, age/eligibility and delivery restrictions reviewed by owner (fireworks legality, regional rules)
+- [ ] Legal pages reviewed by owner (10–15 minute delivery promise, GST invoices, easy returns, serviceable neighbourhoods)
 - [ ] Monitoring: logs (request IDs), `/health` alerts, audit log review
 - [ ] Backup/restore drill and rollback plan in place

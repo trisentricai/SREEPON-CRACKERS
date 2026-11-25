@@ -266,7 +266,7 @@ export function ProductsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Products</h1>
-          <p className="mt-1 text-sm text-slate-500">Manage your cracker catalog.</p>
+          <p className="mt-1 text-sm text-slate-500">Manage your everyday essentials catalogue.</p>
         </div>
         <Button onClick={openCreate}>+ New product</Button>
       </div>
@@ -390,7 +390,7 @@ export function ProductsPage() {
               onChange={(e) =>
                 setForm((f) => ({ ...f, name: e.target.value, slug: editing ? f.slug : slugify(e.target.value) }))
               }
-              placeholder="e.g. 1000-Word Sparkler Box"
+              placeholder="e.g. Farm Fresh Bananas (6 pcs)"
             />
           </Field>
           <Field label="SKU">

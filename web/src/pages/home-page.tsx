@@ -19,9 +19,10 @@ import { useJsonLd, usePageMeta } from '@/lib/seo';
 import { visibleCategorySlugs, visibleCategoryTree } from '@/lib/categories';
 
 const TRUST_CHIPS = [
-  { icon: ShieldDone, label: 'Licensed stock' },
-  { icon: Send, label: '24–48h dispatch' },
-  { icon: Paper, label: 'GST invoice' },
+  { icon: Send, label: '10–15 min delivery' },
+  { icon: Paper, label: 'GST invoice on every order' },
+  { icon: ShieldDone, label: 'Fresh stock guaranteed' },
+  { icon: TickSquare, label: 'Easy returns' },
 ];
 
 /** Storefront landing page composed from the backend-designed homepage. */
@@ -176,7 +177,7 @@ export function HomePage() {
 
       {sections.length === 0 && (
         <section className="mx-auto max-w-5xl px-4 pb-12">
-          <SectionHeading title="Fresh from the showroom" overline="Bestsellers" to="/products" />
+          <SectionHeading title="Everyday essentials" overline="Bestsellers" to="/products" />
           <EmptyStateSlim />
         </section>
       )}
@@ -198,14 +199,16 @@ function HeroFallback({ storeName, tagline }: { storeName?: string; tagline?: st
     <section className="relative overflow-hidden bg-white">
       <div className="mx-auto grid max-w-5xl items-center gap-12 px-4 py-16 sm:px-6 sm:py-24 lg:grid-cols-[1.05fr_0.95fr]">
         <Reveal>
-          <p className="text-xs font-bold uppercase tracking-eyebrow text-accent">Celebrate brighter</p>
+          <p className="text-xs font-bold uppercase tracking-eyebrow text-accent">
+            Everyday essentials, delivered in minutes
+          </p>
           <h1 className="mt-4 font-display text-5xl font-semibold leading-[1.05] text-ink sm:text-7xl">
             {storeName ?? 'Sreepon'}
-            <span className="block text-accent">green crackers or candles.</span>
+            <span className="block text-accent">Everyday essentials, right when you need them.</span>
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-ink-muted">
-            {tagline ?? 'Celebrate responsibly'} — a curated range of green crackers or candles, packed with care and
-            delivered safe to your door.
+            {tagline ?? 'Your neighbourhood store, at your door in 15 minutes'}. From a store near you, delivered in
+            minutes.
           </p>
           <div className="mt-9 flex flex-wrap items-center gap-3">
             <Link to="/products" className="pill-cta inline-flex items-center justify-center bg-accent text-white hover:bg-accent/90">
@@ -242,12 +245,12 @@ function HeroFallback({ storeName, tagline }: { storeName?: string; tagline?: st
               </span>
               <span>
                 <span className="block text-sm font-semibold text-ink">Fast delivery</span>
-                <span className="block text-xs text-ink-muted">Across India in 24–48h</span>
+                <span className="block text-xs text-ink-muted">At your door in 10–15 minutes</span>
               </span>
             </div>
             <div className="absolute left-6 top-8 z-10 flex items-center gap-2 rounded-full border border-line bg-white/90 px-3 py-1.5 text-xs font-semibold text-ink shadow-sm backdrop-blur">
               <TickSquare className="h-3.5 w-3.5 text-success" />
-              <span>Sealed &amp; genuine</span>
+              <span>Fresh &amp; genuine</span>
             </div>
             <Location className="absolute right-10 top-14 h-5 w-5 text-accent/40" aria-hidden />
             <Star className="absolute bottom-16 left-10 h-5 w-5 text-accent/40" aria-hidden />
@@ -262,11 +265,11 @@ function HeroFallback({ storeName, tagline }: { storeName?: string; tagline?: st
 const PRODUCT_SECTION_META: Partial<
   Record<HomepageSectionType, { title: string; overline: string; subtitle?: string }>
 > = {
-  FEATURED_PRODUCTS: { title: 'Featured products', overline: 'Handpicked for you', subtitle: 'Sealed boxes, genuine stock.' },
-  BEST_SELLERS: { title: 'Best sellers', overline: 'Loved by buyers', subtitle: 'Sealed boxes, genuine stock.' },
+  FEATURED_PRODUCTS: { title: 'Everyday essentials', overline: 'Handpicked for you', subtitle: 'Fresh from a store near you.' },
+  BEST_SELLERS: { title: 'Best sellers', overline: 'Loved by buyers', subtitle: 'Fresh from a store near you.' },
   NEW_ARRIVALS: { title: 'New arrivals', overline: 'Fresh in stock' },
   TRENDING_PRODUCTS: {
-    title: 'Trending products',
+    title: 'Trending near you',
     overline: 'Trending now',
     subtitle: 'The most-wanted picks this week.',
   },

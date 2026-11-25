@@ -150,7 +150,7 @@ export function OrderDetailsPage() {
                       <img src={item.imageUrl} alt={item.productName} className="h-full w-full object-cover" />
                     ) : (
                       <div className="flex h-full items-center justify-center text-xl" aria-hidden>
-                        🎆
+                        🛍️
                       </div>
                     )}
                   </div>

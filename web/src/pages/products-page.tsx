@@ -39,11 +39,11 @@ export function ProductsPage() {
   const activeCategory = categorySlug ? findCategory(categories.data ?? [], categorySlug) : undefined;
 
   usePageMeta({
-    title: activeCategory ? `${activeCategory.name} — green crackers or candles & fireworks` : 'Shop green crackers or candles & gift boxes',
+    title: activeCategory ? `${activeCategory.name} — everyday essentials` : 'Shop all essentials',
     description: activeCategory
       ? activeCategory.description ??
-        `Buy ${activeCategory.name.toLowerCase()} online from Sreepon. Licensed stock, GST invoice, dispatch in 24–48h.`
-      : 'Browse licensed, CE/ISI-compliant green crackers or candles and gift boxes. GST invoice on every order and dispatch in 24–48h across India.',
+        `Buy ${activeCategory.name.toLowerCase()} online from Sreepon. 10–15 min delivery, GST invoice on every order.`
+      : 'Everyday essentials, delivered in 10–15 minutes from a store near you. GST invoice on every order, fresh stock guaranteed and easy returns.',
     path: categorySlug ? `/products/${categorySlug}` : '/products',
   });
 
@@ -55,9 +55,9 @@ export function ProductsPage() {
           {activeCategory && <span className="text-ink-muted/70"> / {activeCategory.name}</span>}
         </p>
         <h1 className="mt-1 font-display font-display text-3xl font-semibold text-ink">
-          {activeCategory?.name ?? 'Shop green crackers or candles & fireworks'}
+          {activeCategory?.name ?? 'Shop all essentials'}
         </h1>
-        <p className="mt-1 text-sm text-ink-muted">All items are age-gated; shop responsibly.</p>
+        <p className="mt-1 text-sm text-ink-muted">Delivered fresh from your nearby store.</p>
       </header>
 
       <div className="mt-6 grid gap-8 lg:grid-cols-[240px_1fr]">

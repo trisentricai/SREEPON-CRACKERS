@@ -225,7 +225,7 @@ class _MockupHero extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'FESTIVE ESSENTIALS',
+                    'EVERYDAY ESSENTIALS',
                     style: TextStyle(
                       fontSize: 11.5,
                       fontWeight: FontWeight.w700,
@@ -237,7 +237,7 @@ class _MockupHero extends StatelessWidget {
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 250),
                     child: Text(
-                      'Green crackers or candles, right when you need them.',
+                      'Everyday essentials, right when you need them.',
                       style: Theme.of(context).textTheme.displaySmall?.copyWith(height: 1.06),
                     ),
                   ),
@@ -245,7 +245,7 @@ class _MockupHero extends StatelessWidget {
                   ConstrainedBox(
                     constraints: const BoxConstraints(maxWidth: 245),
                     child: Text(
-                      'Thoughtfully chosen festive essentials — delivered to your door.',
+                      'From a store near you, delivered in minutes.',
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                             fontSize: 14,
                             color: SriPonColors.muted,
@@ -380,10 +380,10 @@ class _TrustChips extends StatelessWidget {
   const _TrustChips();
 
   static const _items = <(IconData, String)>[
-    (IconlyLight.shield_done, 'Licensed stock'),
-    (IconlyLight.send, '24–48h dispatch'),
-    (IconlyLight.paper, 'GST invoice'),
-    (IconlyLight.tick_square, 'CE / ISI'),
+    (IconlyLight.send, '10–15 min delivery'),
+    (IconlyLight.paper, 'GST invoice on every order'),
+    (IconlyLight.shield_done, 'Fresh stock guaranteed'),
+    (IconlyLight.swap, 'Easy returns'),
   ];
 
   @override
@@ -558,7 +558,7 @@ class _HeroSlide extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      banner.title ?? 'Season’s festive collection',
+                      banner.title ?? 'At your door in 10–15 minutes',
                       style: Theme.of(context).textTheme.displaySmall?.copyWith(fontSize: 26),
                     ),
                     if (banner.subtitle != null) ...[
@@ -931,12 +931,12 @@ class _FallbackHero extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                'Fresh from the factory',
+                'From a store near you',
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: Colors.white, fontWeight: FontWeight.w800),
               ),
               const SizedBox(height: 6),
               Text(
-                'Diwali green crackers or candles, sparklers & gift boxes — straight to your door.',
+                'Your neighbourhood store, at your door in 15 minutes',
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white.withValues(alpha: 0.85)),
               ),
             ],
@@ -991,7 +991,7 @@ class _CategoryGridSection extends ConsumerWidget {
 String _sectionTitle(HomepageSectionType type) {
   switch (type) {
     case HomepageSectionType.trendingProducts:
-      return 'Trending products';
+      return 'Trending near you';
     case HomepageSectionType.todaysOffers:
       return "Today's offers";
     case HomepageSectionType.bestSellers:
@@ -999,7 +999,7 @@ String _sectionTitle(HomepageSectionType type) {
     case HomepageSectionType.newArrivals:
       return 'New arrivals';
     case HomepageSectionType.featuredProducts:
-      return 'Featured products';
+      return 'Everyday essentials';
     case HomepageSectionType.productCarousel:
     case HomepageSectionType.customCollection:
       return 'Collection';

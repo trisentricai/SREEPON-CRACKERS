@@ -14,7 +14,7 @@ export const openApiSpec = swaggerJsdoc({
       title: `${APP.name} API`,
       version: APP.version,
       description:
-        'Central REST API for the SriPon e-commerce platform — crackers & fireworks store.',
+        'Central REST API for the Sreepon quick-commerce platform — everyday essentials, delivered in minutes.',
       license: { name: 'Proprietary' },
       contact: { name: 'SriPon' },
     },
@@ -589,7 +589,7 @@ export const openApiSpec = swaggerJsdoc({
           required: ['id', 'code', 'type', 'value', 'isActive'],
           properties: {
             id: { type: 'string', format: 'uuid' },
-            code: { type: 'string', example: 'DIWALI10' },
+            code: { type: 'string', example: 'QUICK10' },
             type: { type: 'string', enum: ['PERCENTAGE', 'FIXED_AMOUNT'] },
             value: { type: 'string', example: '10.00' },
             maxDiscount: { type: 'string', nullable: true },

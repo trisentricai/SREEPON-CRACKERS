@@ -11,10 +11,10 @@ import { LEGAL_LINKS } from '@/lib/legal';
 import { usePublicLegal, usePublicSettings } from '@/lib/queries';
 
 const USPS = [
+  '10–15 min delivery',
   'GST invoice on every order',
-  'Licensed & insured warehouse',
-  'Ships across India in 24–48h',
-  'Fresh stock, sealed boxes',
+  'Fresh stock guaranteed',
+  'Easy returns',
 ];
 
 /** Brand glyphs (inline SVG paths, 24×24) for the footer social row. */
@@ -181,9 +181,9 @@ function SiteFooter() {
   const social = settings.data?.social;
 
   const shopLinks = [
-    { label: 'Shop all green crackers or candles', to: '/products' },
+    { label: 'Shop all essentials', to: '/products' },
     { label: 'New arrivals', to: '/products?sort=newest' },
-    { label: 'Gift boxes', to: '/products/gift-boxes' },
+    { label: 'Snacks & Drinks', to: '/products/snacks-drinks' },
   ];
   const helpLinks = [
     { label: 'Track your order', to: '/orders' },
@@ -255,8 +255,8 @@ function SiteFooter() {
         <div className="mt-6 flex flex-col gap-3 border-t border-line pt-5 text-xs text-ink-muted sm:flex-row sm:items-center sm:justify-between">
           <p>
             © {new Date().getFullYear()} {store?.name || SITE.name}.
-            {settings.data?.tax.gstin ? ` GSTIN ${settings.data.tax.gstin}.` : ''} Age-gated products — adults must
-            supervise use.
+            {settings.data?.tax.gstin ? ` GSTIN ${settings.data.tax.gstin}.` : ''} Fresh essentials, delivered in
+            minutes.
           </p>
           <button
             onClick={scrollTop}

@@ -157,7 +157,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       Icon(IconlyLight.shield_done, size: 16, color: scheme.primary),
                       const SizedBox(width: 6),
                       Text(
-                        'Age-restricted: 18+',
+                        'Fresh essentials, delivered in minutes.',
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.primary),
                       ),
                     ],

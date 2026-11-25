@@ -1,10 +1,10 @@
 # SriPon
 
 <p align="center">
-  <strong>Modern festive e-commerce platform for crackers & fireworks</strong>
+  <strong>Quick commerce for everyday essentials, delivered in minutes</strong>
 </p>
 
-**SriPon** is a complete, production-ready e-commerce platform for selling crackers and fireworks. It consists of four applications sharing one authoritative backend:
+**SriPon** is a complete, production-ready quick-commerce platform for everyday essentials. Customers browse a neighbourhood catalogue, order in seconds, and get fresh stock at their door in 10–15 minutes with a GST invoice on every order. It consists of four applications sharing one authoritative backend:
 
 | Application | Stack | Auth |
 |---|---|---|
@@ -116,9 +116,9 @@ Never commit real `.env` files. Copy the provided `.env.example` templates and p
 
 See **docs/setup.md** for the full variable reference.
 
-## Safety & compliance
+## Trust & compliance
 
-SriPon sells crackers/fireworks. Legal notices (terms, privacy, refund policy, safety notices, delivery and location restrictions, eligibility/age requirements) are **admin-configurable** — they are not hard-coded claims. Before launch, applicable local laws, licensing, age requirements, delivery restrictions, and advertising rules must be reviewed by the business owner.
+SriPon promises `10–15 minute delivery`, `GST invoice on every order`, `Fresh stock guaranteed` and `Easy returns`. Legal notices (terms, privacy, delivery, returns, refund and cancellation policies) are **admin-configurable** — they are not hard-coded claims. Before launch, applicable local laws, GST/tax configuration, delivery operations and advertising rules must be reviewed by the business owner. Cash on delivery works today; UPI/card/netbanking options are marked “Available soon”.
 
 ## Production checklist
 

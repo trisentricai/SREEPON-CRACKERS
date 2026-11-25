@@ -232,7 +232,7 @@ class _HomepageScreenState extends ConsumerState<HomepageScreen> {
               textCapitalization: TextCapitalization.sentences,
               decoration: const InputDecoration(
                 labelText: 'Hero title',
-                hintText: 'Festival crackers, delivered safely',
+                hintText: 'Everyday essentials, delivered in minutes',
               ),
             ),
             const SizedBox(height: 10),
@@ -242,7 +242,7 @@ class _HomepageScreenState extends ConsumerState<HomepageScreen> {
               maxLines: 2,
               decoration: const InputDecoration(
                 labelText: 'Hero tagline',
-                hintText: 'Licensed stock · 24–48h dispatch · GST invoice',
+                hintText: '10–15 min delivery · GST invoice · Easy returns',
               ),
             ),
             const SizedBox(height: 12),

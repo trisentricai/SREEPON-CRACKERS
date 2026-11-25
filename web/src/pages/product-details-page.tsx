@@ -312,13 +312,13 @@ export function ProductDetailsPage() {
 
           <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-line bg-white p-4 text-sm text-ink-muted shadow-card">
             <span className="inline-flex items-center gap-1.5">
-              <Send className="h-4 w-4 text-indigo-600" /> Ships in 24–48h
+              <Send className="h-4 w-4 text-indigo-600" /> Delivered in 10–15 min
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <ShieldDone className="h-4 w-4 text-indigo-600" /> Licensed &amp; insured
+              <ShieldDone className="h-4 w-4 text-indigo-600" /> Fresh stock guaranteed
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <Paper className="h-4 w-4 text-indigo-600" /> GST invoice included
+              <Paper className="h-4 w-4 text-indigo-600" /> GST invoice on every order
             </span>
           </div>
 

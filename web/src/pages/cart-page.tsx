@@ -86,7 +86,7 @@ function CartContent() {
           <EmptyState title="Your cart is empty">
             <p>
               <Link to="/products" className="font-medium text-accent underline">Browse the catalogue</Link>{' '}
-              and add your favourites.
+              and add some everyday essentials to get started.
             </p>
           </EmptyState>
         </div>
@@ -112,7 +112,7 @@ function CartContent() {
                   <img src={item.product.imageUrl} alt={item.product.name} className="h-full w-full object-cover" />
                 ) : (
                   <div className="flex h-full items-center justify-center text-2xl" aria-hidden>
-                    🎆
+                    🛍️
                   </div>
                 )}
               </Link>

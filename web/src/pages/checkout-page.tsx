@@ -551,7 +551,7 @@ function OrderCreated({ order, payment, notice }: { order: Order; payment: Payme
 
       {notice && <p className="mt-3 text-sm text-amber-700">{notice}</p>}
       <p className="mt-3 text-sm text-ink-muted">
-        We&apos;ll email you as soon as it ships. You can track it from your orders page.
+        We&apos;ll email you as soon as it&apos;s on its way. You can track it from your orders page.
       </p>
 
       <div className="mt-8 flex justify-center gap-3">

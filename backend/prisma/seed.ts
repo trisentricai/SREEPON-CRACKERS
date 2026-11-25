@@ -1,8 +1,10 @@
 import { HomepageSectionType, PrismaClient } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 
 /**
- * Phase 2 seed: a small, safe-for-offline catalog of categories and products.
- * Idempotent — safe to run repeatedly (upserts keyed on slug/sku).
+ * Quick-commerce seed: a small, safe-for-offline catalogue of categories and
+ * products for the Sreepon storefronts. Idempotent — safe to run repeatedly
+ * (upserts keyed on slug/sku, and homepage sections keyed on type).
  * Requires DATABASE_URL (Supabase) to be configured.
  */
 
@@ -15,197 +17,404 @@ interface SeedCategory {
   children: Array<{ slug: string; name: string }>;
 }
 
-const CATEGORIES: SeedCategory[] = [
-  {
-    slug: 'crackers',
-    name: 'Crackers (Pattasu)',
-    description: 'Classic Diwali crackers — sparklers, flower pots, garlands and more.',
-    children: [
-      { slug: 'sparklers', name: 'Sparklers' },
-      { slug: 'flower-pots', name: 'Flower Pots' },
-      { slug: 'regular-crackers', name: 'Regular Crackers' },
-      { slug: 'kids-crackers', name: 'Kids Range' },
-      { slug: 'gift-boxes', name: 'Gift Boxes' },
-    ],
-  },
-  {
-    slug: 'rockets',
-    name: 'Rockets & Sky Shots',
-    description: 'Whistling and multi-shot rockets for open skies.',
-    children: [
-      { slug: 'whistling-rockets', name: 'Whistling Rockets' },
-      { slug: 'multi-shot-rockets', name: 'Multi-Shot Rockets' },
-    ],
-  },
-  {
-    slug: 'bombs-and-larungam',
-    name: 'Bombs & Larungam',
-    children: [
-      { slug: 'larungam', name: 'Larungam' },
-      { slug: 'ground-bombs', name: 'Ground Bombs' },
-    ],
-  },
-  {
-    slug: 'novelty-fireworks',
-    name: 'Novelty Fireworks',
-    description: 'Chakras, wheels, fountain cones and fun assortment packs.',
-    children: [
-      { slug: 'chakras', name: 'Chakras & Wheels' },
-      { slug: 'fountains', name: 'Fountains & Cones' },
-      { slug: 'assorted-packs', name: 'Assorted Packs' },
-    ],
-  },
-];
-
-const PRODUCTS: Array<{
+interface SeedProduct {
   slug: string;
   name: string;
   sku: string;
   category: string;
-  unit: string;
+  unit: 'BOX' | 'PACKET' | 'SINGLE';
   piecesPerBox: number;
   basePrice: string;
   mrpPrice?: string;
   shortDescription: string;
   featured?: boolean;
   quantity: number;
-}> = [
+}
+
+const CATEGORIES: SeedCategory[] = [
   {
-    slug: 'electrical-sparklers-5-inch',
-    name: 'Electrical Sparklers 5 inch (48 pcs)',
-    sku: 'SPK-50048',
-    category: 'sparklers',
+    slug: 'groceries',
+    name: 'Groceries & Staples',
+    description: 'Fresh produce, dairy and everyday staples.',
+    children: [
+      { slug: 'fresh-produce', name: 'Fresh Produce' },
+      { slug: 'dairy-bakery', name: 'Dairy & Bakery' },
+      { slug: 'staples', name: 'Staples & Pulses' },
+    ],
+  },
+  {
+    slug: 'snacks-drinks',
+    name: 'Snacks & Drinks',
+    description: 'Chips, biscuits, tea, coffee and cold drinks.',
+    children: [
+      { slug: 'chips-snacks', name: 'Chips & Snacks' },
+      { slug: 'tea-coffee', name: 'Tea & Coffee' },
+      { slug: 'cold-drinks', name: 'Cold Drinks' },
+    ],
+  },
+  {
+    slug: 'household',
+    name: 'Household Care',
+    description: 'Cleaning, laundry and disposable essentials.',
+    children: [
+      { slug: 'cleaning', name: 'Cleaning' },
+      { slug: 'laundry', name: 'Laundry' },
+      { slug: 'paper-disposables', name: 'Paper & Disposables' },
+    ],
+  },
+  {
+    slug: 'personal-care',
+    name: 'Personal Care',
+    description: 'Skin, hair and oral care for the whole family.',
+    children: [
+      { slug: 'skin-care', name: 'Skin Care' },
+      { slug: 'hair-care', name: 'Hair Care' },
+      { slug: 'oral-care', name: 'Oral Care' },
+    ],
+  },
+  {
+    slug: 'baby-pet',
+    name: 'Baby & Pet Care',
+    description: 'Daily essentials for little ones and pets.',
+    children: [
+      { slug: 'baby-care', name: 'Baby Care' },
+      { slug: 'pet-care', name: 'Pet Care' },
+    ],
+  },
+];
+
+const PRODUCTS: SeedProduct[] = [
+  {
+    slug: 'farm-fresh-bananas',
+    name: 'Farm Fresh Bananas (6 pcs)',
+    sku: 'QC-FRU-001',
+    category: 'fresh-produce',
     unit: 'BOX',
-    piecesPerBox: 48,
-    basePrice: '85.00',
-    mrpPrice: '100.00',
-    shortDescription: 'Bright, long-burning classic sparklers.',
+    piecesPerBox: 6,
+    basePrice: '48.00',
+    mrpPrice: '60.00',
+    shortDescription: 'Ripe, farm-fresh bananas.',
+    featured: true,
     quantity: 200,
   },
   {
-    slug: 'twinkle-star-sparklers',
-    name: 'Twinkle Star Sparklers (25 pcs)',
-    sku: 'SPK-TW25',
-    category: 'sparklers',
+    slug: 'farm-fresh-tomatoes',
+    name: 'Farm Fresh Tomatoes (1 kg)',
+    sku: 'QC-FRU-002',
+    category: 'fresh-produce',
     unit: 'BOX',
-    piecesPerBox: 25,
-    basePrice: '65.00',
-    mrpPrice: '75.00',
-    shortDescription: 'Multi-colour twinkle sparklers for kids.',
+    piecesPerBox: 1,
+    basePrice: '38.00',
+    mrpPrice: '45.00',
+    shortDescription: 'Hand-picked tomatoes, delivered fresh.',
+    quantity: 180,
+  },
+  {
+    slug: 'toned-milk-1l',
+    name: 'Fresh Toned Milk (1 L)',
+    sku: 'QC-DAI-001',
+    category: 'dairy-bakery',
+    unit: 'BOX',
+    piecesPerBox: 1,
+    basePrice: '68.00',
+    shortDescription: 'Farm-fresh toned milk in a 1 L pack.',
+    featured: true,
+    quantity: 240,
+  },
+  {
+    slug: 'farm-eggs-6',
+    name: 'Farm Eggs (6 pcs)',
+    sku: 'QC-DAI-002',
+    category: 'dairy-bakery',
+    unit: 'BOX',
+    piecesPerBox: 6,
+    basePrice: '72.00',
+    mrpPrice: '80.00',
+    shortDescription: 'Clean, graded farm eggs.',
     quantity: 150,
   },
   {
-    slug: 'olympic-flower-pot',
-    name: 'Olympic Flower Pot (100 shots)',
-    sku: 'FLP-OGM100',
-    category: 'flower-pots',
-    unit: 'SINGLE',
+    slug: 'whole-wheat-bread',
+    name: 'Whole Wheat Bread (400 g)',
+    sku: 'QC-BAK-001',
+    category: 'dairy-bakery',
+    unit: 'PACKET',
     piecesPerBox: 1,
-    basePrice: '45.00',
-    shortDescription: '100 multi-colour shots from a single cone.',
-    quantity: 500,
+    basePrice: '55.00',
+    shortDescription: 'Soft whole wheat bread, baked today.',
+    quantity: 120,
   },
   {
-    slug: 'garland-1000-wala',
-    name: 'Garland 1000 Wala',
-    sku: 'GAR-1000',
-    category: 'regular-crackers',
-    unit: 'BOX',
+    slug: 'basmati-rice-1kg',
+    name: 'Basmati Rice (1 kg)',
+    sku: 'QC-STP-001',
+    category: 'staples',
+    unit: 'PACKET',
     piecesPerBox: 1,
-    basePrice: '220.00',
-    mrpPrice: '250.00',
-    shortDescription: 'The classic 1000-shot garland.',
+    basePrice: '145.00',
+    mrpPrice: '160.00',
+    shortDescription: 'Long-grain basmati rice.',
+    quantity: 160,
+  },
+  {
+    slug: 'classic-salted-chips',
+    name: 'Classic Salted Chips (150 g)',
+    sku: 'QC-SNK-001',
+    category: 'chips-snacks',
+    unit: 'PACKET',
+    piecesPerBox: 1,
+    basePrice: '35.00',
+    mrpPrice: '40.00',
+    shortDescription: 'Crunchy classic salted chips.',
     featured: true,
     quantity: 300,
   },
   {
-    slug: 'rocket-pencil-whistling-pack',
-    name: 'Whistling Rocket Pencil (pack of 6)',
-    sku: 'RKT-WP6',
-    category: 'whistling-rockets',
+    slug: 'cream-biscuits',
+    name: 'Cream Biscuits (200 g)',
+    sku: 'QC-SNK-002',
+    category: 'chips-snacks',
     unit: 'PACKET',
-    piecesPerBox: 6,
+    piecesPerBox: 1,
+    basePrice: '45.00',
+    shortDescription: 'Cream-filled biscuits for tea time.',
+    quantity: 300,
+  },
+  {
+    slug: 'masala-tea-250g',
+    name: 'Masala Tea (250 g)',
+    sku: 'QC-TEA-001',
+    category: 'tea-coffee',
+    unit: 'PACKET',
+    piecesPerBox: 1,
+    basePrice: '120.00',
+    mrpPrice: '135.00',
+    shortDescription: 'Aromatic masala tea blend.',
+    quantity: 200,
+  },
+  {
+    slug: 'instant-coffee-100g',
+    name: 'Instant Coffee (100 g)',
+    sku: 'QC-TEA-002',
+    category: 'tea-coffee',
+    unit: 'BOX',
+    piecesPerBox: 1,
+    basePrice: '180.00',
+    mrpPrice: '199.00',
+    shortDescription: 'Rich instant coffee, quick to make.',
+    quantity: 140,
+  },
+  {
+    slug: 'cold-cola-750ml',
+    name: 'Cold Cola (750 ml)',
+    sku: 'QC-DRK-001',
+    category: 'cold-drinks',
+    unit: 'SINGLE',
+    piecesPerBox: 1,
+    basePrice: '40.00',
+    shortDescription: 'Chilled cola, ready to drink.',
+    quantity: 250,
+  },
+  {
+    slug: 'orange-juice-1l',
+    name: 'Orange Juice (1 L)',
+    sku: 'QC-DRK-002',
+    category: 'cold-drinks',
+    unit: 'BOX',
+    piecesPerBox: 1,
     basePrice: '110.00',
-    mrpPrice: '130.00',
-    shortDescription: 'High-flying whistling rockets, pack of 6.',
+    shortDescription: 'Fresh orange juice, 1 L carton.',
+    quantity: 150,
+  },
+  {
+    slug: 'dishwash-liquid-500ml',
+    name: 'Dishwash Liquid (500 ml)',
+    sku: 'QC-CLN-001',
+    category: 'cleaning',
+    unit: 'BOX',
+    piecesPerBox: 1,
+    basePrice: '85.00',
+    mrpPrice: '99.00',
+    shortDescription: 'Grease-cutting dishwash liquid.',
+    quantity: 180,
+  },
+  {
+    slug: 'floor-cleaner-1l',
+    name: 'Floor Cleaner (1 L)',
+    sku: 'QC-CLN-002',
+    category: 'cleaning',
+    unit: 'BOX',
+    piecesPerBox: 1,
+    basePrice: '130.00',
+    shortDescription: 'Disinfecting floor cleaner.',
+    quantity: 160,
+  },
+  {
+    slug: 'detergent-powder-1kg',
+    name: 'Detergent Powder (1 kg)',
+    sku: 'QC-LND-001',
+    category: 'laundry',
+    unit: 'PACKET',
+    piecesPerBox: 1,
+    basePrice: '160.00',
+    mrpPrice: '175.00',
+    shortDescription: 'Everyday detergent powder.',
+    featured: true,
+    quantity: 200,
+  },
+  {
+    slug: 'tissue-paper-100',
+    name: 'Tissue Paper (100 sheets)',
+    sku: 'QC-PAP-001',
+    category: 'paper-disposables',
+    unit: 'PACKET',
+    piecesPerBox: 1,
+    basePrice: '60.00',
+    shortDescription: 'Soft, absorbent tissue sheets.',
+    quantity: 250,
+  },
+  {
+    slug: 'moisturising-lotion-200ml',
+    name: 'Moisturising Lotion (200 ml)',
+    sku: 'QC-SKN-001',
+    category: 'skin-care',
+    unit: 'BOX',
+    piecesPerBox: 1,
+    basePrice: '150.00',
+    mrpPrice: '175.00',
+    shortDescription: 'Lightweight daily moisturiser.',
+    quantity: 140,
+  },
+  {
+    slug: 'shampoo-200ml',
+    name: 'Gentle Shampoo (200 ml)',
+    sku: 'QC-HAI-001',
+    category: 'hair-care',
+    unit: 'BOX',
+    piecesPerBox: 1,
+    basePrice: '140.00',
+    shortDescription: 'Gentle shampoo for daily use.',
+    quantity: 140,
+  },
+  {
+    slug: 'toothpaste-100g',
+    name: 'Toothpaste (100 g)',
+    sku: 'QC-ORA-001',
+    category: 'oral-care',
+    unit: 'BOX',
+    piecesPerBox: 1,
+    basePrice: '75.00',
+    shortDescription: 'Daily cavity-protection toothpaste.',
+    quantity: 220,
+  },
+  {
+    slug: 'baby-diapers-medium',
+    name: 'Baby Diapers – Medium (30 pcs)',
+    sku: 'QC-BAB-001',
+    category: 'baby-care',
+    unit: 'PACKET',
+    piecesPerBox: 30,
+    basePrice: '399.00',
+    mrpPrice: '449.00',
+    shortDescription: 'Soft, absorbent medium diapers.',
+    featured: true,
     quantity: 120,
   },
   {
-    slug: 'chakra-lal-100',
-    name: 'Lal Chakri (Colour Chakra, 100 shots)',
-    sku: 'CHK-LAL100',
-    category: 'chakras',
-    unit: 'SINGLE',
+    slug: 'pet-food-1kg',
+    name: 'Pet Food – Adult Dog (1 kg)',
+    sku: 'QC-PET-001',
+    category: 'pet-care',
+    unit: 'PACKET',
     piecesPerBox: 1,
-    basePrice: '38.00',
-    shortDescription: 'Spinning colour wheel chakra.',
-    quantity: 400,
-  },
-  {
-    slug: 'diwali-gift-box-royal',
-    name: 'Diwali Gift Box – Royal (25 pc)',
-    sku: 'GBT-ROY25',
-    category: 'gift-boxes',
-    unit: 'BOX',
-    piecesPerBox: 25,
-    basePrice: '420.00',
-    mrpPrice: '499.00',
-    shortDescription: 'Curated mix of sparklers, chakras and sweet crackers.',
-    featured: true,
-    quantity: 80,
+    basePrice: '280.00',
+    shortDescription: 'Complete nutrition for adult dogs.',
+    quantity: 120,
   },
 ];
 
-async function main() {
-  console.log('Seeding SriPon catalog…');
+const SECTIONS: Array<{
+  type: HomepageSectionType;
+  title: string;
+  config?: { limit: number };
+}> = [
+  { type: HomepageSectionType.TRENDING_PRODUCTS, title: 'Trending near you', config: { limit: 8 } },
+  { type: HomepageSectionType.TODAYS_OFFERS, title: "Today's offers", config: { limit: 8 } },
+  { type: HomepageSectionType.CATEGORY_GRID, title: 'Shop by category' },
+  {
+    type: HomepageSectionType.FEATURED_PRODUCTS,
+    title: 'Everyday essentials',
+    config: { limit: 8 },
+  },
+  { type: HomepageSectionType.NEW_ARRIVALS, title: 'New arrivals', config: { limit: 8 } },
+];
 
-  const rootBySlug = new Map<string, { id: string }>();
-  const leafBySlug = new Map<string, { id: string }>();
+async function main() {
+  console.log('Seeding Sreepon quick-commerce catalogue…');
+
+  const leafBySlug = new Map<string, string>();
   let categoryCount = 0;
 
-  for (const root of CATEGORIES) {
+  for (const [rootIndex, root] of CATEGORIES.entries()) {
     const rootRecord = await prisma.category.upsert({
       where: { slug: root.slug },
-      update: { name: root.name, description: root.description ?? null },
+      update: {
+        name: root.name,
+        description: root.description ?? null,
+        isActive: true,
+        isFeatured: true,
+      },
       create: {
         slug: root.slug,
         name: root.name,
         description: root.description ?? null,
-        displayOrder: rootBySlug.size,
+        displayOrder: rootIndex,
+        isActive: true,
+        isFeatured: true,
       },
     });
-    rootBySlug.set(root.slug, { id: rootRecord.id });
     categoryCount += 1;
 
-    for (const childConfig of root.children) {
-      const parent = rootBySlug.get(root.slug);
+    for (const [childIndex, childConfig] of root.children.entries()) {
       const child = await prisma.category.upsert({
         where: { slug: childConfig.slug },
-        update: { name: childConfig.name, parentId: parent?.id },
+        update: {
+          name: childConfig.name,
+          parentId: rootRecord.id,
+          isActive: true,
+          isFeatured: false,
+        },
         create: {
           slug: childConfig.slug,
           name: childConfig.name,
-          parentId: parent?.id,
-          displayOrder: leafBySlug.size,
+          parentId: rootRecord.id,
+          displayOrder: childIndex,
+          isActive: true,
+          isFeatured: false,
         },
       });
-      leafBySlug.set(childConfig.slug, { id: child.id });
+      leafBySlug.set(childConfig.slug, child.id);
       categoryCount += 1;
     }
   }
 
   let productCount = 0;
   for (const product of PRODUCTS) {
-    const category = leafBySlug.get(product.category);
     const record = await prisma.product.upsert({
       where: { sku: product.sku },
       update: {
+        slug: product.slug,
         name: product.name,
         basePrice: product.basePrice,
         mrpPrice: product.mrpPrice ?? null,
         shortDescription: product.shortDescription,
+        unit: product.unit,
+        piecesPerBox: product.piecesPerBox,
         isFeatured: product.featured ?? false,
-        categoryId: category?.id,
+        isActive: true,
+        isApproved: true,
+        minimumAge: null,
+        categoryId: leafBySlug.get(product.category) ?? null,
       },
       create: {
         slug: product.slug,
@@ -219,53 +428,42 @@ async function main() {
         isFeatured: product.featured ?? false,
         isActive: true,
         isApproved: true,
-        categoryId: category?.id,
+        minimumAge: null,
+        categoryId: leafBySlug.get(product.category) ?? null,
       },
     });
 
     await prisma.inventoryItem.upsert({
       where: { productId: record.id },
-      update: { quantity: product.quantity },
-      create: {
-        productId: record.id,
-        quantity: product.quantity,
-        lowStockThreshold: 10,
-      },
+      update: { quantity: product.quantity, lowStockThreshold: 10 },
+      create: { productId: record.id, quantity: product.quantity, lowStockThreshold: 10 },
     });
     productCount += 1;
   }
 
-  // Homepage sections — a sensible default storefront, seeded only when the
-  // content team hasn't configured any sections yet (idempotent).
-  const existingSections = await prisma.homepageSection.count();
+  // Homepage sections are keyed on type so a repeat seed also fixes stale
+  // titles from an older storefront configuration (idempotent).
   let sectionCount = 0;
-  if (existingSections === 0) {
-    const defaultSections: Array<{
-      type: HomepageSectionType;
-      title: string;
-      config?: { limit: number };
-    }> = [
-      { type: HomepageSectionType.TRENDING_PRODUCTS, title: 'Trending products', config: { limit: 8 } },
-      { type: HomepageSectionType.TODAYS_OFFERS, title: "Today's offers", config: { limit: 8 } },
-      { type: HomepageSectionType.CATEGORY_GRID, title: 'Shop by category' },
-      { type: HomepageSectionType.FEATURED_PRODUCTS, title: 'Featured for the festival', config: { limit: 8 } },
-      { type: HomepageSectionType.NEW_ARRIVALS, title: 'New arrivals', config: { limit: 8 } },
-    ];
-    for (const [index, section] of defaultSections.entries()) {
-      await prisma.homepageSection.create({
-        data: {
-          type: section.type,
-          title: section.title,
-          ...(section.config ? { config: section.config } : {}),
-          displayOrder: index,
-          isActive: true,
-        },
-      });
-      sectionCount += 1;
+  for (const [index, section] of SECTIONS.entries()) {
+    const data = {
+      title: section.title,
+      ...(section.config ? { config: section.config as Prisma.JsonObject } : {}),
+      displayOrder: index,
+      isActive: true,
+    };
+    const existing = await prisma.homepageSection.updateMany({
+      where: { type: section.type },
+      data,
+    });
+    if (existing.count === 0) {
+      await prisma.homepageSection.create({ data: { type: section.type, ...data } });
     }
+    sectionCount += Math.max(existing.count, 1);
   }
 
-  console.log(`Seed complete: ${categoryCount} categories, ${productCount} products, ${sectionCount} homepage sections.`);
+  console.log(
+    `Seed complete: ${categoryCount} categories, ${productCount} products, ${sectionCount} homepage sections.`,
+  );
 }
 
 main()

@@ -360,7 +360,7 @@ class _CouponDialogState extends State<_CouponDialog> {
                   autofocus: true,
                   textCapitalization: TextCapitalization.characters,
                   inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9_-]'))],
-                  decoration: const InputDecoration(labelText: 'Code *', hintText: 'FESTIVE10'),
+                  decoration: const InputDecoration(labelText: 'Code *', hintText: 'FIRST15'),
                   validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
                 ),
                 const SizedBox(height: 10),

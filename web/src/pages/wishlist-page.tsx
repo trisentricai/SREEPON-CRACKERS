@@ -102,7 +102,7 @@ function WishlistContent() {
                   <img src={item.product.imageUrl} alt={item.product.name} className="h-full w-full object-cover" />
                 ) : (
                   <div className="flex h-full items-center justify-center text-2xl" aria-hidden>
-                    🎆
+                    🛍️
                   </div>
                 )}
               </div>

@@ -195,14 +195,14 @@ export function orderConfirmationEmail(
 
           <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 25px 0;">
           <p style="font-size: 12px; color: #94a3b8; text-align: center;">
-            Sreepon • Premium Green Crackers &amp; Gift Boxes<br>
+            Sreepon • Everyday essentials, delivered in minutes<br>
             © 2026 Sreepon. All rights reserved.
           </p>
         </div>
       </body>
       </html>
     `,
-    text: `Order Confirmation - ${orderNumber}\n\nHi ${customerName},\n\nThank you for your order with Sreepon! We've received your order and it's being processed.\n\nOrder #${orderNumber}\nTotal: ${currency} ${grandTotal}\n\n${items.map((i) => `${i.name} x${i.quantity} - ${i.lineTotal}`).join('\n')}\n\nYou can track your order status anytime from your account dashboard.\n\nSreepon • Premium Green Crackers & Gift Boxes`,
+    text: `Order Confirmation - ${orderNumber}\n\nHi ${customerName},\n\nThank you for your order with Sreepon! We've received your order and it's being processed.\n\nOrder #${orderNumber}\nTotal: ${currency} ${grandTotal}\n\n${items.map((i) => `${i.name} x${i.quantity} - ${i.lineTotal}`).join('\n')}\n\nYou can track your order status anytime from your account dashboard.\n\nSreepon • Everyday essentials, delivered in minutes`,
   };
 }
 
@@ -281,13 +281,13 @@ export function orderStatusEmail(
 
           <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 25px 0;">
           <p style="font-size: 12px; color: #94a3b8; text-align: center;">
-            Sreepon • Premium Green Crackers &amp; Gift Boxes<br>
+            Sreepon • Everyday essentials, delivered in minutes<br>
             © 2026 Sreepon. All rights reserved.
           </p>
         </div>
       </body>
       </html>
     `,
-    text: `Order Status Update - ${orderNumber}\n\nHi ${customerName},\n\nYour order status has been updated to: ${label}\n\nOrder #${orderNumber}\nStatus: ${label}\nOrder Total: ${currency} ${grandTotal}\nUpdated on: ${new Date().toLocaleDateString()}\n\nYou can track your order status anytime from your account dashboard.\n\nSreepon • Premium Green Crackers & Gift Boxes`,
+    text: `Order Status Update - ${orderNumber}\n\nHi ${customerName},\n\nYour order status has been updated to: ${label}\n\nOrder #${orderNumber}\nStatus: ${label}\nOrder Total: ${currency} ${grandTotal}\nUpdated on: ${new Date().toLocaleDateString()}\n\nYou can track your order status anytime from your account dashboard.\n\nSreepon • Everyday essentials, delivered in minutes`,
   };
 }

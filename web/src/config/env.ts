@@ -8,7 +8,7 @@ export const env = envSchema.parse(import.meta.env);
 
 export const SITE = {
   name: 'Sreepon',
-  tagline: 'Celebrate responsibly',
+  tagline: 'Your neighbourhood store, at your door in 15 minutes',
   baseUrl: 'https://sreepon.in',
   currency: 'INR',
 } as const;
