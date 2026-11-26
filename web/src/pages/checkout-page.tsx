@@ -84,7 +84,8 @@ function CheckoutContent() {
   const providers = useQuery({
     queryKey: ['payment-providers'],
     queryFn: async () => {
-      const { data } = await api.get<ApiEnvelope<AvailablePaymentProvider[]>>('/payments/providers');
+      const { data } =
+        await api.get<ApiEnvelope<AvailablePaymentProvider[]>>('/payments/providers');
       return asArray<AvailablePaymentProvider>(data.data);
     },
     staleTime: 5 * 60_000,
@@ -132,7 +133,9 @@ function CheckoutContent() {
     preferredProvider !== 'cashfree' &&
     providerOptions.some((option) => option.name === preferredProvider)
       ? preferredProvider
-      : (selectableProviders[0]?.name ?? providerOptions.find((o) => o.name !== 'cashfree')?.name ?? 'cash');
+      : (selectableProviders[0]?.name ??
+        providerOptions.find((o) => o.name !== 'cashfree')?.name ??
+        'cash');
   const setProvider = setPreferredProvider;
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['cart'] });
@@ -255,14 +258,14 @@ function CheckoutContent() {
 
   if (cart.isLoading || addresses.isLoading) {
     return (
-      <section className="mx-auto max-w-5xl px-4 py-12">
+      <section className="mx-auto max-w-6xl px-4 py-12">
         <Spinner label="Preparing checkout…" />
       </section>
     );
   }
   if (cart.isError) {
     return (
-      <section className="mx-auto max-w-5xl px-4 py-12">
+      <section className="mx-auto max-w-6xl px-4 py-12">
         <ErrorState error={cart.error} />
       </section>
     );
@@ -277,12 +280,15 @@ function CheckoutContent() {
   const cartData = cart.data;
   if (!cartData || cartData.items.length === 0) {
     return (
-      <section className="mx-auto max-w-5xl px-4 py-12">
+      <section className="mx-auto max-w-6xl px-4 py-12">
         <h1 className="font-display text-3xl font-semibold text-ink">Checkout</h1>
         <div className="mt-4">
           <EmptyState title="Your cart is empty">
             <p>
-              <Link to="/products" className="font-medium text-accent underline">Browse the catalogue</Link> first.
+              <Link to="/products" className="font-medium text-accent underline">
+                Browse the catalogue
+              </Link>{' '}
+              first.
             </p>
           </EmptyState>
         </div>
@@ -293,7 +299,7 @@ function CheckoutContent() {
   const busy = placeOrder.isPending || step === 'placing';
 
   return (
-    <section className="mx-auto max-w-5xl px-4 py-8">
+    <section className="mx-auto max-w-6xl px-4 py-8">
       <h1 className="font-display text-3xl font-semibold text-ink">Checkout</h1>
       {error && step === 'review' && <p className="mt-3 text-sm text-red-600">{error}</p>}
 
@@ -316,7 +322,10 @@ function CheckoutContent() {
                 {useSavedAddress && (
                   <div className="mt-3 space-y-2">
                     {(addresses.data ?? []).map((saved) => (
-                      <label key={saved.id} className="flex items-start gap-3 rounded-2xl border border-line p-3 text-sm">
+                      <label
+                        key={saved.id}
+                        className="flex items-start gap-3 rounded-2xl border border-line p-3 text-sm"
+                      >
                         <input
                           type="radio"
                           name="address"
@@ -329,7 +338,8 @@ function CheckoutContent() {
                           <span className="text-ink-muted"> · {saved.label}</span>
                           <br />
                           {saved.line1}
-                          {saved.line2 ? `, ${saved.line2}` : ''}, {saved.city}, {saved.state} {saved.pincode}
+                          {saved.line2 ? `, ${saved.line2}` : ''}, {saved.city}, {saved.state}{' '}
+                          {saved.pincode}
                           <br />
                           {saved.phone}
                         </span>
@@ -411,8 +421,8 @@ function CheckoutContent() {
                     key={option.name}
                     className={`flex items-center gap-3 rounded-lg border p-3 text-sm ${
                       comingSoon
-                        ? 'cursor-not-allowed border-ember-100 bg-surface-warm opacity-60'
-                        : 'border-ember-100'
+                        ? 'cursor-not-allowed border-line bg-surface-warm opacity-60'
+                        : 'border-line'
                     }`}
                   >
                     <input
@@ -426,7 +436,9 @@ function CheckoutContent() {
                       disabled={comingSoon}
                       className="h-4 w-4 accent-flame-600 disabled:cursor-not-allowed"
                     />
-                    <span className={comingSoon ? 'text-ink-muted' : 'text-ink'}>{option.label}</span>
+                    <span className={comingSoon ? 'text-ink-muted' : 'text-ink'}>
+                      {option.label}
+                    </span>
                     {comingSoon && (
                       <span className="ml-auto rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
                         Available soon
@@ -453,13 +465,14 @@ function CheckoutContent() {
         </div>
 
         {/* Summary */}
-        <aside className="h-fit rounded-3xl border border-line bg-surface-warm p-5">
+        <aside className="h-fit rounded-lg border border-line bg-surface-warm p-5">
           <h2 className="text-lg font-semibold text-ink">Order summary</h2>
           <ul className="mt-4 space-y-3 text-sm">
             {cartData.items.map((item) => (
               <li key={item.id} className="flex items-center justify-between gap-3">
                 <span className="flex-1 text-ink-muted">
-                  {item.product.name} <Badge tone={item.isOutOfStock ? 'red' : 'neutral'}>×{item.quantity}</Badge>
+                  {item.product.name}{' '}
+                  <Badge tone={item.isOutOfStock ? 'red' : 'neutral'}>×{item.quantity}</Badge>
                 </span>
                 <span className="font-medium text-ink">{formatMoney(item.lineTotal)}</span>
               </li>
@@ -470,10 +483,12 @@ function CheckoutContent() {
               Remove out-of-stock items before ordering.
             </p>
           )}
-          <dl className="mt-4 space-y-2 border-t border-ember-100 pt-4 text-sm">
+          <dl className="mt-4 space-y-2 border-t border-line pt-4 text-sm">
             <div className="flex justify-between">
               <dt className="text-ink-muted">Subtotal</dt>
-              <dd className="font-medium text-ink">{formatMoney(estimate.data?.subtotal ?? cartData.subtotal)}</dd>
+              <dd className="font-medium text-ink">
+                {formatMoney(estimate.data?.subtotal ?? cartData.subtotal)}
+              </dd>
             </div>
             {estimate.data && Number(estimate.data.discount) > 0 && (
               <div className="flex justify-between text-accent">
@@ -499,12 +514,13 @@ function CheckoutContent() {
                   : '—'}
               </dd>
             </div>
-            {estimate.data?.amountToFreeShipping && Number(estimate.data.amountToFreeShipping) > 0 && (
-              <p className="rounded-lg bg-indigo-50 px-3 py-2 text-xs text-indigo-700">
-                Add {formatMoney(estimate.data.amountToFreeShipping)} more for free delivery.
-              </p>
-            )}
-            <div className="flex justify-between border-t border-ember-100 pt-3 text-base">
+            {estimate.data?.amountToFreeShipping &&
+              Number(estimate.data.amountToFreeShipping) > 0 && (
+                <p className="rounded-lg bg-accent-soft px-3 py-2 text-xs text-accent">
+                  Add {formatMoney(estimate.data.amountToFreeShipping)} more for free delivery.
+                </p>
+              )}
+            <div className="flex justify-between border-t border-line pt-3 text-base">
               <dt className="font-semibold text-ink">Total</dt>
               <dd className="font-bold text-ink">
                 {formatMoney(estimate.data?.grandTotal ?? cartData.subtotal)}
@@ -512,7 +528,9 @@ function CheckoutContent() {
             </div>
             {estimate.isError && (
               <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-700">
-                {estimate.error instanceof Error ? estimate.error.message : 'Could not price this order.'}
+                {estimate.error instanceof Error
+                  ? estimate.error.message
+                  : 'Could not price this order.'}
               </p>
             )}
           </dl>
@@ -529,14 +547,25 @@ function CheckoutContent() {
   );
 }
 
-function OrderCreated({ order, payment, notice }: { order: Order; payment: Payment | null; notice: string | null }) {
+function OrderCreated({
+  order,
+  payment,
+  notice,
+}: {
+  order: Order;
+  payment: Payment | null;
+  notice: string | null;
+}) {
   const detailsUrl = `/orders/${order.id}`;
   const paid = payment?.status === 'PAID' || order.paymentStatus === 'PAID';
   const cod = payment?.provider === 'cash';
 
   return (
     <section className="mx-auto max-w-2xl px-4 py-16 text-center">
-      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl" aria-hidden>
+      <div
+        className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-green-100 text-3xl"
+        aria-hidden
+      >
         ✓
       </div>
       <h1 className="mt-4 font-display text-3xl font-semibold text-ink">Order placed</h1>
@@ -551,14 +580,21 @@ function OrderCreated({ order, payment, notice }: { order: Order; payment: Payme
 
       {notice && <p className="mt-3 text-sm text-amber-700">{notice}</p>}
       <p className="mt-3 text-sm text-ink-muted">
-        We&apos;ll email you as soon as it&apos;s on its way. You can track it from your orders page.
+        We&apos;ll email you as soon as it&apos;s on its way. You can track it from your orders
+        page.
       </p>
 
       <div className="mt-8 flex justify-center gap-3">
-        <Link to={detailsUrl} className="pill-cta rounded-full bg-accent px-5 py-2.5 font-semibold text-white hover:bg-accent/90">
+        <Link
+          to={detailsUrl}
+          className="pill-cta rounded-full bg-accent px-5 py-2.5 font-semibold text-white hover:bg-accent/90"
+        >
           View order
         </Link>
-        <Link to="/products" className="pill-cta rounded-full border border-flame-300 px-5 py-2.5 font-semibold text-accent hover:bg-accent-soft">
+        <Link
+          to="/products"
+          className="pill-cta rounded-full border border-flame-300 px-5 py-2.5 font-semibold text-accent hover:bg-accent-soft"
+        >
           Continue shopping
         </Link>
       </div>

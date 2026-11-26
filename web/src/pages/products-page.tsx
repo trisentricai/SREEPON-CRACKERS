@@ -2,25 +2,38 @@ import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { api } from '@/api/client';
-import type { ApiEnvelope, CategoryTreeNode, Product, ProductListResponse, ProductSort } from '@/api/types';
-import { EmptyState, ErrorState, ProductCard, ProductGrid, Spinner } from '@/components/storefront-ui';
+import type {
+  ApiEnvelope,
+  CategoryTreeNode,
+  Product,
+  ProductListResponse,
+  ProductSort,
+} from '@/api/types';
+import { CategoryRail, QuickSearch } from '@/components/quick-commerce-ui';
+import {
+  EmptyState,
+  ErrorState,
+  ProductCard,
+  ProductGrid,
+  ProductGridSkeletonQuick,
+} from '@/components/storefront-ui';
 import { visibleCategoryTree } from '@/lib/categories';
+import { flattenCategories } from '@/lib/quick-commerce';
 import { usePageMeta } from '@/lib/seo';
 
-const LIMIT = 24;
+const LIMIT = 30;
 
 const SORTS: { value: ProductSort; label: string }[] = [
+  { value: 'featured', label: 'Recommended' },
   { value: 'newest', label: 'Newest' },
-  { value: 'featured', label: 'Featured' },
   { value: 'price_asc', label: 'Price: low to high' },
   { value: 'price_desc', label: 'Price: high to low' },
   { value: 'name_asc', label: 'Name A–Z' },
 ];
 
 /**
- * Category / product listing with search, sort, and pagination.
- * The category rail and result grid are keyed by the URL so navigating between
- * categories or searches naturally resets list-local state (page, term, sort).
+ * Category / product listing with a Zepto-style category rail, search and
+ * sort chips. The list is keyed by URL so category/search changes reset state.
  */
 export function ProductsPage() {
   const params = useParams();
@@ -36,45 +49,61 @@ export function ProductsPage() {
     },
   });
 
-  const activeCategory = categorySlug ? findCategory(categories.data ?? [], categorySlug) : undefined;
+  const activeCategory = categorySlug
+    ? findCategory(categories.data ?? [], categorySlug)
+    : undefined;
 
   usePageMeta({
     title: activeCategory ? `${activeCategory.name} — everyday essentials` : 'Shop all essentials',
     description: activeCategory
-      ? activeCategory.description ??
-        `Buy ${activeCategory.name.toLowerCase()} online from Sreepon. 10–15 min delivery, GST invoice on every order.`
+      ? (activeCategory.description ??
+        `Buy ${activeCategory.name.toLowerCase()} online from Sreepon. 10–15 min delivery, GST invoice on every order.`)
       : 'Everyday essentials, delivered in 10–15 minutes from a store near you. GST invoice on every order, fresh stock guaranteed and easy returns.',
     path: categorySlug ? `/products/${categorySlug}` : '/products',
   });
 
   return (
-    <section className="mx-auto max-w-5xl px-4 py-8">
-      <header>
-        <p className="text-sm text-ink-muted">
-          <Link to="/products" className="hover:text-accent">Catalogue</Link>
-          {activeCategory && <span className="text-ink-muted/70"> / {activeCategory.name}</span>}
-        </p>
-        <h1 className="mt-1 font-display font-display text-3xl font-semibold text-ink">
-          {activeCategory?.name ?? 'Shop all essentials'}
-        </h1>
-        <p className="mt-1 text-sm text-ink-muted">Delivered fresh from your nearby store.</p>
-      </header>
+    <section className="mx-auto max-w-6xl px-4 py-4">
+      <nav className="text-xs text-ink-muted" aria-label="Breadcrumb">
+        <Link to="/" className="hover:text-accent">
+          Home
+        </Link>
+        <span className="px-1.5">/</span>
+        <Link to="/products" className="hover:text-accent">
+          Shop
+        </Link>
+        {activeCategory && (
+          <>
+            <span className="px-1.5">/</span>
+            <span className="text-ink">{activeCategory.name}</span>
+          </>
+        )}
+      </nav>
 
-      <div className="mt-6 grid gap-8 lg:grid-cols-[240px_1fr]">
-        <aside className="hidden lg:block">
-          <p className="mb-3 text-sm font-semibold text-ink">Categories</p>
-          <CategoryRail categories={visibleCategoryTree(categories.data ?? [])} active={activeCategory?.slug} />
-        </aside>
+      <div className="mt-2 flex items-end justify-between gap-3">
+        <div>
+          <h1 className="font-display text-2xl font-semibold text-ink sm:text-3xl">
+            {activeCategory?.name ?? 'All essentials'}
+          </h1>
+          <p className="mt-0.5 text-xs text-ink-muted">Delivered fresh in 10–15 minutes.</p>
+        </div>
+      </div>
 
-        <ProductList
-          key={`${categorySlug ?? 'all'}:${q}`}
-          categorySlug={categorySlug}
-          initialQ={q}
-          onApplySearch={(term) => {
-            setSearchParams(term ? { q: term } : {}, { replace: true });
-          }}
+      <div className="mt-3">
+        <CategoryRail
+          categories={flattenCategories(visibleCategoryTree(categories.data ?? []))}
+          active={activeCategory?.slug}
         />
       </div>
+
+      <ProductList
+        key={`${categorySlug ?? 'all'}:${q}`}
+        categorySlug={categorySlug}
+        initialQ={q}
+        onApplySearch={(term) => {
+          setSearchParams(term ? { q: term } : {}, { replace: true });
+        }}
+      />
     </section>
   );
 }
@@ -90,7 +119,7 @@ function ProductList({
 }) {
   const [page, setPage] = useState(1);
   const [draftQ, setDraftQ] = useState(initialQ);
-  const [sort, setSort] = useState<ProductSort>('newest');
+  const [sort, setSort] = useState<ProductSort>('featured');
 
   const products = useQuery({
     queryKey: ['public-products', categorySlug, page, initialQ, sort],
@@ -103,94 +132,94 @@ function ProductList({
   });
 
   if (products.isError) {
-    return <ErrorState error={products.error} />;
+    return (
+      <div className="mt-4">
+        <ErrorState error={products.error} />
+      </div>
+    );
   }
 
   const items = products.data?.items ?? [];
   const pagination = products.data?.pagination;
 
   return (
-    <div>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <form
-          className="flex flex-1 gap-2"
-          onSubmit={(e) => {
-            e.preventDefault();
-            onApplySearch(draftQ.trim());
-          }}
-        >
-          <input
-            type="search"
-            value={draftQ}
-            onChange={(e) => setDraftQ(e.target.value)}
-            placeholder="Search by name or SKU…"
-            className="w-full rounded-lg border border-line px-3 py-2 text-sm"
-          />
-          <button type="submit" className="pill-cta rounded-full bg-accent px-4 py-2 text-sm text-white hover:bg-accent/90">
-            Search
-          </button>
-        </form>
-        <label className="flex items-center gap-2 text-sm text-ink-muted">
-          Sort
-          <select
-            value={sort}
-            onChange={(e) => {
-              setSort(e.target.value as ProductSort);
-              setPage(1);
-            }}
-            className="rounded-lg border border-line px-3 py-2 text-sm"
-          >
-            {SORTS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </label>
+    <div className="mt-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+        <QuickSearch
+          value={draftQ}
+          onChange={setDraftQ}
+          onSubmit={onApplySearch}
+          placeholder="Search by name or SKU…"
+          className="flex-1"
+        />
+        <div className="quick-scroll flex gap-2 overflow-x-auto pb-1" aria-label="Sort products">
+          {SORTS.map((option) => (
+            <button
+              key={option.value}
+              type="button"
+              onClick={() => {
+                setSort(option.value);
+                setPage(1);
+              }}
+              className={`quick-press shrink-0 rounded-full border px-3 py-2 text-xs font-semibold ${
+                sort === option.value
+                  ? 'border-accent bg-accent text-white'
+                  : 'border-line bg-white text-ink-muted hover:bg-surface'
+              }`}
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
       </div>
 
-      <div className="mt-6">
-        {products.isLoading ? (
-          <Spinner label="Loading products…" />
-        ) : items.length === 0 ? (
+      {products.isLoading ? (
+        <div className="mt-4">
+          <ProductGridSkeletonQuick count={10} />
+        </div>
+      ) : items.length === 0 ? (
+        <div className="mt-4">
           <EmptyState title="No products found">
             <p>Try a different search or choose another category.</p>
           </EmptyState>
-        ) : (
-          <>
-            <p className="mb-4 text-sm text-ink-muted">
-              {pagination?.total ?? 0} product{pagination?.total === 1 ? '' : 's'}
-              {initialQ && <> matching “{initialQ}”</>}
-            </p>
-            <ProductGrid>
-              {items.map((product: Product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </ProductGrid>
-            {pagination && pagination.pages > 1 && (
-              <div className="mt-8 flex items-center justify-center gap-2">
-                <button
-                  disabled={page <= 1}
-                  onClick={() => setPage((p) => p - 1)}
-                  className="rounded-lg border border-line px-3 py-1.5 text-sm disabled:opacity-40"
-                >
-                  Previous
-                </button>
-                <span className="px-2 text-sm text-ink-muted">
-                  Page {pagination.page} of {pagination.pages}
-                </span>
-                <button
-                  disabled={page >= pagination.pages}
-                  onClick={() => setPage((p) => p + 1)}
-                  className="rounded-lg border border-line px-3 py-1.5 text-sm disabled:opacity-40"
-                >
-                  Next
-                </button>
-              </div>
-            )}
-          </>
-        )}
-      </div>
+        </div>
+      ) : (
+        <>
+          <p className="mb-3 mt-4 text-xs text-ink-muted">
+            {pagination?.total ?? 0} product{pagination?.total === 1 ? '' : 's'}
+            {initialQ && <> matching “{initialQ}”</>}
+          </p>
+          <ProductGrid>
+            {items.map((product: Product) => (
+              <ProductCard
+                key={product.id}
+                product={{ ...product, inStock: (product.inventory?.quantity ?? 0) > 0 }}
+              />
+            ))}
+          </ProductGrid>
+          {pagination && pagination.pages > 1 && (
+            <div className="mt-6 flex items-center justify-center gap-2">
+              <button
+                disabled={page <= 1}
+                onClick={() => setPage((p) => p - 1)}
+                className="quick-press rounded-lg border border-line px-4 py-2 text-sm disabled:opacity-40"
+              >
+                Previous
+              </button>
+              <span className="px-2 text-xs text-ink-muted">
+                {pagination.page} / {pagination.pages}
+              </span>
+              <button
+                disabled={page >= pagination.pages}
+                onClick={() => setPage((p) => p + 1)}
+                className="quick-press rounded-lg border border-line px-4 py-2 text-sm disabled:opacity-40"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 }
@@ -202,50 +231,4 @@ function findCategory(tree: CategoryTreeNode[], slug: string): CategoryTreeNode 
     if (child) return child;
   }
   return undefined;
-}
-
-function CategoryRail({ categories, active }: { categories: CategoryTreeNode[]; active?: string }) {
-  return (
-    <ul className="space-y-1 text-sm">
-      <li>
-        <Link
-          to="/products"
-          className={`block rounded-lg px-3 py-2 ${!active ? 'bg-flame-100 font-semibold text-accent' : 'text-ink-muted hover:bg-accent-soft'}`}
-        >
-          All products
-        </Link>
-      </li>
-      {categories.map((category) => (
-        <CategoryBranch key={category.id} category={category} active={active} depth={0} />
-      ))}
-    </ul>
-  );
-}
-
-function CategoryBranch({
-  category,
-  active,
-  depth,
-}: {
-  category: CategoryTreeNode;
-  active?: string;
-  depth: number;
-}) {
-  const children = category.children ?? [];
-  return (
-    <>
-      <li>
-        <Link
-          to={`/products/${category.slug}`}
-          style={{ paddingLeft: `${12 + depth * 12}px` }}
-          className={`block rounded-lg py-2 pr-3 ${active === category.slug ? 'bg-flame-100 font-semibold text-accent' : 'text-ink-muted hover:bg-accent-soft'}`}
-        >
-          {category.name}
-        </Link>
-      </li>
-      {children.map((child) => (
-        <CategoryBranch key={child.id} category={child} active={active} depth={depth + 1} />
-      ))}
-    </>
-  );
 }

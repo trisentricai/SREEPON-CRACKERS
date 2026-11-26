@@ -1,9 +1,10 @@
 import { useQuery } from '@tanstack/react-query';
-import { ArrowUp, Bag2, Heart, Logout, Search, Star, User } from 'react-iconly';
-import { useState, type FormEvent } from 'react';
+import { ArrowUp, Bag2, Heart, Location, Logout, Send, Star, User } from 'react-iconly';
+import { useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { api } from '@/api/client';
 import type { ApiEnvelope, Cart } from '@/api/types';
+import { QuickCartBar, QuickSearch } from '@/components/quick-commerce-ui';
 import { BrandMark } from '@/components/storefront-ui';
 import { SITE } from '@/config/env';
 import { useAuth } from '@/features/auth/context/auth-context';
@@ -30,13 +31,31 @@ export function AppShell() {
   return (
     <div className="flex min-h-screen flex-col bg-white text-ink">
       <SiteHeader />
-      <main className="flex-1">
+      <main className="flex-1 pb-20 sm:pb-0">
         <Outlet />
       </main>
       <SiteFooter />
+      <ShellCartBar />
       <WhatsAppFab />
     </div>
   );
+}
+
+/** Floating cart bar — the persistent quick-commerce checkout entry point. */
+function ShellCartBar() {
+  const { isAuthenticated } = useAuth();
+  const cart = useQuery({
+    queryKey: ['cart'],
+    queryFn: async () => {
+      const { data } = await api.get<ApiEnvelope<Cart>>('/cart');
+      return data.data;
+    },
+    enabled: isAuthenticated,
+    staleTime: 30_000,
+  });
+
+  if (!isAuthenticated || !cart.data || cart.data.totalQuantity <= 0) return null;
+  return <QuickCartBar quantity={cart.data.totalQuantity} subtotal={cart.data.subtotal} />;
 }
 
 /**
@@ -59,7 +78,7 @@ function WhatsAppFab() {
       target="_blank"
       rel="noreferrer noopener"
       aria-label="Chat with us on WhatsApp"
-      className="fixed bottom-5 right-5 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-white shadow-md transition duration-200 hover:-translate-y-0.5 hover:bg-accent/90 active:scale-95"
+      className="quick-fab-clear fixed right-4 z-40 flex h-12 w-12 items-center justify-center rounded-full bg-accent text-white shadow-md transition duration-200 hover:-translate-y-0.5 hover:bg-accent/90 active:scale-95 sm:bottom-5 sm:right-5 sm:h-14 sm:w-14"
     >
       <svg viewBox="0 0 24 24" className="h-7 w-7" fill="currentColor" aria-hidden>
         <path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.95 1.17-.17.2-.35.22-.65.07-.3-.15-1.26-.46-2.4-1.48-.89-.79-1.49-1.77-1.66-2.07-.17-.3-.02-.46.13-.61.14-.14.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.38-.02-.53-.08-.15-.68-1.63-.93-2.23-.24-.58-.49-.5-.67-.51h-.57c-.2 0-.52.07-.79.37-.27.3-1.03 1.01-1.03 2.46s1.06 2.86 1.2 3.06c.15.2 2.07 3.17 5.02 4.44.7.3 1.25.48 1.68.62.7.22 1.35.19 1.86.11.57-.08 1.76-.72 2-1.41.25-.7.25-1.29.18-1.41-.08-.13-.28-.2-.58-.35Zm-5.42 7.1h-.01a9.9 9.9 0 0 1-5.04-1.38l-.36-.21-3.75.98 1-3.65-.23-.38a9.87 9.87 0 0 1-1.52-5.27c0-5.46 4.45-9.9 9.92-9.9a9.86 9.86 0 0 1 7.01 2.9 9.83 9.83 0 0 1 2.9 7c0 5.46-4.45 9.9-9.92 9.9Zm8.43-18.34A11.82 11.82 0 0 0 12.05 0C5.5 0 .17 5.33.17 11.88c0 2.09.55 4.14 1.6 5.94L.07 24l6.33-1.66a11.85 11.85 0 0 0 5.65 1.44h.01c6.55 0 11.88-5.33 11.88-11.88 0-3.17-1.24-6.15-3.48-8.39Z" />
@@ -84,90 +103,93 @@ function SiteHeader() {
   });
 
   const navLink = ({ isActive }: { isActive: boolean }) =>
-    `rounded-full px-3.5 py-2 text-sm font-medium transition duration-200 ${
+    `rounded-full px-3 py-1.5 text-sm font-medium transition duration-200 ${
       isActive ? 'bg-accent-soft text-accent' : 'text-ink-muted hover:bg-surface hover:text-ink'
     }`;
 
-  function onSearch(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const trimmed = search.trim();
-    navigate(trimmed ? `/products?search=${encodeURIComponent(trimmed)}` : '/products');
+  function onSearch(value: string) {
+    navigate(value ? `/products?q=${encodeURIComponent(value)}` : '/products');
   }
 
   return (
     <header className="material-nav sticky top-0 z-40">
-      <div className="mx-auto flex h-[72px] max-w-5xl items-center gap-3 px-4 sm:gap-4 sm:px-6">
-        <BrandMark name={SITE.name} />
+      <div className="mx-auto max-w-6xl px-4">
+        <div className="flex h-14 items-center gap-3 sm:h-16">
+          <BrandMark name={SITE.name} />
 
-        <nav className="ml-1 hidden items-center gap-0.5 md:flex" aria-label="Main">
-          <NavLink to="/" end className={navLink}>
-            Home
-          </NavLink>
-          <NavLink to="/products" className={navLink}>
-            Shop
-          </NavLink>
-          <NavLink to="/orders" className={navLink}>
-            Orders
-          </NavLink>
-        </nav>
+          <span className="ml-2 hidden items-center gap-1.5 rounded-full bg-surface px-3 py-1.5 text-xs font-medium text-ink-muted lg:inline-flex">
+            <Location className="h-4 w-4 text-accent" />
+            Delivering near you
+            <span className="text-accent">· 10–15 min</span>
+          </span>
 
-        <form onSubmit={onSearch} role="search" className="ml-auto hidden min-w-0 flex-1 justify-end sm:flex">
-          <label className="relative w-full max-w-[220px]">
-            <span className="sr-only">Search products</span>
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-ink-muted" />
-            <input
-              type="search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search…"
-              className="h-10 w-full rounded-full border border-line bg-white pl-10 pr-4 text-sm text-ink placeholder:text-ink-muted/70 transition focus:border-accent focus:outline-none"
-            />
-          </label>
-        </form>
+          <nav className="ml-2 hidden items-center gap-0.5 md:flex" aria-label="Main">
+            <NavLink to="/" end className={navLink}>
+              Home
+            </NavLink>
+            <NavLink to="/products" className={navLink}>
+              Shop
+            </NavLink>
+            <NavLink to="/orders" className={navLink}>
+              Orders
+            </NavLink>
+          </nav>
 
-        <div className="ml-auto flex items-center gap-1 sm:ml-0">
-          <Link
-            to="/wishlist"
-            aria-label="Wishlist"
-            className="grid h-11 w-11 place-items-center rounded-full text-ink-muted transition duration-200 hover:bg-accent-soft hover:text-accent active:scale-95"
-          >
-            <Heart className="h-5 w-5" />
-          </Link>
-          <Link
-            to="/cart"
-            aria-label={`Cart${(cartCount.data?.totalQuantity ?? 0) > 0 ? `, ${cartCount.data?.totalQuantity} items` : ''}`}
-            className="relative grid h-11 w-11 place-items-center rounded-full text-ink-muted transition duration-200 hover:bg-accent-soft hover:text-accent active:scale-95"
-          >
-            <Bag2 className="h-5 w-5" />
-            {!isLoading && isAuthenticated && (cartCount.data?.totalQuantity ?? 0) > 0 && (
-              <span className="absolute right-0 top-0 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-accent px-1 text-[10px] font-bold leading-none text-white">
-                {cartCount.data?.totalQuantity ?? 0}
-              </span>
-            )}
-          </Link>
+          <div className="ml-auto flex items-center gap-0.5 sm:gap-1">
+            <Link
+              to="/wishlist"
+              aria-label="Wishlist"
+              className="grid h-10 w-10 place-items-center rounded-full text-ink-muted transition duration-200 hover:bg-accent-soft hover:text-accent active:scale-95"
+            >
+              <Heart className="h-5 w-5" />
+            </Link>
+            <Link
+              to="/cart"
+              aria-label={`Cart${(cartCount.data?.totalQuantity ?? 0) > 0 ? `, ${cartCount.data?.totalQuantity} items` : ''}`}
+              className="relative grid h-10 w-10 place-items-center rounded-full text-ink-muted transition duration-200 hover:bg-accent-soft hover:text-accent active:scale-95"
+            >
+              <Bag2 className="h-5 w-5" />
+              {!isLoading && isAuthenticated && (cartCount.data?.totalQuantity ?? 0) > 0 && (
+                <span className="absolute right-0 top-0 grid h-[18px] min-w-[18px] place-items-center rounded-full bg-accent px-1 text-[10px] font-bold leading-none text-white">
+                  {cartCount.data?.totalQuantity ?? 0}
+                </span>
+              )}
+            </Link>
 
-          {isLoading ? null : isAuthenticated ? (
-            <>
+            {isLoading ? null : isAuthenticated ? (
+              <>
+                <Link
+                  to="/profile"
+                  className="hidden h-10 items-center gap-1.5 rounded-full px-2.5 text-sm font-medium text-ink-muted transition hover:bg-surface hover:text-ink sm:inline-flex"
+                >
+                  <User className="h-4 w-4" />
+                  Profile
+                </Link>
+                <button
+                  onClick={() => void logout()}
+                  aria-label="Log out"
+                  className="grid h-10 w-10 place-items-center rounded-full text-ink-muted transition duration-200 hover:bg-surface hover:text-ink active:scale-95"
+                >
+                  <Logout className="h-[18px] w-[18px]" />
+                </button>
+              </>
+            ) : (
               <Link
                 to="/profile"
-                className="hidden h-11 items-center gap-1.5 rounded-full px-3 text-sm font-medium text-ink-muted transition hover:bg-surface hover:text-ink sm:inline-flex"
+                className="quick-press inline-flex items-center rounded-full bg-accent px-4 py-2 text-sm font-semibold text-white hover:bg-accent/90"
               >
-                <User className="h-4 w-4" />
-                Profile
+                Sign in
               </Link>
-              <button
-                onClick={() => void logout()}
-                aria-label="Log out"
-                className="grid h-11 w-11 place-items-center rounded-full text-ink-muted transition duration-200 hover:bg-surface hover:text-ink active:scale-95"
-              >
-                <Logout className="h-[18px] w-[18px]" />
-              </button>
-            </>
-          ) : (
-            <Link to="/profile" className="pill-cta inline-flex items-center bg-accent px-5 text-sm text-white hover:bg-accent/90">
-              Sign in
-            </Link>
-          )}
+            )}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3 pb-2.5">
+          <span className="hidden shrink-0 items-center gap-1.5 text-xs font-semibold text-accent sm:inline-flex">
+            <Send className="h-4 w-4" />
+            10–15 min
+          </span>
+          <QuickSearch value={search} onChange={setSearch} onSubmit={onSearch} className="flex-1" />
         </div>
       </div>
     </header>
@@ -189,7 +211,9 @@ function SiteFooter() {
     { label: 'Track your order', to: '/orders' },
     { label: 'My wishlist', to: '/wishlist' },
     { label: 'Cart', to: '/cart' },
-    ...(store?.supportEmail ? [{ label: store.supportEmail, href: `mailto:${store.supportEmail}` }] : []),
+    ...(store?.supportEmail
+      ? [{ label: store.supportEmail, href: `mailto:${store.supportEmail}` }]
+      : []),
     ...(store?.supportPhone
       ? [{ label: store.supportPhone, href: `tel:${store.supportPhone.replace(/\s+/g, '')}` }]
       : []),
@@ -203,13 +227,15 @@ function SiteFooter() {
     { key: 'instagram', url: social?.instagramUrl, label: 'Instagram', path: INSTAGRAM_PATH },
     { key: 'facebook', url: social?.facebookUrl, label: 'Facebook', path: FACEBOOK_PATH },
     { key: 'youtube', url: social?.youtubeUrl, label: 'YouTube', path: YOUTUBE_PATH },
-  ].filter((entry): entry is { key: string; url: string; label: string; path: string } => Boolean(entry.url));
+  ].filter((entry): entry is { key: string; url: string; label: string; path: string } =>
+    Boolean(entry.url),
+  );
 
   const scrollTop = () => window.scrollTo({ top: 0, behavior: 'smooth' });
 
   return (
     <footer className="border-t border-line bg-surface-warm">
-      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
           <div className="max-w-xs">
             <BrandMark name={store?.name || SITE.name} />
@@ -255,8 +281,8 @@ function SiteFooter() {
         <div className="mt-6 flex flex-col gap-3 border-t border-line pt-5 text-xs text-ink-muted sm:flex-row sm:items-center sm:justify-between">
           <p>
             © {new Date().getFullYear()} {store?.name || SITE.name}.
-            {settings.data?.tax.gstin ? ` GSTIN ${settings.data.tax.gstin}.` : ''} Fresh essentials, delivered in
-            minutes.
+            {settings.data?.tax.gstin ? ` GSTIN ${settings.data.tax.gstin}.` : ''} Fresh essentials,
+            delivered in minutes.
           </p>
           <button
             onClick={scrollTop}
@@ -285,11 +311,17 @@ function FooterCol({
         {links.map((link) => (
           <li key={`${link.label}-${link.to ?? link.href ?? ''}`}>
             {link.href ? (
-              <a href={link.href} className="break-all text-ink-muted transition-colors hover:text-accent">
+              <a
+                href={link.href}
+                className="break-all text-ink-muted transition-colors hover:text-accent"
+              >
                 {link.label}
               </a>
             ) : (
-              <Link to={link.to ?? '/'} className="text-ink-muted transition-colors hover:text-accent">
+              <Link
+                to={link.to ?? '/'}
+                className="text-ink-muted transition-colors hover:text-accent"
+              >
                 {link.label}
               </Link>
             )}

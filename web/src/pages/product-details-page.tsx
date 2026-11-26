@@ -44,9 +44,12 @@ export function ProductDetailsPage() {
   const addToCart = useMutation({
     mutationFn: async () => {
       if (!productQuery.data) throw new Error('Product not loaded');
-      const unit = productQuery.data.unit === 'BOX' || productQuery.data.unit === 'PACKET' || productQuery.data.unit === 'SINGLE'
-        ? productQuery.data.unit
-        : 'BOX';
+      const unit =
+        productQuery.data.unit === 'BOX' ||
+        productQuery.data.unit === 'PACKET' ||
+        productQuery.data.unit === 'SINGLE'
+          ? productQuery.data.unit
+          : 'BOX';
       const { data } = await api.post<ApiEnvelope<Cart>>('/cart/items', {
         productId: productQuery.data.id,
         quantity,
@@ -64,9 +67,12 @@ export function ProductDetailsPage() {
   const addToWishlist = useMutation({
     mutationFn: async () => {
       if (!productQuery.data) throw new Error('Product not loaded');
-      const { data } = await api.post<ApiEnvelope<{ item: unknown; created: boolean }>>('/wishlist/items', {
-        productId: productQuery.data.id,
-      });
+      const { data } = await api.post<ApiEnvelope<{ item: unknown; created: boolean }>>(
+        '/wishlist/items',
+        {
+          productId: productQuery.data.id,
+        },
+      );
       return data.data;
     },
     onSuccess: () => {
@@ -121,8 +127,9 @@ export function ProductDetailsPage() {
 
   if (productQuery.isLoading) {
     return (
-      <section className="mx-auto max-w-5xl px-4 py-12">
-        <Skeleton className="h-4 w-64 rounded-lg" />        <div className="mt-8 grid gap-10 lg:grid-cols-2">
+      <section className="mx-auto max-w-6xl px-4 py-8">
+        <Skeleton className="h-4 w-64 rounded-lg" />
+        <div className="mt-4 grid gap-6 lg:grid-cols-2">
           <div>
             <Skeleton className="aspect-square rounded-xl" />
             <div className="mt-3 flex gap-2">
@@ -144,7 +151,7 @@ export function ProductDetailsPage() {
 
   if (productQuery.isError || !productQuery.data) {
     return (
-      <section className="mx-auto max-w-5xl px-4 py-12">
+      <section className="mx-auto max-w-6xl px-4 py-12">
         <ErrorState error={productQuery.error} />
       </section>
     );
@@ -156,9 +163,11 @@ export function ProductDetailsPage() {
   const inStock = productInStock;
 
   return (
-    <section className="mx-auto max-w-5xl px-4 py-8">
-      <nav className="text-sm text-ink-muted">
-        <Link to="/products" className="hover:text-accent">Catalogue</Link>
+    <section className="mx-auto max-w-6xl px-4 py-5">
+      <nav className="text-xs text-ink-muted">
+        <Link to="/products" className="hover:text-accent">
+          Catalogue
+        </Link>
         {product.category && (
           <>
             {' / '}
@@ -171,10 +180,10 @@ export function ProductDetailsPage() {
         <span className="text-ink-muted">{product.name}</span>
       </nav>
 
-      <div className="mt-6 grid gap-10 lg:grid-cols-2">
+      <div className="mt-4 grid gap-6 lg:grid-cols-2">
         {/* Gallery */}
         <Reveal>
-          <div className="aspect-square overflow-hidden rounded-xl border border-line bg-surface shadow-card">
+          <div className="aspect-square overflow-hidden rounded-lg border border-line bg-surface-warm shadow-card">
             {images ? (
               <img
                 src={images[activeImage]?.url}
@@ -189,12 +198,12 @@ export function ProductDetailsPage() {
             )}
           </div>
           {images && images.length > 1 && (
-            <div className="mt-3 flex gap-2">
+            <div className="mt-2 flex gap-2">
               {images.map((image, index) => (
                 <button
                   key={image.id}
                   onClick={() => setActiveImage(index)}
-                  className={`h-20 w-20 overflow-hidden rounded-lg border-2 transition ${index === activeImage ? 'border-flame-600 shadow-sm' : 'border-transparent hover:border-flame-200'}`}
+                  className={`h-14 w-14 overflow-hidden rounded border-2 transition ${index === activeImage ? 'border-accent shadow-sm' : 'border-transparent hover:border-line'}`}
                 >
                   <img
                     src={image.url}
@@ -214,23 +223,33 @@ export function ProductDetailsPage() {
             {product.isFeatured && <Badge tone="orange">Featured</Badge>}
             <Badge tone={inStock ? 'green' : 'red'}>{inStock ? 'In stock' : 'Out of stock'}</Badge>
           </div>
-          <h1 className="mt-3 font-display text-3xl font-bold text-ink">{product.name}</h1>
-          {product.shortDescription && <p className="mt-2 text-ink-muted">{product.shortDescription}</p>}
+          <h1 className="mt-2 font-display text-2xl font-semibold text-ink">{product.name}</h1>
+          {product.shortDescription && (
+            <p className="mt-1 text-sm text-ink-muted">{product.shortDescription}</p>
+          )}
 
-          <div className="mt-4 flex items-baseline gap-3">
-            <span className="text-3xl font-extrabold text-accent">{formatMoney(product.basePrice)}</span>
+          <div className="mt-3 flex items-baseline gap-2">
+            <span className="text-2xl font-bold text-ink">{formatMoney(product.basePrice)}</span>
             {product.mrpPrice && (
-              <span className="text-lg text-ink-muted/70 line-through">{formatMoney(product.mrpPrice)}</span>
+              <span className="text-sm text-ink-muted/70 line-through">
+                {formatMoney(product.mrpPrice)}
+              </span>
             )}
             {discount !== null && <Badge tone="red">{discount}% off</Badge>}
           </div>
-          <p className="mt-1 text-sm text-ink-muted">per {formatUnit(product.unit).toLowerCase()}</p>
+          <p className="mt-0.5 inline-flex items-center gap-1.5 text-xs font-medium text-accent">
+            <Send className="h-3.5 w-3.5" /> Delivered in 10–15 min · per{' '}
+            {formatUnit(product.unit).toLowerCase()}
+          </p>
 
-          <dl className="mt-6 grid grid-cols-2 gap-4 rounded-xl border border-line bg-white p-5 text-sm shadow-card">
+          <dl className="mt-4 grid grid-cols-2 gap-3 rounded-lg border border-line bg-white p-4 text-sm shadow-card">
             <div className="relative">
               <dt className="text-ink-muted">SKU</dt>
               <dd className="font-medium text-ink">{product.sku}</dd>
-              <span className="absolute -left-2 top-0 h-full w-0.5 rounded-full bg-flame-200" aria-hidden />
+              <span
+                className="absolute -left-2 top-0 h-full w-0.5 rounded-full bg-accent-soft"
+                aria-hidden
+              />
             </div>
             <div>
               <dt className="text-ink-muted">Unit</dt>
@@ -257,9 +276,9 @@ export function ProductDetailsPage() {
           </dl>
 
           {product.description && (
-            <div className="mt-6">
-              <h2 className="mb-2 flex items-center gap-2 text-lg font-semibold text-ink">
-                <span className="h-4 w-1 rounded-full bg-flame-500" aria-hidden />
+            <div className="mt-4">
+              <h2 className="mb-2 flex items-center gap-2 text-base font-semibold text-ink">
+                <span className="h-4 w-1 rounded-full bg-accent" aria-hidden />
                 Description
               </h2>
               <p className="whitespace-pre-line text-sm text-ink-muted">{product.description}</p>
@@ -267,20 +286,23 @@ export function ProductDetailsPage() {
           )}
 
           {/* Actions */}
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <div className="flex items-center gap-3">
-              <span className="text-sm text-ink-muted">Qty</span>
-              <div className="flex items-center rounded-full border border-line bg-white shadow-sm">
+          <div className="mt-5 flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-2">
+              <span className="text-xs font-medium text-ink-muted">Qty</span>
+              <div className="flex items-center rounded border border-line bg-white shadow-sm">
                 <button
                   type="button"
                   onClick={() => setQuantity((q) => Math.max(1, q - 1))}
                   disabled={!isAuthenticated || !inStock || quantity <= 1}
                   aria-label="Decrease quantity"
-                  className="flex h-9 w-9 items-center justify-center rounded-l-full text-ink transition hover:bg-accent-soft active:scale-95 disabled:opacity-40"
+                  className="quick-press flex h-8 w-8 items-center justify-center rounded-l text-ink hover:bg-accent-soft active:scale-95 disabled:opacity-40"
                 >
                   <MinusIcon className="h-4 w-4" />
                 </button>
-                <span className="w-9 text-center text-sm font-bold tabular-nums text-ink" aria-live="polite">
+                <span
+                  className="w-8 text-center text-xs font-bold tabular-nums text-ink"
+                  aria-live="polite"
+                >
                   {quantity}
                 </span>
                 <button
@@ -288,7 +310,7 @@ export function ProductDetailsPage() {
                   onClick={() => setQuantity((q) => Math.min(10, q + 1))}
                   disabled={!isAuthenticated || !inStock || quantity >= 10}
                   aria-label="Increase quantity"
-                  className="flex h-9 w-9 items-center justify-center rounded-r-full text-ink transition hover:bg-accent-soft active:scale-95 disabled:opacity-40"
+                  className="quick-press flex h-8 w-8 items-center justify-center rounded-r text-ink hover:bg-accent-soft active:scale-95 disabled:opacity-40"
                 >
                   <Plus className="h-4 w-4" />
                 </button>
@@ -297,28 +319,28 @@ export function ProductDetailsPage() {
             <button
               onClick={() => addToCart.mutate()}
               disabled={!isAuthenticated || !inStock || addToCart.isPending}
-              className="rounded-full bg-accent px-7 py-2.5 font-semibold text-white shadow-cta transition duration-200 hover:-translate-y-0.5 hover:bg-accent/90 active:scale-95 disabled:translate-y-0 disabled:opacity-50"
+              className="quick-press inline-flex h-9 items-center rounded border border-accent bg-accent px-5 text-sm font-bold uppercase tracking-wide text-white shadow-sm transition hover:bg-accent/90 disabled:opacity-50"
             >
               {addToCart.isPending ? 'Adding…' : 'Add to cart'}
             </button>
             <button
               onClick={() => addToWishlist.mutate()}
               disabled={!isAuthenticated || addToWishlist.isPending}
-              className="rounded-full border border-flame-300 px-6 py-2.5 font-semibold text-accent transition duration-200 hover:bg-accent-soft active:scale-95 disabled:opacity-50"
+              className="quick-press inline-flex h-9 items-center rounded border border-line px-4 text-sm font-semibold text-accent transition hover:bg-accent-soft disabled:opacity-50"
             >
               {addToWishlist.isPending ? 'Saving…' : 'Add to wishlist'}
             </button>
           </div>
 
-          <div className="mt-6 flex flex-wrap items-center gap-x-6 gap-y-2 rounded-xl border border-line bg-white p-4 text-sm text-ink-muted shadow-card">
+          <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-2 rounded-lg border border-line bg-surface-warm p-3 text-xs text-ink-muted">
             <span className="inline-flex items-center gap-1.5">
-              <Send className="h-4 w-4 text-indigo-600" /> Delivered in 10–15 min
+              <Send className="h-4 w-4 text-accent" /> Delivered in 10–15 min
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <ShieldDone className="h-4 w-4 text-indigo-600" /> Fresh stock guaranteed
+              <ShieldDone className="h-4 w-4 text-accent" /> Fresh stock guaranteed
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <Paper className="h-4 w-4 text-indigo-600" /> GST invoice on every order
+              <Paper className="h-4 w-4 text-accent" /> GST invoice on every order
             </span>
           </div>
 

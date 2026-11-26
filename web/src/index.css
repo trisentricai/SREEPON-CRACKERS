@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 /* ------------------------------------------------------------------ */
 /* SriPon storefront tokens — Apple/Morrow-style neutral + blue.       */
@@ -7,8 +7,10 @@
 /* ------------------------------------------------------------------ */
 
 @theme {
-  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", sans-serif;
-  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Segoe UI", sans-serif;
+  --font-sans:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', sans-serif;
+  --font-display:
+    -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', sans-serif;
   --default-font-family: var(--font-sans);
 
   /* Neutral surface ramp — warm tints become cool grays. */
@@ -77,14 +79,14 @@
 
   /* Neutral elevation scale. */
   --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.06);
-  --shadow-md: 0 12px 34px rgb(0 0 0 / 0.10);
+  --shadow-md: 0 12px 34px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 28px 80px rgb(0 0 0 / 0.16);
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.06);
-  --shadow-lifted: 0 12px 34px rgb(0 0 0 / 0.10);
-  --shadow-pop: 0 12px 34px rgb(0 0 0 / 0.10);
+  --shadow-lifted: 0 12px 34px rgb(0 0 0 / 0.1);
+  --shadow-pop: 0 12px 34px rgb(0 0 0 / 0.1);
   --shadow-cta: 0 12px 34px rgb(0 113 227 / 0.22);
   --shadow-material: 0 1px 2px rgb(0 0 0 / 0.06);
-  --shadow-material-lg: 0 12px 34px rgb(0 0 0 / 0.10);
+  --shadow-material-lg: 0 12px 34px rgb(0 0 0 / 0.1);
 
   /* Shape scale — rounded-xl is the 24px card radius. */
   --radius-card: 24px;
@@ -201,11 +203,49 @@
 
   /* Spring hover lift for cards/buttons. */
   .spring-lift {
-    transition: transform 320ms var(--ease-spring), box-shadow 320ms var(--ease-spring);
+    transition:
+      transform 320ms var(--ease-spring),
+      box-shadow 320ms var(--ease-spring);
   }
   .spring-lift:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-md);
+  }
+
+  /* Zepto-style dense rails: no visible scrollbar, snap to each tile. */
+  .quick-scroll {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-x: contain;
+  }
+  .quick-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  .quick-scroll > * {
+    scroll-snap-align: start;
+  }
+
+  /* Compact press feedback used by add buttons, steppers and chips. */
+  .quick-press {
+    transition:
+      transform 160ms var(--ease-spring),
+      background-color 160ms var(--ease-spring),
+      border-color 160ms var(--ease-spring),
+      box-shadow 160ms var(--ease-spring);
+  }
+  .quick-press:active {
+    transform: scale(0.94);
+  }
+
+  /* Floating cart bar lifts the WhatsApp FAB clear on small screens. */
+  .quick-fab-clear {
+    bottom: 6.5rem;
+  }
+  @media (min-width: 640px) {
+    .quick-fab-clear {
+      bottom: 1.25rem;
+    }
   }
 
   /* Pill CTA — mockup geometry with press feedback. */
@@ -213,7 +253,9 @@
     border-radius: 980px;
     padding: 0.75rem 1.75rem;
     font-weight: 600;
-    transition: transform 200ms var(--ease-spring), background-color 200ms var(--ease-spring),
+    transition:
+      transform 200ms var(--ease-spring),
+      background-color 200ms var(--ease-spring),
       box-shadow 200ms var(--ease-spring);
   }
   .pill-cta:hover {
